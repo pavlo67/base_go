@@ -3,6 +3,8 @@ package files01
 import (
 	"os"
 	"time"
+
+	"github.com/pavlo67/data/entities"
 )
 
 type Operator interface {
@@ -10,7 +12,7 @@ type Operator interface {
 	Read(path string) ([]byte, error)
 	Remove(path string) error
 	List(path string, depth int) (Items, error)
-	Stat(path string, depth int) (*Item, error)
+	Stat(path string, depth int) (*entities.Stat, error)
 }
 
 type Item struct {

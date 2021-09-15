@@ -8,7 +8,8 @@ import (
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/starter"
-	"github.com/pavlo67/data/types/files01"
+
+	"github.com/pavlo67/data/entities/files01"
 )
 
 func TestFilesFS(t *testing.T) {

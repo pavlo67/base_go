@@ -11,7 +11,8 @@ import (
 	"github.com/pavlo67/common/common/joiner"
 	"github.com/pavlo67/common/common/logger"
 	"github.com/pavlo67/common/common/starter"
-	"github.com/pavlo67/data/types/files01"
+
+	"github.com/pavlo67/data/entities/files01"
 )
 
 func Starter() starter.Operator {

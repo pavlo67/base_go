@@ -1,4 +1,4 @@
-package types
+package entities
 
 import (
 	"github.com/pavlo67/common/common"

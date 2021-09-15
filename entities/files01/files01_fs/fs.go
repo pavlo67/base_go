@@ -7,11 +7,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/pavlo67/data/elements/ns"
+	"github.com/pavlo67/data/entities"
+
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/errors"
 	"github.com/pavlo67/common/common/filelib"
 
-	"github.com/pavlo67/data/types/files01"
+	"github.com/pavlo67/data/entities/files01"
 )
 
 var _ files01.Operator = &filesFS{}
@@ -150,7 +153,7 @@ func (filesOp *filesFS) List(path string, depth int) (files01.Items, error) {
 
 const onStat = "on filesFS.Stat()"
 
-func (filesOp *filesFS) Stat(path string, depth int) (*files01.Item, error) {
+func (filesOp *filesFS) Stat(path string, depth int) (*entities.Stat, error) {
 	filePath := filesOp.basePath + path
 
 	fi, err := os.Stat(filePath)
@@ -167,6 +170,11 @@ func (filesOp *filesFS) Stat(path string, depth int) (*files01.Item, error) {
 	}
 
 	fileInfo := filesInfo[0]
+	stat := entities.Stat{
+		NSS:       ns.NSS(fileInfo.Path),
+		TotalSize: fileInfo.Size,
+		CreatedAt: fileInfo.CreatedAt,
+	}
 
 	if depth != 0 && fileInfo.IsDir {
 		// TODO: process depth > 0 more thoroughly here
@@ -175,14 +183,12 @@ func (filesOp *filesFS) Stat(path string, depth int) (*files01.Item, error) {
 				return err
 			}
 
-			if !fi.IsDir() {
-				fileInfo.Size += fi.Size()
-			}
-
+			stat.ChldCount++
+			stat.TotalSize += fi.Size()
 			return nil
 		})
 	}
 
-	return &fileInfo, err
+	return &stat, err
 
 }
