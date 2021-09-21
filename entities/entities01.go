@@ -4,8 +4,7 @@ import (
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/common/common/rbac"
-
-	"github.com/pavlo67/data/elements/item"
+	"github.com/pavlo67/data/elements/crud"
 )
 
 // persons -------------------------------------------------------------
@@ -15,7 +14,7 @@ type Person struct {
 	rbac.Roles       `           json:",omitempty" bson:",omitempty"`
 	auth.Creds       `           json:",omitempty" bson:",omitempty"`
 	Info             common.Map `json:",omitempty" bson:",omitempty"`
-	item.Description `           json:",inline"    bson:",inline"`
+	crud.Description `           json:",inline"    bson:",inline"`
 }
 
 // records -------------------------------------------------------------
@@ -30,5 +29,5 @@ type Content struct {
 type Record struct {
 	Content          `          json:",inline" bson:",inline"`
 	Embedded         []Content `json:",omitempty" bson:",omitempty"`
-	item.Description `          json:",inline" bson:",inline"`
+	crud.Description `          json:",inline" bson:",inline"`
 }
