@@ -5,13 +5,21 @@ import (
 	"github.com/pavlo67/data/elements/selectors"
 )
 
+type Type common.IDStr
 type ID common.IDStr
 
-type Operator interface {
-	Save(ID, interface{}) (ID, error)
-	Read(ID) (interface{}, error)
-	List(selectors.Options) ([]interface{}, error)
-	Delete(ID) error
+type Key struct {
+	Type
+	ID
+}
 
-	CheckIfEqual(expected interface{}, expectedID ID, toCheck interface{}) error
+type Operator interface {
+	Types() ([]Type, error)
+
+	Save(Key, interface{}) (*Key, error)
+	Read(Key) (interface{}, error)
+	List(Type, selectors.Options) ([]interface{}, error)
+	Remove(Key) error
+
+	CheckIfEqual(expectedKey Key, expected interface{}, toCheck interface{}) error
 }

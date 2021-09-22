@@ -5,14 +5,15 @@ import (
 	"os"
 	"testing"
 
-	"github.com/pavlo67/data/elements/selectors"
-
 	"github.com/stretchr/testify/require"
 
 	"github.com/pavlo67/common/common/db"
+
+	"github.com/pavlo67/data/elements/selectors"
 )
 
 type OperatorTestCase struct {
+	Type
 	Operator
 	db.Cleaner
 
@@ -30,7 +31,7 @@ const numRepeats = 3
 const toReadI = 0   // must be < numRepeats
 const toUpdateI = 1 // must be < numRepeats
 
-func OperatorTest(t *testing.T, testCases []OperatorTestCase) {
+func OperatorTestScenario(t *testing.T, testCases []OperatorTestCase) {
 
 	if env, ok := os.LookupEnv("ENV"); !ok || env != "test" {
 		t.Fatal("No test environment!!!")
@@ -46,32 +47,38 @@ func OperatorTest(t *testing.T, testCases []OperatorTestCase) {
 
 		// test Create --------------------------------------------------------------------------------------
 
-		var ids [numRepeats]ID
+		var keys [numRepeats]Key
 
 		if tc.ExpectedCreateErr {
-			_, err = tc.Save("", tc.ToCreate)
+			_, err = tc.Save(Key{Type: tc.Type}, tc.ToCreate)
 			require.Error(t, err)
 			continue
 		}
 
 		for i := 0; i < numRepeats; i++ {
-			ids[i], err = tc.Save("", tc.ToCreate)
+			key, err := tc.Save(Key{Type: tc.Type}, tc.ToCreate)
+
 			require.NoError(t, err)
-			require.NotEmpty(t, ids[i])
+			require.NotNil(t, key)
+			require.Equal(t, key.Type, tc.Type)
+			require.NotEmpty(t, key.ID)
+
+			keys[i] = *key
+
 		}
 
 		// test Read ----------------------------------------------------------------------------------------
 
 		if tc.ExpectedReadErr {
-			_, err = tc.Read(ids[toReadI])
+			_, err = tc.Read(keys[toReadI])
 			require.Error(t, err)
 			continue
 		}
 
-		readed, err := tc.Read(ids[toReadI])
+		readed, err := tc.Read(keys[toReadI])
 		require.NoError(t, err)
 		require.NotNil(t, readed)
-		testData(t, tc, tc.ToCreate, readed, ids[toReadI])
+		testData(t, tc, tc.ToCreate, readed, keys[toReadI])
 
 		// test List ----------------------------------------------------------------------------------------
 
@@ -84,27 +91,27 @@ func OperatorTest(t *testing.T, testCases []OperatorTestCase) {
 
 		listed, err := tc.List(selectors.Options{})
 		require.NoError(t, err)
-		require.Equal(t, len(ids), len(listed))
+		require.Equal(t, len(keys), len(listed))
 
 		for i, l := range listed {
-			testData(t, tc, tc.ToCreate, l, ids[i])
+			testData(t, tc, tc.ToCreate, l, keys[i])
 		}
 
 		// test Update --------------------------------------------------------------------------------------
 
 		if tc.ExpectedUpdateErr {
-			_, err = tc.Save(ids[toUpdateI], tc.ToUpdate)
+			_, err = tc.Save(keys[toUpdateI], tc.ToUpdate)
 			require.Error(t, err)
 			continue
 		}
 
 		for i := 0; i < 2; i++ {
-			_, err = tc.Save(ids[toUpdateI], tc.ToUpdate)
+			_, err = tc.Save(keys[toUpdateI], tc.ToUpdate)
 			require.NoError(t, err)
 
-			readed, err = tc.Read(ids[toUpdateI])
+			readed, err = tc.Read(keys[toUpdateI])
 			require.NoError(t, err)
-			testData(t, tc, tc.ToUpdate, readed, ids[toUpdateI])
+			testData(t, tc, tc.ToUpdate, readed, keys[toUpdateI])
 		}
 
 		//// can't update absent record
@@ -117,25 +124,25 @@ func OperatorTest(t *testing.T, testCases []OperatorTestCase) {
 		// test DeleteList --------------------------------------------------------------------------------------
 
 		if tc.ExpectedDeleteErr {
-			err = tc.Delete(ids[toUpdateI])
+			err = tc.Remove(keys[toUpdateI])
 			require.Error(t, err)
 
-			readed, err = tc.Read(ids[toUpdateI])
+			readed, err = tc.Read(keys[toUpdateI])
 			require.NoError(t, err)
-			testData(t, tc, tc.ToUpdate, readed, ids[toUpdateI])
+			testData(t, tc, tc.ToUpdate, readed, keys[toUpdateI])
 			continue
 		}
 
-		err = tc.Delete(ids[toUpdateI])
+		err = tc.Remove(keys[toUpdateI])
 		require.NoError(t, err)
 
-		readed, err = tc.Read(ids[toUpdateI])
+		readed, err = tc.Read(keys[toUpdateI])
 		require.Error(t, err)
 		require.Nil(t, readed)
 	}
 }
 
-func testData(t *testing.T, op Operator, expectedData, data interface{}, expectedID ID) {
+func testData(t *testing.T, op Operator, expectedData, data interface{}, expectedID Key) {
 	if expectedData == nil {
 		require.Nil(t, data)
 		return
