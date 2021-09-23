@@ -1,16 +1,17 @@
-package crud
+package types
 
 import (
 	"encoding/json"
 	"time"
 
+	"github.com/pavlo67/data/elements/vcs"
+
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/data/elements/ns"
-	"github.com/pavlo67/data/elements/vcs"
 )
 
-type Description struct {
+type Description01 struct {
 	URN       ns.URN      `json:",omitempty" bson:",omitempty"`
 	Tags      []string    `json:",omitempty" bson:",omitempty"`
 	OwnerNSS  ns.NSS      `json:",omitempty" bson:",omitempty"`
@@ -20,9 +21,9 @@ type Description struct {
 	UpdatedAt *time.Time  `json:",omitempty" bson:",omitempty"`
 }
 
-func (descr *Description) UnfoldFromJSON(tagsBytes, urnBytes, historyBytes []byte) error {
+func (descr *Description01) UnfoldFromJSON(tagsBytes, urnBytes, historyBytes []byte) error {
 	if descr == nil {
-		return errors.New("nil Description to be unfolded")
+		return errors.New("nil Description01 to be unfolded")
 	}
 
 	if len(tagsBytes) > 0 {
@@ -44,7 +45,7 @@ func (descr *Description) UnfoldFromJSON(tagsBytes, urnBytes, historyBytes []byt
 	return nil
 }
 
-func (descr *Description) FoldIntoJSON() (tagsBytes, urnBytes, historyBytes []byte, err error) {
+func (descr *Description01) FoldIntoJSON() (tagsBytes, urnBytes, historyBytes []byte, err error) {
 	if descr == nil {
 		return nil, nil, nil, errors.New("nil persons.Item to be folded")
 	}

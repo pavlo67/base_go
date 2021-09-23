@@ -8,16 +8,15 @@ import (
 	"strings"
 
 	"github.com/pavlo67/data/elements/ns"
-	"github.com/pavlo67/data/entities"
+	"github.com/pavlo67/data/entities/files"
+	"github.com/pavlo67/data/types"
 
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/errors"
 	"github.com/pavlo67/common/common/filelib"
-
-	"github.com/pavlo67/data/entities/files01"
 )
 
-var _ files01.Operator = &filesFS{}
+var _ files.Operator = &filesFS{}
 
 type filesFS struct {
 	basePath string
@@ -25,7 +24,7 @@ type filesFS struct {
 
 const onNew = "on filesFS.New(): "
 
-func New(basePath string) (files01.Operator, db.Cleaner, error) {
+func New(basePath string) (files.Operator, db.Cleaner, error) {
 	filesOp := filesFS{}
 
 	var err error
@@ -112,10 +111,10 @@ func (filesOp *filesFS) Remove(path string) error {
 
 const onList = "on filesFS.Items()"
 
-func (filesOp *filesFS) List(path string, depth int) (files01.Items, error) {
+func (filesOp *filesFS) List(path string, depth int) (files.Items, error) {
 	filePath := filesOp.basePath + path
 
-	var filesInfo files01.Items
+	var filesInfo files.Items
 
 	if depth == 0 {
 		fis, err := ioutil.ReadDir(filePath)
@@ -151,9 +150,9 @@ func (filesOp *filesFS) List(path string, depth int) (files01.Items, error) {
 	return filesInfo, err
 }
 
-const onStat = "on filesFS.Stat()"
+const onStat = "on filesFS.Stat01()"
 
-func (filesOp *filesFS) Stat(path string, depth int) (*entities.Stat, error) {
+func (filesOp *filesFS) Stat(path string, depth int) (*types.Stat01, error) {
 	filePath := filesOp.basePath + path
 
 	fi, err := os.Stat(filePath)
@@ -161,16 +160,16 @@ func (filesOp *filesFS) Stat(path string, depth int) (*entities.Stat, error) {
 		//if os.IsNotExist(err) {
 		//	return nil, nil
 		//}
-		return nil, errors.Wrapf(err, onStat+": can't  os.Stat(%s)", filePath)
+		return nil, errors.Wrapf(err, onStat+": can't  os.Stat01(%s)", filePath)
 	}
 
-	filesInfo, err := files01.Items{}.Append("", fi) // basePath
+	filesInfo, err := files.Items{}.Append("", fi) // basePath
 	if err != nil || len(filesInfo) != 1 {
 		return nil, fmt.Errorf(onStat+": got %#v / %s", filesInfo, err)
 	}
 
 	fileInfo := filesInfo[0]
-	stat := entities.Stat{
+	stat := types.Stat01{
 		NSS:       ns.NSS(fileInfo.Path),
 		TotalSize: fileInfo.Size,
 		CreatedAt: fileInfo.CreatedAt,

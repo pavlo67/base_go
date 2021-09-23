@@ -1,10 +1,9 @@
-package files01
+package files
 
 import (
 	"os"
-	"time"
 
-	"github.com/pavlo67/data/entities"
+	"github.com/pavlo67/data/types"
 )
 
 type Operator interface {
@@ -12,18 +11,10 @@ type Operator interface {
 	Read(path string) ([]byte, error)
 	Remove(path string) error
 	List(path string, depth int) (Items, error)
-	Stat(path string, depth int) (*entities.Stat, error)
+	Stat(path string, depth int) (*types.Stat01, error)
 }
 
-type Item struct {
-	Path string
-	// Name      string
-	IsDir     bool
-	Size      int64
-	CreatedAt time.Time
-}
-
-type Items []Item
+type Items []types.File01
 
 func (fis Items) Append(basePath string, info os.FileInfo) (Items, error) {
 	path := info.Name()
@@ -36,14 +27,14 @@ func (fis Items) Append(basePath string, info os.FileInfo) (Items, error) {
 		if path != "" && path[len(path)-1] != '/' {
 			path += "/"
 		}
-		fis = append(fis, Item{
+		fis = append(fis, types.File01{
 			Path: path,
 			// Path:      path[len(basePath):],
 			IsDir:     true,
 			CreatedAt: info.ModTime(),
 		})
 	} else {
-		fis = append(fis, Item{
+		fis = append(fis, types.File01{
 			Path: path,
 			// Path:      path[len(basePath):],
 			Size:      info.Size(),
