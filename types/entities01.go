@@ -1,28 +1,23 @@
 package types
 
 import (
-	"time"
-
 	"github.com/pavlo67/common/common"
-	"github.com/pavlo67/common/common/auth"
-	"github.com/pavlo67/common/common/rbac"
+	"github.com/pavlo67/data/elements/contacts"
 )
 
-type File01 struct {
-	Path        string        `json:",omitempty" bson:",omitempty"`
-	IsDir       bool          `json:",omitempty" bson:",omitempty"`
-	Size        int64         `json:",omitempty" bson:",omitempty"`
-	CreatedAt   time.Time     `json:",omitempty" bson:",omitempty"`
-	Description Description01 `json:",inline"    bson:",inline"`
-}
+// person ------------------------------------------------------------
 
 type Person01 struct {
-	Nickname    string     `   json:",omitempty" bson:",omitempty"`
-	Info        common.Map `   json:",omitempty" bson:",omitempty"`
-	rbac.Roles  `              json:",omitempty" bson:",omitempty"`
-	auth.Creds  `              json:",omitempty" bson:",omitempty"`
-	Description Description01 `json:",inline"    bson:",inline"`
+	Firstnames  []string        `json:",omitempty" bson:",omitempty"`
+	Middlename  string          `json:",omitempty" bson:",omitempty"`
+	Lastname    string          `json:",omitempty" bson:",omitempty"`
+	Nicknames   []string        `json:",omitempty" bson:",omitempty"`
+	Contacts    []contacts.Item `json:",omitempty" bson:",omitempty"`
+	Info        common.Map      `json:",omitempty" bson:",omitempty"`
+	Description Description01   `json:",inline"    bson:",inline"`
 }
+
+// record ------------------------------------------------------------
 
 type Content01 struct {
 	Title   string `json:",omitempty" bson:",omitempty"`
@@ -31,8 +26,17 @@ type Content01 struct {
 	Data    string `json:",omitempty" bson:",omitempty"`
 }
 
-type Record struct {
+type Record01 struct {
 	Content01   `              json:",inline"    bson:",inline"`
 	Embedded    []Content01   `json:",omitempty" bson:",omitempty"`
+	Description Description01 `json:",inline"    bson:",inline"`
+}
+
+// file --------------------------------------------------------------
+
+type File01 struct {
+	Path        string        `json:",omitempty" bson:",omitempty"`
+	IsDir       bool          `json:",omitempty" bson:",omitempty"`
+	Size        int64         `json:",omitempty" bson:",omitempty"`
 	Description Description01 `json:",inline"    bson:",inline"`
 }

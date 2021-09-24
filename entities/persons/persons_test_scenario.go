@@ -4,16 +4,26 @@ import (
 	"os"
 	"testing"
 
+	"github.com/pavlo67/common/common/joiner"
+
 	"github.com/stretchr/testify/require"
 
+	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/rbac"
 
+	"github.com/pavlo67/data/elements/contacts"
 	"github.com/pavlo67/data/types"
 )
 
-func OperatorTestScenario(t *testing.T, personsOp Operator, personsCleanerOp db.Cleaner) {
+func OperatorTestScenario(t *testing.T, joinerOp joiner.Operator) {
+
+	personsOp, _ := joinerOp.Interface(InterfaceKey).(Operator)
+	require.NotNil(t, personsOp)
+
+	personsCleanerOp, _ := joinerOp.Interface(InterfaceCleanerKey).(db.Cleaner)
+	require.NotNil(t, personsCleanerOp)
 
 	var err error
 
@@ -36,16 +46,28 @@ func OperatorTestScenario(t *testing.T, personsOp Operator, personsCleanerOp db.
 
 	// add person ----------------------------------------------
 
-	//passwordToSave := "passwordToSave"
 	personToSave := types.Person01{
-		Nickname: "test_nickname1",
-		Roles:    rbac.Roles{rbac.RoleUser},
+		Firstnames: []string{"Erich", "Maria"},
+		Middlename: "???",
+		Lastname:   "Remark",
+		Nicknames:  []string{"erich1", "maria2"},
+		Contacts:   []contacts.Item{{Type: "phone", Value: "777", Connected: []contacts.Item{{Type: "fax", Value: "888"}}}},
+		Info:       common.Map{"info1": "data1", "info2": "data2"},
+		Description: types.Description01{
+			URN:  "urn1",
+			Tags: []string{"famous", "writer"},
+			RelationsMap: types.Relations01Map{"r": types.Relation01{
+				Key:  "r1key",
+				NSS:  "nss_r1",
+				Note: "wetr wert eryry",
+			}},
+			OwnerNSS:  "owner_nss",
+			ViewerNSS: "viever_nss",
+			// History:      nil,
+		},
 	}
 
-	//err = personToSave.SetCreds(auth.Creds{auth.CredsPassword: passwordToSave})
-	//require.NoError(t, err)
-
-	savedID, err := personsOp.Save(Item{Person01: personToSave}, adminIdentity)
+	savedID, err := personsOp.Save(Item01{Person01: personToSave}, adminIdentity)
 	require.NoError(t, err)
 	require.NotEmpty(t, savedID)
 
@@ -56,41 +78,59 @@ func OperatorTestScenario(t *testing.T, personsOp Operator, personsCleanerOp db.
 	personReaded, err := personsOp.Read(savedID, adminIdentity)
 	require.NoError(t, err)
 	require.NotNil(t, personReaded)
+	checkPerson(t, personToSave, personReaded.Person01)
 
-	//require.True(t, personReaded.CheckCreds(auth.CredsPassword, passwordToSave))
-	//
-	//require.Equal(t, personToSave.Identity, personReaded.Identity)
-	//require.Equal(t, personToSave.Info, personReaded.Info)
-	//
-	//// change person -------------------------------------------
-	//
-	//personToChange := personReaded
-	//personToChange.Nickname += " (changed)"
-	//personToChange.Nickname += " (changed)"
-	//if personToChange.Info == nil {
-	//	personToChange.Info = common.Map{}
-	//}
-	//
-	//personToChange.Info["change"] = "change"
-	//passwordToChange := "passwordToChange"
-	//err = personToChange.SetCreds(auth.Creds{auth.CredsPassword: passwordToChange})
-	//require.NoError(t, err)
-	//
-	//id, err := personsOp.Save(*personToChange, adminIdentity)
-	//require.NoErrorf(t, err, "%#v", err)
-	//require.Equal(t, personToChange.ID, id)
-	//
-	//countPersons(t, personsOp, adminIdentity, 1)
-	//
-	//// read person ---------------------------------------------
-	//
-	//personChangedReaded, err := personsOp.Read(personToSave.ID, adminIdentity)
-	//require.NoErrorf(t, err, "%#v", err)
-	//require.Truef(t, personChangedReaded.CheckCreds(auth.CredsPassword, passwordToChange), ".Creds(): %#v", personChangedReaded.Creds())
-	//
-	//require.Equal(t, personToChange.Identity, personChangedReaded.Identity)
-	//require.Equal(t, personToChange.Info, personChangedReaded.Info)
-	//
+	// change person -------------------------------------------
+
+	personToSaveChanged := personReaded
+	personToSaveChanged.ID = savedID
+	personToSaveChanged.Firstnames = personToSaveChanged.Firstnames[:1]
+	personToSaveChanged.Middlename += " (changed)"
+	personToSaveChanged.Lastname += " (changed)"
+	personToSaveChanged.Nicknames = personToSaveChanged.Nicknames[:1]
+	personToSaveChanged.Contacts = append(personToSaveChanged.Contacts, personToSaveChanged.Contacts...)
+
+	if personToSaveChanged.Info == nil {
+		personToSaveChanged.Info = common.Map{}
+	}
+	personToSaveChanged.Info["changed"] = "changed info"
+
+	personToSaveChanged.Description.URN += "_changed"
+	personToSaveChanged.Description.Tags = append(personToSaveChanged.Description.Tags, "changed_tag")
+	if personToSaveChanged.Description.RelationsMap == nil {
+		personToSaveChanged.Description.RelationsMap = types.Relations01Map{}
+	}
+	personToSaveChanged.Description.RelationsMap["changed"] = types.Relation01{
+		Key:  "chg",
+		NSS:  "qwer",
+		Note: "wqer qwer",
+	}
+	personToSaveChanged.Description.OwnerNSS += "_changed"
+	personToSaveChanged.Description.ViewerNSS += "_changed"
+
+	savedChangedID, err := personsOp.Save(*personToSaveChanged, adminIdentity)
+	require.NoError(t, err)
+	require.Equal(t, personToSaveChanged.ID, savedChangedID)
+
+	countPersons(t, personsOp, adminIdentity, 1)
+
+	// read person ---------------------------------------------
+
+	personReaded, err = personsOp.Read(savedID, adminIdentity)
+	require.NoError(t, err)
+	require.NotNil(t, personReaded)
+	require.Equal(t, personReaded.ID, savedID)
+	checkPerson(t, personToSaveChanged.Person01, personReaded.Person01)
+
+	// remove person -------------------------------------------
+
+	err = personsOp.Remove(savedID, adminIdentity)
+	require.NoError(t, err)
+	personReaded, err = personsOp.Read(savedID, adminIdentity)
+	require.Error(t, err)
+	require.Nil(t, personReaded)
+	countPersons(t, personsOp, adminIdentity, 0)
+
 	//// add another person --------------------------------------
 	//
 	//passwordToSaveAnother := "passwordToSaveAnother"
@@ -195,6 +235,31 @@ func OperatorTestScenario(t *testing.T, personsOp Operator, personsCleanerOp db.
 	//require.NotNil(t, person1Readed)
 	//require.Equal(t, person1ChangedReaded.Identity, person1Readed.Identity)
 
+}
+
+func checkPerson(t *testing.T, personExpected, personToCheck types.Person01) {
+	descriptionExpected, descriptionToCheck := personExpected.Description, personToCheck.Description
+	personExpected.Description, personToCheck.Description = types.Description01{}, types.Description01{}
+
+	require.Equal(t, personExpected, personToCheck)
+	require.Equal(t, descriptionExpected.URN, descriptionToCheck.URN)
+
+	if len(descriptionExpected.Tags) > 0 {
+		require.Equal(t, descriptionExpected.Tags, descriptionToCheck.Tags)
+	} else {
+		require.Equal(t, 0, len(descriptionToCheck.Tags))
+	}
+	if len(descriptionExpected.RelationsMap) > 0 {
+		require.Equal(t, descriptionExpected.RelationsMap, descriptionToCheck.RelationsMap)
+	} else {
+		require.Equal(t, 0, len(descriptionToCheck.RelationsMap))
+	}
+
+	require.Equal(t, descriptionExpected.ViewerNSS, descriptionToCheck.ViewerNSS)
+	require.Equal(t, descriptionExpected.OwnerNSS, descriptionToCheck.OwnerNSS)
+
+	require.True(t, len(descriptionToCheck.History) >= len(descriptionExpected.History))
+	require.Equal(t, descriptionExpected.History, descriptionToCheck.History[:len(descriptionExpected.History)])
 }
 
 func countPersons(t *testing.T, personsOp Operator, identity *auth.Identity, expectedCount int) {
