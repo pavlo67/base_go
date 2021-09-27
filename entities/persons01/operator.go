@@ -1,4 +1,4 @@
-package persons
+package persons01
 
 import (
 	"github.com/pavlo67/common/common/auth"
@@ -11,14 +11,14 @@ import (
 type ID interface{}
 
 type Operator interface {
-	Save(Item01, *auth.Identity) (ID, error)
-	Read(ID, *auth.Identity) (*Item01, error)
+	Save(Item, *auth.Identity) (ID, error)
+	Read(ID, *auth.Identity) (*Item, error)
 	Remove(ID, *auth.Identity) error
-	List(*selectors.Term, *auth.Identity) ([]Item01, error)
+	List(*selectors.Term, *auth.Identity) ([]Item, error)
 	// Stat(*selectors.Term, *auth.Identity) (crud.StatMap, error)
 }
 
-type Item01 struct {
+type Item struct {
 	ID
 	types.Person01
 }

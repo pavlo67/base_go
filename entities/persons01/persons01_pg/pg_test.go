@@ -1,16 +1,19 @@
-package persons_stub
+package persons01_pg
 
 import (
 	"testing"
 
-	"github.com/pavlo67/common/common/config"
-	"github.com/pavlo67/common/common/starter"
-	"github.com/pavlo67/data/entities/persons"
 	"github.com/stretchr/testify/require"
+
+	"github.com/pavlo67/common/common/config"
+	"github.com/pavlo67/common/common/db/db_pg"
+	"github.com/pavlo67/common/common/starter"
+
+	"github.com/pavlo67/data/entities/persons01"
 )
 
-func TestPersonsStub(t *testing.T) {
-	cfgService, l := config.PrepareTests(t, "../../../_environments/", "test", "persons_stub.log")
+func TestPersons01Pg(t *testing.T) {
+	cfgService, l := config.PrepareTests(t, "../../../_environments/", "test", "persons01_pg.log")
 	require.NotNil(t, cfgService)
 
 	//var cfg config.Access
@@ -18,6 +21,7 @@ func TestPersonsStub(t *testing.T) {
 	//require.NoErrorf(t, err, "%#v", cfgService)
 
 	components := []starter.Starter{
+		{db_pg.Starter(), nil},
 		{Starter(), nil},
 	}
 
@@ -26,5 +30,5 @@ func TestPersonsStub(t *testing.T) {
 	require.NotNil(t, joinerOp)
 	defer joinerOp.CloseAll()
 
-	persons.OperatorTestScenario(t, joinerOp)
+	persons01.OperatorTestScenario(t, joinerOp, persons01.InterfaceKey, persons01.InterfaceCleanerKey, persons01.TestPersonToSave)
 }

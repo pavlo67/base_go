@@ -1,4 +1,4 @@
-package persons_stub
+package persons01_stub
 
 import (
 	"fmt"
@@ -9,8 +9,7 @@ import (
 	"github.com/pavlo67/common/common/joiner"
 	"github.com/pavlo67/common/common/logger"
 	"github.com/pavlo67/common/common/starter"
-
-	"github.com/pavlo67/data/entities/persons"
+	"github.com/pavlo67/data/entities/persons01"
 )
 
 func Starter() starter.Operator {
@@ -31,8 +30,8 @@ func (pss *personsStubStarter) Name() string {
 
 func (pss *personsStubStarter) Prepare(cfg *config.Config, options common.Map) error {
 
-	pss.interfaceKey = joiner.InterfaceKey(options.StringDefault("interface_key", string(persons.InterfaceKey)))
-	pss.cleanerKey = joiner.InterfaceKey(options.StringDefault("cleaner_key", string(persons.InterfaceCleanerKey)))
+	pss.interfaceKey = joiner.InterfaceKey(options.StringDefault("interface_key", string(persons01.InterfaceKey)))
+	pss.cleanerKey = joiner.InterfaceKey(options.StringDefault("cleaner_key", string(persons01.InterfaceCleanerKey)))
 
 	return nil
 }

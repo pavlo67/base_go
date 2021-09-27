@@ -3,6 +3,7 @@ module github.com/pavlo67/data
 go 1.17
 
 require (
+	github.com/lib/pq v1.9.0
 	github.com/pavlo67/common v0.1.17
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0

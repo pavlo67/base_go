@@ -1,4 +1,4 @@
-package persons_stub
+package persons01_stub
 
 import (
 	"github.com/pkg/errors"
@@ -9,18 +9,18 @@ import (
 
 	"github.com/pavlo67/data/elements/selectors"
 
-	"github.com/pavlo67/data/entities/persons"
+	"github.com/pavlo67/data/entities/persons01"
 )
 
-var _ persons.Operator = &personsStub{}
+var _ persons01.Operator = &personsStub{}
 
 type personsStub struct {
-	personItems []persons.Item01
+	personItems []persons01.Item
 }
 
 const onNew = "on persons_stub.New(): "
 
-func New(personItems []persons.Item01) (persons.Operator, db.Cleaner, error) {
+func New(personItems []persons01.Item) (persons01.Operator, db.Cleaner, error) {
 	personsStub := personsStub{
 		personItems: personItems,
 	}
@@ -32,7 +32,7 @@ const onSave = "on personsStub.Save(): "
 
 var currentID int
 
-func (personsOp *personsStub) Save(personsItem persons.Item01, _ *auth.Identity) (persons.ID, error) {
+func (personsOp *personsStub) Save(personsItem persons01.Item, _ *auth.Identity) (persons01.ID, error) {
 	if personsItem.ID == nil {
 		currentID++
 		personsItem.ID = currentID
@@ -52,7 +52,7 @@ func (personsOp *personsStub) Save(personsItem persons.Item01, _ *auth.Identity)
 
 const onRead = "on personsStub.Read(): "
 
-func (personsOp *personsStub) Read(id persons.ID, _ *auth.Identity) (*persons.Item01, error) {
+func (personsOp *personsStub) Read(id persons01.ID, _ *auth.Identity) (*persons01.Item, error) {
 	for _, pi := range personsOp.personItems {
 		if pi.ID == id {
 			return &pi, nil
@@ -64,7 +64,7 @@ func (personsOp *personsStub) Read(id persons.ID, _ *auth.Identity) (*persons.It
 
 const onRemove = "on personsStub.Remove(): "
 
-func (personsOp *personsStub) Remove(id persons.ID, _ *auth.Identity) error {
+func (personsOp *personsStub) Remove(id persons01.ID, _ *auth.Identity) error {
 	for i, pi := range personsOp.personItems {
 		if pi.ID == id {
 			personItemsOld := personsOp.personItems
@@ -83,7 +83,7 @@ func (personsOp *personsStub) Remove(id persons.ID, _ *auth.Identity) error {
 
 const onList = "on personsStub.List(): "
 
-func (personsOp *personsStub) List(*selectors.Term, *auth.Identity) ([]persons.Item01, error) {
+func (personsOp *personsStub) List(*selectors.Term, *auth.Identity) ([]persons01.Item, error) {
 	return personsOp.personItems, nil
 }
 
