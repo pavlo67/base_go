@@ -1,7 +1,11 @@
 package persons01
 
 import (
+	"fmt"
 	"testing"
+
+	"github.com/pavlo67/data/elements/crud"
+	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
 	"github.com/stretchr/testify/require"
@@ -29,6 +33,43 @@ var TestPersonToSave = types.Person01{
 		ViewerNSS: "viever_nss",
 		// History:      nil,
 	},
+}
+
+var _ crud.ChangeItem = ChangeTestItem
+
+const onChangeItem = "on person01.ChangeTestItem()"
+
+func ChangeTestItem(data interface{}, key crud.Key) (interface{}, error) {
+	var item Item
+
+	switch v := data.(type) {
+	case Item:
+		item = v
+		item.ID = key.ID
+	case *Item:
+		if v == nil {
+			return nil, errors.New(onChangeItem + ": nil Item to change")
+		}
+		item = *v
+		item.ID = key.ID
+	case types.Person01:
+		item = Item{
+			ID:       key.ID,
+			Person01: v,
+		}
+	case *types.Person01:
+		if v == nil {
+			return nil, errors.New(onChangeItem + ": nil Person01 to change")
+		}
+		item = Item{
+			ID:       key.ID,
+			Person01: *v,
+		}
+	default:
+		return nil, fmt.Errorf(onChangeItem+": wrong data (%#v) to change with key (%#v)", data, key)
+	}
+
+	return item, nil
 }
 
 func TestPersonItemToSaveChanged(personReaded Item, savedID ID) Item {

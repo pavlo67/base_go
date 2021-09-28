@@ -3,6 +3,8 @@ package crud_dispatcher
 import (
 	"fmt"
 
+	"github.com/pavlo67/common/common/auth"
+
 	"github.com/pavlo67/data/elements/selectors"
 
 	"github.com/pavlo67/data/elements/crud"
@@ -33,41 +35,41 @@ func New(crudOps CrudOps) (crud.Operator, error) {
 
 var _ crud.Operator = &crudDispatcher{}
 
-func (crudOp crudDispatcher) Save(key crud.Key, data interface{}) (*crud.Key, error) {
+func (crudOp crudDispatcher) Save(key crud.Key, data interface{}, identity *auth.Identity) (*crud.Key, error) {
 	op := crudOp.crudOps[key.Type]
 	if op == nil {
 		return nil, fmt.Errorf("on crudDispatcher.Save(%#v): wrong key.Type", key)
 	}
 
-	return op.Save(key, data)
+	return op.Save(key, data, identity)
 }
 
-func (crudOp crudDispatcher) Read(key crud.Key) (interface{}, error) {
+func (crudOp crudDispatcher) Read(key crud.Key, identity *auth.Identity) (interface{}, error) {
 	op := crudOp.crudOps[key.Type]
 	if op == nil {
 		return nil, fmt.Errorf("on crudDispatcher.Read(%#v): wrong key.Type", key)
 	}
 
-	return op.Read(key)
+	return op.Read(key, identity)
 }
 
-func (crudOp crudDispatcher) List(crudType crud.Type, options selectors.Options) ([]interface{}, error) {
+func (crudOp crudDispatcher) List(crudType crud.Type, options selectors.Options, identity *auth.Identity) ([]interface{}, error) {
 	op := crudOp.crudOps[crudType]
 	if op == nil {
 		return nil, fmt.Errorf("on crudDispatcher.List(%#v): wrong crudType", crudType)
 	}
 
-	return op.List(crudType, options)
+	return op.List(crudType, options, identity)
 }
 
-func (crudOp crudDispatcher) Remove(key crud.Key) error {
+func (crudOp crudDispatcher) Remove(key crud.Key, identity *auth.Identity) error {
 
 	op := crudOp.crudOps[key.Type]
 	if op == nil {
 		return fmt.Errorf("on crudDispatcher.Remove(%#v): wrong key.Type", key)
 	}
 
-	return op.Remove(key)
+	return op.Remove(key, identity)
 }
 
 func (crudOp crudDispatcher) Types() ([]crud.Type, error) {
@@ -89,5 +91,5 @@ func (crudOp crudDispatcher) CheckIfEqual(expectedKey crud.Key, expected interfa
 		return fmt.Errorf("on crudDispatcher.Remove(%#v): wrong key.Type", expectedKey)
 	}
 
-	return op.CheckIfEqual(expectedKey, expected, toCheck)
+	return op.TestIfEqual(expectedKey, expected, toCheck)
 }

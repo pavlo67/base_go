@@ -1,12 +1,6 @@
 package selectors
 
-import (
-	"github.com/pavlo67/common/common/auth"
-	"github.com/pavlo67/common/common/rbac"
-)
-
 type Options struct {
-	Identity *auth.Identity
 	Selector *Term
 	Ranges   *Ranges
 }
@@ -27,12 +21,12 @@ func (options *Options) GetRanges() *Ranges {
 	return options.Ranges
 }
 
-func (options *Options) GetIdentity() *auth.Identity {
-	if options == nil {
-		return nil
-	}
-	return options.Identity
-}
+//func (options *Options) GetIdentity() *auth.Identity {
+//	if options == nil {
+//		return nil
+//	}
+//	return options.Identity
+//}
 
 func (options *Options) GetSelector() *Term {
 	if options == nil {
@@ -51,18 +45,18 @@ func (options *Options) WithRanges(Ranges *Ranges) *Options {
 	return &optionsCopied
 }
 
-func (options *Options) HasRole(oneOfRoles ...rbac.Role) bool {
-	if options == nil || options.Identity == nil {
-		return false
-	}
+//func (options *Options) HasRole(oneOfRoles ...rbac.Role) bool {
+//	if options == nil || options.Identity == nil {
+//		return false
+//	}
+//
+//	return options.Identity.Roles.Has(oneOfRoles...)
+//}
 
-	return options.Identity.Roles.Has(oneOfRoles...)
-}
-
-func OptionsWithRoles(roles ...rbac.Role) *Options {
-	return &Options{
-		Identity: &auth.Identity{
-			Roles: roles,
-		},
-	}
-}
+//func OptionsWithRoles(roles ...rbac.Role) *Options {
+//	return &Options{
+//		Identity: &auth.Identity{
+//			Roles: roles,
+//		},
+//	}
+//}
