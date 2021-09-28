@@ -59,5 +59,5 @@ func TestPersonsStubCRUD(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, crudOp)
 
-	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, persons01.CRUD01, persons01.TestPersonToSave, persons01.ChangeTestItem)
+	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, persons01.CRUD01, persons01.TestPersonToSave, persons01.ChangeTestCRUDItem)
 }

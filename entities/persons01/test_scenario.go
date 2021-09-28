@@ -14,6 +14,7 @@ import (
 	"github.com/pavlo67/data/types"
 )
 
+// DEPRECATED
 func OperatorTestScenario(t *testing.T, joinerOp joiner.Operator, interfaceKey, interfaceCleanerKey joiner.InterfaceKey, personToSave types.Person01) {
 
 	personsOp, _ := joinerOp.Interface(interfaceKey).(Operator)
@@ -55,7 +56,7 @@ func OperatorTestScenario(t *testing.T, joinerOp joiner.Operator, interfaceKey, 
 
 	// change person -------------------------------------------
 
-	personToSaveChanged := TestPersonItemToSaveChanged(*personReaded, savedID)
+	personToSaveChanged := ChangeTestItem(*personReaded, savedID)
 
 	savedChangedID, err := personsOp.Save(personToSaveChanged, adminIdentity)
 	require.NoError(t, err)
@@ -186,8 +187,35 @@ func OperatorTestScenario(t *testing.T, joinerOp joiner.Operator, interfaceKey, 
 
 }
 
+// DEPRECATED
 func CountTestPersons(t *testing.T, personsOp Operator, identity *auth.Identity, expectedCount int) {
 	personItems, err := personsOp.List(nil, identity)
 	require.NoError(t, err)
 	require.Equalf(t, expectedCount, len(personItems), "personItems = %#v", personItems)
+}
+
+// DEPRECATED
+func CheckTestPerson(t *testing.T, personExpected, personToCheck types.Person01) {
+	descriptionExpected, descriptionToCheck := personExpected.Description, personToCheck.Description
+	personExpected.Description, personToCheck.Description = types.Description01{}, types.Description01{}
+
+	require.Equal(t, personExpected, personToCheck)
+	require.Equal(t, descriptionExpected.URN, descriptionToCheck.URN)
+
+	if len(descriptionExpected.Tags) > 0 {
+		require.Equal(t, descriptionExpected.Tags, descriptionToCheck.Tags)
+	} else {
+		require.Equal(t, 0, len(descriptionToCheck.Tags))
+	}
+	if len(descriptionExpected.RelationsMap) > 0 {
+		require.Equal(t, descriptionExpected.RelationsMap, descriptionToCheck.RelationsMap)
+	} else {
+		require.Equal(t, 0, len(descriptionToCheck.RelationsMap))
+	}
+
+	require.Equal(t, descriptionExpected.ViewerNSS, descriptionToCheck.ViewerNSS)
+	require.Equal(t, descriptionExpected.OwnerNSS, descriptionToCheck.OwnerNSS)
+
+	require.True(t, len(descriptionToCheck.History) >= len(descriptionExpected.History))
+	require.Equal(t, descriptionExpected.History, descriptionToCheck.History[:len(descriptionExpected.History)])
 }

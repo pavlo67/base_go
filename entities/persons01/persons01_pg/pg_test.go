@@ -3,18 +3,19 @@ package persons01_pg
 import (
 	"testing"
 
-	"github.com/pavlo67/common/common/db"
-	"github.com/pavlo67/data/elements/crud"
-
 	"github.com/stretchr/testify/require"
 
 	"github.com/pavlo67/common/common/config"
+	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/db/db_pg"
 	"github.com/pavlo67/common/common/starter"
+
+	"github.com/pavlo67/data/elements/crud"
 
 	"github.com/pavlo67/data/entities/persons01"
 )
 
+// DEPRECATED
 func TestPersons01Pg(t *testing.T) {
 	cfgService, l := config.PrepareTests(t, "../../../_environments/", "test", "persons01_pg.log")
 	require.NotNil(t, cfgService)
@@ -64,5 +65,5 @@ func TestPersonsPgCRUD(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, crudOp)
 
-	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, persons01.CRUD01, persons01.TestPersonToSave, persons01.ChangeTestItem)
+	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, persons01.CRUD01, persons01.TestPersonToSave, persons01.ChangeTestCRUDItem)
 }
