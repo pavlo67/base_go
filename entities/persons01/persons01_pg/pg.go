@@ -126,7 +126,7 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ *auth.Identity) (person
 		}
 	}
 
-	descriptionValues, err := pi.Description.FoldToSave()
+	descriptionValues, err := pi.Description.FoldToSaveInPg()
 	if err != nil {
 		return "", errors.Wrap(err, onSave)
 	}
@@ -165,11 +165,11 @@ func (persons01Op persons01Pg) Read(id persons01.ID, _ *auth.Identity) (*persons
 	// "firstnames", "middlename", "lastname", "nicknames", "contacts", "info"
 	// "urn", "tags", "relations_map", "owner_nss", "viewer_nss", "history"
 
-	var urnBytes, contactBytes, infoBytes, tagsBytes, relationsMapBytes, historyBytes []byte
+	var urnBytes, contactBytes, infoBytes, relationsMapBytes, historyBytes []byte
 
 	if err := persons01Op.stmRead.QueryRow(values...).Scan(
 		pq.Array(&pi.Firstnames), &pi.Middlename, &pi.Lastname, pq.Array(&pi.Nicknames), &contactBytes, &infoBytes,
-		&urnBytes, &tagsBytes, &relationsMapBytes, &pi.Description.OwnerNSS, &pi.Description.ViewerNSS, &historyBytes,
+		&urnBytes, pq.Array(&pi.Description.Tags), &relationsMapBytes, &pi.Description.OwnerNSS, &pi.Description.ViewerNSS, &historyBytes,
 		&pi.Description.CreatedAt, &pi.Description.UpdatedAt); err == sql.ErrNoRows {
 		return nil, errors.Wrapf(common.ErrNotFound, onRead+": "+sqllib.CantScanQueryRow, persons01Op.sqlRead, values)
 	} else if err != nil {
@@ -187,7 +187,7 @@ func (persons01Op persons01Pg) Read(id persons01.ID, _ *auth.Identity) (*persons
 		}
 	}
 
-	if err := pi.Description.UnfoldReaded(urnBytes, tagsBytes, relationsMapBytes, historyBytes); err != nil {
+	if err := pi.Description.UnfoldReaded(urnBytes, relationsMapBytes, historyBytes); err != nil {
 		return nil, errors.Wrap(err, onRead)
 	}
 
@@ -214,10 +214,10 @@ func (persons01Op persons01Pg) List(*selectors.Term, *auth.Identity) ([]persons0
 
 	for rows.Next() {
 		var pi persons01.Item
-		var urnBytes, contactBytes, infoBytes, tagsBytes, relationsMapBytes, historyBytes []byte
+		var urnBytes, contactBytes, infoBytes, relationsMapBytes, historyBytes []byte
 
 		if err := rows.Scan(pq.Array(&pi.Firstnames), &pi.Middlename, &pi.Lastname, pq.Array(&pi.Nicknames), &contactBytes, &infoBytes,
-			&urnBytes, &tagsBytes, &relationsMapBytes, &pi.Description.OwnerNSS, &pi.Description.ViewerNSS, &historyBytes,
+			&urnBytes, pq.Array(&pi.Description.Tags), &relationsMapBytes, &pi.Description.OwnerNSS, &pi.Description.ViewerNSS, &historyBytes,
 			&pi.Description.CreatedAt, &pi.Description.UpdatedAt, &pi.ID); err != nil {
 			return nil, errors.Wrapf(err, onList+": "+sqllib.CantScanQueryRow, persons01Op.sqlList, values)
 		}
@@ -233,7 +233,7 @@ func (persons01Op persons01Pg) List(*selectors.Term, *auth.Identity) ([]persons0
 			}
 		}
 
-		if err := pi.Description.UnfoldReaded(urnBytes, tagsBytes, relationsMapBytes, historyBytes); err != nil {
+		if err := pi.Description.UnfoldReaded(urnBytes, relationsMapBytes, historyBytes); err != nil {
 			return nil, errors.Wrap(err, onList)
 		}
 

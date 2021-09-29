@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS persons01;
+
 CREATE TABLE persons01 (
   id            BIGSERIAL                PRIMARY KEY,
 
@@ -9,7 +11,7 @@ CREATE TABLE persons01 (
   info          TEXT                     ,
 
   urn           TEXT                     NOT NULL,
-  tags          TEXT                     ,
+  tags          TEXT[]                   ,
   relations_map TEXT                     ,
   owner_nss     TEXT                     NOT NULL,
   viewer_nss    TEXT                     NOT NULL,

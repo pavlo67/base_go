@@ -68,7 +68,7 @@ func ChangeTestItem(personReaded Item, savedID ID) Item {
 	personToSaveChanged.Firstnames = personToSaveChanged.Firstnames[:1]
 	personToSaveChanged.Middlename += " (changed)"
 	personToSaveChanged.Lastname += " (changed)"
-	personToSaveChanged.Nicknames = personToSaveChanged.Nicknames[:1]
+	personToSaveChanged.Nicknames = append(personToSaveChanged.Nicknames, "changed")
 	personToSaveChanged.Contacts = append(personToSaveChanged.Contacts, personToSaveChanged.Contacts...)
 
 	if personToSaveChanged.Info == nil {
