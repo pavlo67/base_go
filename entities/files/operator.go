@@ -11,7 +11,7 @@ type Operator interface {
 	Read(path string) ([]byte, error)
 	Remove(path string) error
 	List(path string, depth int) (Items, error)
-	Stat(path string, depth int) (*types.Stat01, error)
+	// Stat(path string, depth int) (*types.Stat01, error)
 }
 
 type Items []types.File01
@@ -30,15 +30,15 @@ func (fis Items) Append(basePath string, info os.FileInfo) (Items, error) {
 		fis = append(fis, types.File01{
 			Path: path,
 			// Path:      path[len(basePath):],
-			IsDir:     true,
-			CreatedAt: info.ModTime(),
+			IsDir: true,
+			// CreatedAt: info.ModTime(),
 		})
 	} else {
 		fis = append(fis, types.File01{
 			Path: path,
 			// Path:      path[len(basePath):],
-			Size:      info.Size(),
-			CreatedAt: info.ModTime(),
+			Size: info.Size(),
+			// CreatedAt: info.ModTime(),
 		})
 	}
 

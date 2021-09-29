@@ -1,4 +1,4 @@
-package crud_serverhttp_jschmhr0
+package crud_server_http
 
 type ReadOptionsHTTP struct {
 	Path      string

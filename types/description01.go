@@ -2,7 +2,10 @@ package types
 
 import (
 	"encoding/json"
+	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 
 	"github.com/lib/pq"
 
@@ -88,4 +91,55 @@ func (descr *Description01) UnfoldReaded(urnBytes, relationsMapBytes, historyByt
 	}
 
 	return nil
+}
+
+func (testDescription Description01) TestIfEqual(t *testing.T, descriptionToCheck Description01) {
+	require.Equal(t, testDescription.URN, descriptionToCheck.URN)
+
+	if len(testDescription.Tags) > 0 {
+		require.Equal(t, testDescription.Tags, descriptionToCheck.Tags)
+	} else {
+		require.Equal(t, 0, len(descriptionToCheck.Tags))
+	}
+	if len(testDescription.RelationsMap) > 0 {
+		require.Equal(t, testDescription.RelationsMap, descriptionToCheck.RelationsMap)
+	} else {
+		require.Equal(t, 0, len(descriptionToCheck.RelationsMap))
+	}
+
+	require.Equal(t, testDescription.ViewerNSS, descriptionToCheck.ViewerNSS)
+	require.Equal(t, testDescription.OwnerNSS, descriptionToCheck.OwnerNSS)
+
+	require.True(t, len(descriptionToCheck.History) >= len(testDescription.History))
+	require.Equal(t, testDescription.History, descriptionToCheck.History[:len(testDescription.History)])
+}
+
+func (testDescription Description01) ChangeForTest() Description01 {
+	testDescription.URN += "_changed"
+	testDescription.Tags = append(testDescription.Tags, "changed_tag")
+	if testDescription.RelationsMap == nil {
+		testDescription.RelationsMap = Relations01Map{}
+	}
+	testDescription.RelationsMap["changed"] = Relation01{
+		Key:  "chg",
+		NSS:  "qwer",
+		Note: "wqer qwer",
+	}
+	testDescription.OwnerNSS += "_changed"
+	testDescription.ViewerNSS += "_changed"
+
+	return testDescription
+}
+
+var TestDescription01 = Description01{
+	URN:  "urn1",
+	Tags: []string{"famous", "writer"},
+	RelationsMap: Relations01Map{"r": Relation01{
+		Key:  "r1key",
+		NSS:  "nss_r1",
+		Note: "wetr wert eryry",
+	}},
+	OwnerNSS:  "owner_nss",
+	ViewerNSS: "viever_nss",
+	// History:      nil,
 }

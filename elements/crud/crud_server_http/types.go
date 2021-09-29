@@ -1,4 +1,4 @@
-package crud_serverhttp_jschmhr0
+package crud_server_http
 
 //import (
 //	"github.com/pavlo67/punctum/basis"

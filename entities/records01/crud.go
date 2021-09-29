@@ -1,4 +1,4 @@
-package persons01
+package records01
 
 import (
 	"fmt"
@@ -15,29 +15,29 @@ import (
 	"github.com/pavlo67/data/types"
 )
 
-var _ crud.Operator = &persons01CRUD{}
+var _ crud.Operator = &records01CRUD{}
 
-func OperatorCRUD(personsOp Operator) (crud.Operator, error) {
-	if personsOp == nil {
-		return nil, errors.New("personsOp == nil")
+func OperatorCRUD(recordsOp Operator) (crud.Operator, error) {
+	if recordsOp == nil {
+		return nil, errors.New("recordsOp == nil")
 	}
 
-	return &persons01CRUD{personsOp: personsOp}, nil
+	return &records01CRUD{recordsOp: recordsOp}, nil
 }
 
-const CRUD01 crud.Type = "persons01"
+const CRUD01 crud.Type = "records01"
 
-type persons01CRUD struct {
-	personsOp Operator
+type records01CRUD struct {
+	recordsOp Operator
 }
 
-func (crudOp *persons01CRUD) Types() ([]crud.Type, error) {
+func (crudOp *records01CRUD) Types() ([]crud.Type, error) {
 	return []crud.Type{CRUD01}, nil
 }
 
-const onSave = "on persons01/crud.Save()"
+const onSave = "on records01/crud.Save()"
 
-func (crudOp *persons01CRUD) Save(key crud.Key, data interface{}, identity *auth.Identity) (*crud.Key, error) {
+func (crudOp *records01CRUD) Save(key crud.Key, data interface{}, identity *auth.Identity) (*crud.Key, error) {
 	if key.Type != CRUD01 {
 		return nil, fmt.Errorf(onSave+": wrong key.Type (%#v) to save item (%#v)", key, data)
 	}
@@ -58,24 +58,24 @@ func (crudOp *persons01CRUD) Save(key crud.Key, data interface{}, identity *auth
 		if key.ID != nil {
 			item.ID = key.ID
 		}
-	case types.Person01:
+	case types.Record01:
 		item = Item{
 			ID:       key.ID,
-			Person01: v,
+			Record01: v,
 		}
-	case *types.Person01:
+	case *types.Record01:
 		if v == nil {
-			return nil, errors.New(onSave + ": nil Person01 to save")
+			return nil, errors.New(onSave + ": nil Record01 to save")
 		}
 		item = Item{
 			ID:       key.ID,
-			Person01: *v,
+			Record01: *v,
 		}
 	default:
 		return nil, fmt.Errorf(onSave+": wrong data (%#v) to save with key (%#v)", data, key)
 	}
 
-	id, err := crudOp.personsOp.Save(item, identity)
+	id, err := crudOp.recordsOp.Save(item, identity)
 	if err != nil {
 		return nil, errors.Wrap(err, onSave)
 	}
@@ -83,14 +83,14 @@ func (crudOp *persons01CRUD) Save(key crud.Key, data interface{}, identity *auth
 	return &crud.Key{Type: CRUD01, ID: id}, nil
 }
 
-const onRead = "on persons01/crud.Read()"
+const onRead = "on records01/crud.Read()"
 
-func (crudOp *persons01CRUD) Read(key crud.Key, identity *auth.Identity) (interface{}, error) {
+func (crudOp *records01CRUD) Read(key crud.Key, identity *auth.Identity) (interface{}, error) {
 	if key.Type != CRUD01 {
 		return nil, fmt.Errorf(onRead+": wrong key.Type (%#v)", key)
 	}
 
-	personItem, err := crudOp.personsOp.Read(key.ID, identity)
+	personItem, err := crudOp.recordsOp.Read(key.ID, identity)
 	if err != nil || personItem == nil {
 		return nil, fmt.Errorf(onRead+": got %#v / %s", personItem, err)
 	}
@@ -98,15 +98,15 @@ func (crudOp *persons01CRUD) Read(key crud.Key, identity *auth.Identity) (interf
 	return personItem, nil
 }
 
-const onList = "on persons01/crud.List()"
+const onList = "on records01/crud.List()"
 
-func (crudOp *persons01CRUD) List(crudType crud.Type, _ selectors.Options, identity *auth.Identity) ([]interface{}, error) {
+func (crudOp *records01CRUD) List(crudType crud.Type, _ selectors.Options, identity *auth.Identity) ([]interface{}, error) {
 	if crudType != CRUD01 {
 		return nil, fmt.Errorf(onList+": wrong crudType (%#v)", crudType)
 	}
 
 	// TODO!!! use selector
-	personItems, err := crudOp.personsOp.List(nil, identity)
+	personItems, err := crudOp.recordsOp.List(nil, identity)
 	if err != nil {
 		return nil, errors.Wrap(err, onList)
 	}
@@ -120,19 +120,19 @@ func (crudOp *persons01CRUD) List(crudType crud.Type, _ selectors.Options, ident
 
 }
 
-const onRemove = "on persons01/crud.Remove()"
+const onRemove = "on records01/crud.Remove()"
 
-func (crudOp *persons01CRUD) Remove(key crud.Key, identity *auth.Identity) error {
+func (crudOp *records01CRUD) Remove(key crud.Key, identity *auth.Identity) error {
 	if key.Type != CRUD01 {
 		return fmt.Errorf(onRemove+": wrong key.Type (%#v)", key)
 	}
 
-	return crudOp.personsOp.Remove(key.ID, identity)
+	return crudOp.recordsOp.Remove(key.ID, identity)
 }
 
-const onCheckIfEqual = "on persons01/crud.TestIfEqual()"
+const onCheckIfEqual = "on records01/crud.TestIfEqual()"
 
-func (crudOp *persons01CRUD) TestIfEqual(t *testing.T, expectedKey crud.Key, expected interface{}, toCheck interface{}) error {
+func (crudOp *records01CRUD) TestIfEqual(t *testing.T, expectedKey crud.Key, expected interface{}, toCheck interface{}) error {
 
 	var itemExpected, itemToCheck Item
 
@@ -146,18 +146,18 @@ func (crudOp *persons01CRUD) TestIfEqual(t *testing.T, expectedKey crud.Key, exp
 		}
 		itemExpected = *v
 		itemExpected.ID = expectedKey.ID
-	case types.Person01:
+	case types.Record01:
 		itemExpected = Item{
 			ID:       expectedKey.ID,
-			Person01: v,
+			Record01: v,
 		}
-	case *types.Person01:
+	case *types.Record01:
 		if v == nil {
-			return errors.New(onCheckIfEqual + ": nil Person01 expected")
+			return errors.New(onCheckIfEqual + ": nil Record01 expected")
 		}
 		itemExpected = Item{
 			ID:       expectedKey.ID,
-			Person01: *v,
+			Record01: *v,
 		}
 	default:
 		return fmt.Errorf(onSave+": wrong expected data (%#v)", expected)
@@ -171,16 +171,16 @@ func (crudOp *persons01CRUD) TestIfEqual(t *testing.T, expectedKey crud.Key, exp
 			return errors.New(onCheckIfEqual + ": nil Item to check")
 		}
 		itemToCheck = *v
-	case types.Person01:
+	case types.Record01:
 		itemToCheck = Item{
-			Person01: v,
+			Record01: v,
 		}
-	case *types.Person01:
+	case *types.Record01:
 		if v == nil {
-			return errors.New(onCheckIfEqual + ": nil Person01 to check")
+			return errors.New(onCheckIfEqual + ": nil Record01 to check")
 		}
 		itemToCheck = Item{
-			Person01: *v,
+			Record01: *v,
 		}
 	default:
 		return fmt.Errorf(onSave+": wrong toCheck data (%#v)", toCheck)

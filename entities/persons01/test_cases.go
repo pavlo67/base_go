@@ -13,24 +13,13 @@ import (
 )
 
 var TestPersonToSave = types.Person01{
-	Firstnames: []string{"Erich", "Maria"},
-	Middlename: "???",
-	Lastname:   "Remark",
-	Nicknames:  []string{"erich1", "maria2"},
-	Contacts:   []contacts.Item{{Type: "phone", Value: "777", Connected: []contacts.Item{{Type: "fax", Value: "888"}}}},
-	Info:       common.Map{"info1": "data1", "info2": "data2"},
-	Description: types.Description01{
-		URN:  "urn1",
-		Tags: []string{"famous", "writer"},
-		RelationsMap: types.Relations01Map{"r": types.Relation01{
-			Key:  "r1key",
-			NSS:  "nss_r1",
-			Note: "wetr wert eryry",
-		}},
-		OwnerNSS:  "owner_nss",
-		ViewerNSS: "viever_nss",
-		// History:      nil,
-	},
+	Firstnames:  []string{"Erich", "Maria"},
+	Middlename:  "???",
+	Lastname:    "Remark",
+	Nicknames:   []string{"erich1", "maria2"},
+	Contacts:    []contacts.Item{{Type: "phone", Value: "777", Connected: []contacts.Item{{Type: "fax", Value: "888"}}}},
+	Info:        common.Map{"info1": "data1", "info2": "data2"},
+	Description: types.TestDescription01,
 }
 
 var _ crud.ChangeItem = ChangeTestCRUDItem
@@ -76,18 +65,7 @@ func ChangeTestItem(personReaded Item, savedID ID) Item {
 	}
 	personToSaveChanged.Info["changed"] = "changed info"
 
-	personToSaveChanged.Description.URN += "_changed"
-	personToSaveChanged.Description.Tags = append(personToSaveChanged.Description.Tags, "changed_tag")
-	if personToSaveChanged.Description.RelationsMap == nil {
-		personToSaveChanged.Description.RelationsMap = types.Relations01Map{}
-	}
-	personToSaveChanged.Description.RelationsMap["changed"] = types.Relation01{
-		Key:  "chg",
-		NSS:  "qwer",
-		Note: "wqer qwer",
-	}
-	personToSaveChanged.Description.OwnerNSS += "_changed"
-	personToSaveChanged.Description.ViewerNSS += "_changed"
+	personToSaveChanged.Description = personToSaveChanged.Description.ChangeForTest()
 
 	return personToSaveChanged
 }
