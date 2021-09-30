@@ -1,6 +1,8 @@
 package types
 
 import (
+	"time"
+
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/data/elements/contacts"
 )
@@ -35,8 +37,9 @@ type Record01 struct {
 // file --------------------------------------------------------------
 
 type File01 struct {
-	Path        string        `json:",omitempty" bson:",omitempty"`
-	IsDir       bool          `json:",omitempty" bson:",omitempty"`
-	Size        int64         `json:",omitempty" bson:",omitempty"`
-	Description Description01 `json:",inline"    bson:",inline"`
+	Path      string     `json:",omitempty" bson:",omitempty"`
+	IsDir     bool       `json:",omitempty" bson:",omitempty"`
+	Size      int64      `json:",omitempty" bson:",omitempty"`
+	CreatedAt time.Time  `json:",omitempty" bson:",omitempty"`
+	UpdatedAt *time.Time `json:",omitempty" bson:",omitempty"`
 }

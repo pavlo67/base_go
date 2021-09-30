@@ -10,6 +10,7 @@ import (
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/errors"
 	"github.com/pavlo67/common/common/filelib"
+	"github.com/pavlo67/data/elements/crud"
 	"github.com/pavlo67/data/entities/files"
 )
 
@@ -147,44 +148,44 @@ func (filesOp *filesFS) List(path string, depth int) (files.Items, error) {
 	return filesInfo, err
 }
 
-//const onStat = "on filesFS.Stat01()"
-//
-//func (filesOp *filesFS) Stat(path string, depth int) (*types.Stat01, error) {
-//	filePath := filesOp.basePath + path
-//
-//	fi, err := os.Stat(filePath)
-//	if err != nil {
-//		//if os.IsNotExist(err) {
-//		//	return nil, nil
-//		//}
-//		return nil, errors.Wrapf(err, onStat+": can't  os.Stat01(%s)", filePath)
-//	}
-//
-//	filesInfo, err := files.Items{}.Append("", fi) // basePath
-//	if err != nil || len(filesInfo) != 1 {
-//		return nil, fmt.Errorf(onStat+": got %#v / %s", filesInfo, err)
-//	}
-//
-//	fileInfo := filesInfo[0]
-//	stat := types.Stat01{
-//		NSS:       ns.NSS(fileInfo.Path),
-//		TotalSize: fileInfo.Size,
-//		CreatedAt: fileInfo.CreatedAt,
-//	}
-//
-//	if depth != 0 && fileInfo.IsDir {
-//		// TODO: process depth > 0 more thoroughly here
-//		err = filepath.Walk(filePath, func(path string, fi os.FileInfo, err error) error {
-//			if err != nil {
-//				return err
-//			}
-//
-//			stat.ChldCount++
-//			stat.TotalSize += fi.Size()
-//			return nil
-//		})
-//	}
-//
-//	return &stat, err
-//
-//}
+const onStat = "on filesFS.Stat01()"
+
+func (filesOp *filesFS) Stat(path string, depth int) (*crud.Stat, error) {
+	filePath := filesOp.basePath + path
+
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		//if os.IsNotExist(err) {
+		//	return nil, nil
+		//}
+		return nil, errors.Wrapf(err, onStat+": can't  os.Stat01(%s)", filePath)
+	}
+
+	filesInfo, err := files.Items{}.Append("", fi) // basePath
+	if err != nil || len(filesInfo) != 1 {
+		return nil, fmt.Errorf(onStat+": got %#v / %s", filesInfo, err)
+	}
+
+	fileInfo := filesInfo[0]
+	stat := crud.Stat{
+		TotalSize: fileInfo.Size,
+		CreatedAt: fileInfo.CreatedAt,
+		UpdatedAt: fileInfo.UpdatedAt,
+	}
+
+	if depth != 0 && fileInfo.IsDir {
+		// TODO: process depth > 0 more thoroughly here
+		err = filepath.Walk(filePath, func(path string, fi os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+
+			stat.ChldCount++
+			stat.TotalSize += fi.Size()
+			return nil
+		})
+	}
+
+	return &stat, err
+
+}

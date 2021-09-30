@@ -35,6 +35,7 @@ type Stat struct {
 	ChldCount int64
 	TotalSize int64
 	CreatedAt time.Time
+	UpdatedAt *time.Time
 
 	Key `json:"-" bson:"-"`
 }
