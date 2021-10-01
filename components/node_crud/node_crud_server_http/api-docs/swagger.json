@@ -1,6 +1,6 @@
 {
  "info": {
-  "title": "Demo REST API",
+  "title": "NODE_CRUD REST API",
   "version": "0.0.1"
  },
  "paths": {
@@ -43,9 +43,8 @@
    }
   }
  },
- "port": ":3001",
+ "port": ":3002",
  "schemes": [
-  "https",
   "http"
  ],
  "swagger": "2.0"

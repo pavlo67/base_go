@@ -3,27 +3,27 @@ package records01
 import (
 	"fmt"
 
+	"github.com/pavlo67/data/entities"
+
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/data/elements/crud"
-
-	"github.com/pavlo67/data/types"
 )
 
-var TestRecord = types.Record01{
-	Content01: types.Content01{
+var TestRecord = entities.Record01{
+	Content01: entities.Content01{
 		Title:   "title1",
 		Summary: "summary1",
 		Type:    "something",
 		Data:    "wqer ewr er/yhlk'; '",
 	},
-	Embedded: []types.Content01{{
+	Embedded: []entities.Content01{{
 		Title:   "et1",
 		Summary: "es1",
 		Type:    "anything",
 		Data:    "wertesrytr eu yuik",
 	}},
-	Description: types.TestDescription01,
+	Description: entities.TestDescription01,
 }
 
 var _ crud.ChangeItem = ChangeForTest
@@ -41,9 +41,9 @@ func ChangeForTest(data interface{}, key crud.Key) (interface{}, error) {
 			return nil, errors.New(onChangeItem + ": nil Item to change")
 		}
 		item = *v
-	case types.Record01:
+	case entities.Record01:
 		item = Item{Record01: v}
-	case *types.Record01:
+	case *entities.Record01:
 		if v == nil {
 			return nil, errors.New(onChangeItem + ": nil Record01 to change")
 		}

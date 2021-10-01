@@ -2,10 +2,9 @@ package records01
 
 import (
 	"github.com/pavlo67/common/common/auth"
+	"github.com/pavlo67/data/entities"
 
 	"github.com/pavlo67/data/elements/selectors"
-
-	"github.com/pavlo67/data/types"
 )
 
 type ID interface{}
@@ -19,5 +18,5 @@ type Operator interface {
 
 type Item struct {
 	ID
-	types.Record01
+	entities.Record01
 }

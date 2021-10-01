@@ -3,23 +3,24 @@ package persons01
 import (
 	"fmt"
 
+	"github.com/pavlo67/data/entities"
+
 	"github.com/pavlo67/data/elements/crud"
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
 
 	"github.com/pavlo67/data/elements/contacts"
-	"github.com/pavlo67/data/types"
 )
 
-var TestPersonToSave = types.Person01{
+var TestPersonToSave = entities.Person01{
 	Firstnames:  []string{"Erich", "Maria"},
 	Middlename:  "???",
 	Lastname:    "Remark",
 	Nicknames:   []string{"erich1", "maria2"},
 	Contacts:    []contacts.Item{{Type: "phone", Value: "777", Connected: []contacts.Item{{Type: "fax", Value: "888"}}}},
 	Info:        common.Map{"info1": "data1", "info2": "data2"},
-	Description: types.TestDescription01,
+	Description: entities.TestDescription01,
 }
 
 var _ crud.ChangeItem = ChangeTestCRUDItem
@@ -37,9 +38,9 @@ func ChangeTestCRUDItem(data interface{}, key crud.Key) (interface{}, error) {
 			return nil, errors.New(onChangeItem + ": nil Item to change")
 		}
 		item = *v
-	case types.Person01:
+	case entities.Person01:
 		item = Item{Person01: v}
-	case *types.Person01:
+	case *entities.Person01:
 		if v == nil {
 			return nil, errors.New(onChangeItem + ": nil Person01 to change")
 		}

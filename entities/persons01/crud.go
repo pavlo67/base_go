@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/pavlo67/data/entities"
+
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
@@ -11,8 +13,6 @@ import (
 
 	"github.com/pavlo67/data/elements/crud"
 	"github.com/pavlo67/data/elements/selectors"
-
-	"github.com/pavlo67/data/types"
 )
 
 var _ crud.Operator = &persons01CRUD{}
@@ -58,12 +58,12 @@ func (crudOp *persons01CRUD) Save(key crud.Key, data interface{}, identity *auth
 		if key.ID != nil {
 			item.ID = key.ID
 		}
-	case types.Person01:
+	case entities.Person01:
 		item = Item{
 			ID:       key.ID,
 			Person01: v,
 		}
-	case *types.Person01:
+	case *entities.Person01:
 		if v == nil {
 			return nil, errors.New(onSave + ": nil Person01 to save")
 		}
@@ -146,12 +146,12 @@ func (crudOp *persons01CRUD) TestIfEqual(t *testing.T, expectedKey crud.Key, exp
 		}
 		itemExpected = *v
 		itemExpected.ID = expectedKey.ID
-	case types.Person01:
+	case entities.Person01:
 		itemExpected = Item{
 			ID:       expectedKey.ID,
 			Person01: v,
 		}
-	case *types.Person01:
+	case *entities.Person01:
 		if v == nil {
 			return errors.New(onCheckIfEqual + ": nil Person01 expected")
 		}
@@ -171,11 +171,11 @@ func (crudOp *persons01CRUD) TestIfEqual(t *testing.T, expectedKey crud.Key, exp
 			return errors.New(onCheckIfEqual + ": nil Item to check")
 		}
 		itemToCheck = *v
-	case types.Person01:
+	case entities.Person01:
 		itemToCheck = Item{
 			Person01: v,
 		}
-	case *types.Person01:
+	case *entities.Person01:
 		if v == nil {
 			return errors.New(onCheckIfEqual + ": nil Person01 to check")
 		}
@@ -187,7 +187,7 @@ func (crudOp *persons01CRUD) TestIfEqual(t *testing.T, expectedKey crud.Key, exp
 	}
 
 	descriptionExpected, descriptionToCheck := itemExpected.Description, itemToCheck.Description
-	itemExpected.Description, itemToCheck.Description = types.Description01{}, types.Description01{}
+	itemExpected.Description, itemToCheck.Description = entities.Description01{}, entities.Description01{}
 
 	require.Equal(t, itemExpected, itemToCheck)
 	descriptionExpected.TestIfEqual(t, descriptionToCheck)

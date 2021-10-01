@@ -4,18 +4,18 @@ import (
 	"os"
 	"testing"
 
+	"github.com/pavlo67/data/entities"
+
 	"github.com/stretchr/testify/require"
 
 	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/joiner"
 	"github.com/pavlo67/common/common/rbac"
-
-	"github.com/pavlo67/data/types"
 )
 
 // DEPRECATED
-func OperatorTestScenario(t *testing.T, joinerOp joiner.Operator, interfaceKey, interfaceCleanerKey joiner.InterfaceKey, personToSave types.Person01) {
+func OperatorTestScenario(t *testing.T, joinerOp joiner.Operator, interfaceKey, interfaceCleanerKey joiner.InterfaceKey, personToSave entities.Person01) {
 
 	personsOp, _ := joinerOp.Interface(interfaceKey).(Operator)
 	require.NotNil(t, personsOp)
@@ -195,9 +195,9 @@ func CountTestPersons(t *testing.T, personsOp Operator, identity *auth.Identity,
 }
 
 // DEPRECATED
-func CheckTestPerson(t *testing.T, personExpected, personToCheck types.Person01) {
+func CheckTestPerson(t *testing.T, personExpected, personToCheck entities.Person01) {
 	descriptionExpected, descriptionToCheck := personExpected.Description, personToCheck.Description
-	personExpected.Description, personToCheck.Description = types.Description01{}, types.Description01{}
+	personExpected.Description, personToCheck.Description = entities.Description01{}, entities.Description01{}
 
 	require.Equal(t, personExpected, personToCheck)
 	require.Equal(t, descriptionExpected.URN, descriptionToCheck.URN)

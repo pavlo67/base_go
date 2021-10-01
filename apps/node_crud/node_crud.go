@@ -7,7 +7,8 @@ import (
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/starter"
 
-	"github.com/pavlo67/data/apps/node/node_settings"
+	"github.com/pavlo67/data/apps/node_crud/node_crud_settings"
+	"github.com/pavlo67/data/components/node_crud/node_crud_server_http"
 )
 
 var BuildDate, BuildTag, BuildCommit string
@@ -23,12 +24,12 @@ func main() {
 	}
 
 	cfgService, l := config.Prepare("_environments/")
-	label := "NODE/REST BUILD"
-	joinerOp, err := starter.Run(node_settings.Components(true, false), &cfgService, label, l)
+	label := "NODE_CRUD/HTML/REST BUILD"
+	joinerOp, err := starter.Run(node_crud_settings.Components(false), &cfgService, label, l)
 	if err != nil {
 		l.Fatal(err)
 	}
 	defer joinerOp.CloseAll()
 
-	node_settings.WG.Wait()
+	node_crud_server_http.WG.Wait()
 }

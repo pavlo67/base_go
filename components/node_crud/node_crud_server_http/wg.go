@@ -1,4 +1,4 @@
-package node_settings
+package node_crud_server_http
 
 import "sync"
 

@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pavlo67/data/entities"
+
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
@@ -20,16 +22,14 @@ import (
 	"github.com/pavlo67/data/elements/selectors"
 
 	"github.com/pavlo67/data/entities/records01"
-
-	"github.com/pavlo67/data/types"
 )
 
 var fields = []string{"title", "summary", "record_type", "data", "embedded"}
 
-var fieldsToSave = append(fields, types.Description01FieldsToSave...)
+var fieldsToSave = append(fields, entities.Description01FieldsToSave...)
 var fieldsToSaveStr = `"` + strings.Join(fieldsToSave, `","`) + `"`
 
-var fieldsToRead = append(fields, types.Description01FieldsToRead...)
+var fieldsToRead = append(fields, entities.Description01FieldsToRead...)
 var fieldsToReadStr = `"` + strings.Join(fieldsToRead, `","`) + `"`
 
 var fieldsToList = append(fieldsToRead, "id")

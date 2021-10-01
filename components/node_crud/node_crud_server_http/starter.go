@@ -1,4 +1,4 @@
-package node_settings
+package node_crud_server_http
 
 import (
 	"fmt"
@@ -41,7 +41,7 @@ func (ds *demoStarter) Prepare(cfg *config.Config, options common.Map) error {
 
 var ServerConfig = server_http.Config{
 	ConfigCommon: server_http.ConfigCommon{
-		Title:   "Demo REST API",
+		Title:   "NODE_CRUD REST API",
 		Version: "0.0.1",
 	},
 	EndpointsSettled: server_http.EndpointsSettled{
@@ -72,7 +72,7 @@ func (ds *demoStarter) Run(joinerOp joiner.Operator) error {
 		return err
 	}
 
-	if err := ServerConfig.InitSwagger(isHTTPS, restStaticPath+"swaggerJSON.json", l); err != nil {
+	if err := ServerConfig.InitSwagger(isHTTPS, restStaticPath+"swagger.json", l); err != nil {
 		return err
 	}
 	if err := srvOp.HandleFiles("rest_static", PrefixREST+"/api-docs/*filepath", server_http.StaticPath{LocalPath: restStaticPath}); err != nil {

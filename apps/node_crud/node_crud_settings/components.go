@@ -1,4 +1,4 @@
-package node_settings
+package node_crud_settings
 
 import (
 	"github.com/pavlo67/common/common"
@@ -9,9 +9,10 @@ import (
 	"github.com/pavlo67/common/common/control"
 	"github.com/pavlo67/common/common/server/server_http/server_http_jschmhr"
 	"github.com/pavlo67/common/common/starter"
+	"github.com/pavlo67/data/components/node_crud/node_crud_server_http"
 )
 
-func Components(startREST, logRequests bool) []starter.Starter {
+func Components(logRequests bool) []starter.Starter {
 
 	starters := []starter.Starter{
 		// general purposes components
@@ -23,10 +24,6 @@ func Components(startREST, logRequests bool) []starter.Starter {
 		{auth_server_http.Starter(), common.Map{"auth_jwt_key": auth_jwt.InterfaceKey}},
 	}
 
-	if !startREST {
-		return starters
-	}
-
 	starters = append(
 		starters,
 
@@ -34,7 +31,7 @@ func Components(startREST, logRequests bool) []starter.Starter {
 		starter.Starter{server_http_jschmhr.Starter(), nil},
 
 		// actions starter (connecting specific actions to the corresponding action managers)
-		starter.Starter{Starter(), nil},
+		starter.Starter{node_crud_server_http.Starter(), nil},
 	)
 
 	return starters

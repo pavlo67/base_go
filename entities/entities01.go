@@ -1,9 +1,10 @@
-package types
+package entities
 
 import (
 	"time"
 
 	"github.com/pavlo67/common/common"
+
 	"github.com/pavlo67/data/elements/contacts"
 )
 

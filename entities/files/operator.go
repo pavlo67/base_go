@@ -3,9 +3,9 @@ package files
 import (
 	"os"
 
-	"github.com/pavlo67/data/elements/crud"
+	"github.com/pavlo67/data/entities"
 
-	"github.com/pavlo67/data/types"
+	"github.com/pavlo67/data/elements/crud"
 )
 
 type Operator interface {
@@ -16,7 +16,7 @@ type Operator interface {
 	Stat(path string, depth int) (*crud.Stat, error)
 }
 
-type Items []types.File01
+type Items []entities.File01
 
 func (fis Items) Append(basePath string, info os.FileInfo) (Items, error) {
 	path := info.Name()
@@ -31,14 +31,14 @@ func (fis Items) Append(basePath string, info os.FileInfo) (Items, error) {
 		if path != "" && path[len(path)-1] != '/' {
 			path += "/"
 		}
-		fis = append(fis, types.File01{
+		fis = append(fis, entities.File01{
 			Path: path,
 			// Path:      path[len(basePath):],
 			IsDir:     true,
 			UpdatedAt: &modTime,
 		})
 	} else {
-		fis = append(fis, types.File01{
+		fis = append(fis, entities.File01{
 			Path: path,
 			// Path:      path[len(basePath):],
 			Size:      info.Size(),
