@@ -3,9 +3,9 @@ package files
 import (
 	"os"
 
-	"github.com/pavlo67/data/entities"
+	"github.com/pavlo67/data/components/crud"
 
-	"github.com/pavlo67/data/elements/crud"
+	"github.com/pavlo67/data/entities"
 )
 
 type Operator interface {

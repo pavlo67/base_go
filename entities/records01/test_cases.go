@@ -3,11 +3,11 @@ package records01
 import (
 	"fmt"
 
+	"github.com/pavlo67/data/components/crud"
+
 	"github.com/pavlo67/data/entities"
 
 	"github.com/pkg/errors"
-
-	"github.com/pavlo67/data/elements/crud"
 )
 
 var TestRecord = entities.Record01{

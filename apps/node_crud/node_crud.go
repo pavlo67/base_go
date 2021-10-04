@@ -4,11 +4,12 @@ import (
 	"flag"
 	"log"
 
+	"github.com/pavlo67/data/components/crud/crud_server_http"
+
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/starter"
 
 	"github.com/pavlo67/data/apps/node_crud/node_crud_settings"
-	"github.com/pavlo67/data/components/node_crud/node_crud_server_http"
 )
 
 var BuildDate, BuildTag, BuildCommit string
@@ -31,5 +32,5 @@ func main() {
 	}
 	defer joinerOp.CloseAll()
 
-	node_crud_server_http.WG.Wait()
+	crud_server_http.WG.Wait()
 }

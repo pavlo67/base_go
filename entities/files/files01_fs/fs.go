@@ -7,10 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/pavlo67/data/components/crud"
+
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/errors"
 	"github.com/pavlo67/common/common/filelib"
-	"github.com/pavlo67/data/elements/crud"
 	"github.com/pavlo67/data/entities/files"
 )
 

@@ -3,9 +3,10 @@ package persons01
 import (
 	"fmt"
 
+	"github.com/pavlo67/data/components/crud"
+
 	"github.com/pavlo67/data/entities"
 
-	"github.com/pavlo67/data/elements/crud"
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"

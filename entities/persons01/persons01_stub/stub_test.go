@@ -3,10 +3,10 @@ package persons01_stub
 import (
 	"testing"
 
-	"github.com/pavlo67/common/common/db"
-	"github.com/pavlo67/data/elements/crud"
+	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/common/common/config"
+	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/starter"
 	"github.com/pavlo67/data/entities/persons01"
 	"github.com/stretchr/testify/require"

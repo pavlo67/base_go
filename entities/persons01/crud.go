@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/pavlo67/data/components/crud"
+
 	"github.com/pavlo67/data/entities"
 
 	"github.com/pkg/errors"
@@ -11,7 +13,6 @@ import (
 
 	"github.com/pavlo67/common/common/auth"
 
-	"github.com/pavlo67/data/elements/crud"
 	"github.com/pavlo67/data/elements/selectors"
 )
 
