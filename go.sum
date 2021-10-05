@@ -42,6 +42,8 @@ github.com/onsi/ginkgo v1.7.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+W
 github.com/onsi/gomega v1.4.3/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=
 github.com/pavlo67/common v0.1.17 h1:ESejtGW0s4Y2bnXhj019JANgpNVs03eyOuGxxxC9c0c=
 github.com/pavlo67/common v0.1.17/go.mod h1:ekmk+h+17Q3Ikq6Q06R65CodusyQ8yyvNdQuNEHDCrY=
+github.com/pavlo67/common v0.2.0 h1:gb46zSo5aCVynEcHSI2xTj0b5cgwJBfjigDKchmO+tc=
+github.com/pavlo67/common v0.2.0/go.mod h1:ekmk+h+17Q3Ikq6Q06R65CodusyQ8yyvNdQuNEHDCrY=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

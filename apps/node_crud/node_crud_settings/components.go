@@ -7,6 +7,7 @@ import (
 	"github.com/pavlo67/common/common/auth/auth_server_http"
 	"github.com/pavlo67/common/common/auth/auth_stub"
 	"github.com/pavlo67/common/common/control"
+	"github.com/pavlo67/common/common/db/db_pg"
 	"github.com/pavlo67/common/common/server/server_http/server_http_jschmhr"
 	"github.com/pavlo67/common/common/starter"
 	"github.com/pavlo67/data/components/crud/crud_dispatcher"
@@ -20,12 +21,14 @@ func Components(logRequests bool) []starter.Starter {
 	starters := []starter.Starter{
 		// general purposes components
 		{control.Starter(), nil},
+		{db_pg.Starter(), nil},
+
+		{server_http_jschmhr.Starter(), nil},
 
 		// auth components
 		{auth_stub.Starter(), common.Map{"interface_key": auth.InterfaceKey}},
 		{auth_jwt.Starter(), nil},
 		{auth_server_http.Starter(), common.Map{"auth_jwt_key": auth_jwt.InterfaceKey}},
-		{server_http_jschmhr.Starter(), nil},
 
 		{persons01_pg.Starter(), nil},
 		{records01_pg.Starter(), nil},
