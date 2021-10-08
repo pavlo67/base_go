@@ -117,30 +117,30 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ *auth.Identity) (person
 
 	if len(pi.Contacts) > 0 {
 		if contactsBytes, err = json.Marshal(pi.Contacts); err != nil {
-			return nil, errors.Wrapf(err, "can't marshal .Contacts (%#v)", pi.Contacts)
+			return "", errors.Wrapf(err, "can't marshal .Contacts (%#v)", pi.Contacts)
 		}
 	}
 	if len(pi.Info) > 0 {
 		if infoBytes, err = json.Marshal(pi.Info); err != nil {
-			return nil, errors.Wrapf(err, "can't marshal .Info (%#v)", pi.Info)
+			return "", errors.Wrapf(err, "can't marshal .Info (%#v)", pi.Info)
 		}
 	}
 
 	descriptionValues, err := pi.Description.FoldToSaveInPg()
 	if err != nil {
-		return nil, errors.Wrap(err, onSave)
+		return "", errors.Wrap(err, onSave)
 	}
 
 	values := append(
 		[]interface{}{pq.Array(pi.Firstnames), pi.Middlename, pi.Lastname, pq.Array(pi.Nicknames), contactsBytes, infoBytes},
 		descriptionValues...)
 
-	if pi.ID == nil {
+	if pi.ID == "" {
 
 		var idInt64 int64
 
 		if err := persons01Op.stmAdd.QueryRow(values...).Scan(&idInt64); err != nil {
-			return nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlAdd, values)
+			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlAdd, values)
 		}
 
 		pi.ID = crud.NewIDInt64(idInt64)
@@ -153,7 +153,7 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ *auth.Identity) (person
 
 		values = append(values, pi.ID)
 		if _, err := persons01Op.stmChange.Exec(values...); err != nil {
-			return nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlChange, values)
+			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlChange, values)
 		}
 	}
 

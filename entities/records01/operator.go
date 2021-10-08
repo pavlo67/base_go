@@ -8,7 +8,7 @@ import (
 	"github.com/pavlo67/data/elements/selectors"
 )
 
-type ID crud.ID
+type ID = crud.ID
 
 type Operator interface {
 	Save(Item, *auth.Identity) (ID, error)

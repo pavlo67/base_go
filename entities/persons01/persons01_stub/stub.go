@@ -34,7 +34,7 @@ const onSave = "on personsStub.Save(): "
 var currentID int
 
 func (personsOp *personsStub) Save(personsItem persons01.Item, _ *auth.Identity) (persons01.ID, error) {
-	if personsItem.ID == nil {
+	if personsItem.ID == "" {
 		currentID++
 		personsItem.ID = crud.NewIDInt64(int64(currentID))
 
@@ -49,7 +49,7 @@ func (personsOp *personsStub) Save(personsItem persons01.Item, _ *auth.Identity)
 		}
 	}
 
-	return nil, errors.Wrapf(common.ErrNotFound, onSave+"no person with the same ID as %#v", personsItem)
+	return "", errors.Wrapf(common.ErrNotFound, onSave+"no person with the same ID as %#v", personsItem)
 }
 
 const onRead = "on personsStub.Read(): "

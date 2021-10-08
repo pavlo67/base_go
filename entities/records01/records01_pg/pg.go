@@ -117,22 +117,22 @@ func (records01Op records01Pg) Save(ri records01.Item, _ *auth.Identity) (record
 
 	if len(ri.Embedded) > 0 {
 		if embeddedBytes, err = json.Marshal(ri.Embedded); err != nil {
-			return nil, errors.Wrapf(err, "can't marshal .Contacts (%#v)", ri.Embedded)
+			return "", errors.Wrapf(err, "can't marshal .Contacts (%#v)", ri.Embedded)
 		}
 	}
 
 	descriptionValues, err := ri.Description.FoldToSaveInPg()
 	if err != nil {
-		return nil, errors.Wrap(err, onSave)
+		return "", errors.Wrap(err, onSave)
 	}
 
 	values := append([]interface{}{ri.Title, ri.Summary, ri.Type, ri.Data, embeddedBytes}, descriptionValues...)
 
-	if ri.ID == nil {
+	if ri.ID == "" {
 		var idInt64 int64
 
 		if err := records01Op.stmAdd.QueryRow(values...).Scan(&idInt64); err != nil {
-			return nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlAdd, values)
+			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlAdd, values)
 		}
 
 		ri.ID = crud.NewIDInt64(idInt64)
@@ -140,7 +140,7 @@ func (records01Op records01Pg) Save(ri records01.Item, _ *auth.Identity) (record
 	} else {
 		values = append(values, ri.ID)
 		if _, err := records01Op.stmChange.Exec(values...); err != nil {
-			return nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlChange, values)
+			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlChange, values)
 		}
 	}
 
