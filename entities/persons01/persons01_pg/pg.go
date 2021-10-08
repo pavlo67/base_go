@@ -8,8 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pavlo67/data/entities"
-
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
@@ -22,14 +20,16 @@ import (
 	"github.com/pavlo67/data/elements/selectors"
 
 	"github.com/pavlo67/data/entities/persons01"
+
+	"github.com/pavlo67/data/components/crud"
 )
 
 var fields = []string{"firstnames", "middlename", "lastname", "nicknames", "contacts", "info"}
 
-var fieldsToSave = append(fields, entities.Description01FieldsToSave...)
+var fieldsToSave = append(fields, crud.Description01FieldsToSave...)
 var fieldsToSaveStr = `"` + strings.Join(fieldsToSave, `","`) + `"`
 
-var fieldsToRead = append(fields, entities.Description01FieldsToRead...)
+var fieldsToRead = append(fields, crud.Description01FieldsToRead...)
 var fieldsToReadStr = `"` + strings.Join(fieldsToRead, `","`) + `"`
 
 var fieldsToList = append(fieldsToRead, "id")
@@ -128,7 +128,7 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ *auth.Identity) (person
 
 	descriptionValues, err := pi.Description.FoldToSaveInPg()
 	if err != nil {
-		return "", errors.Wrap(err, onSave)
+		return nil, errors.Wrap(err, onSave)
 	}
 
 	values := append(
@@ -136,9 +136,14 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ *auth.Identity) (person
 		descriptionValues...)
 
 	if pi.ID == nil {
-		if err := persons01Op.stmAdd.QueryRow(values...).Scan(&pi.ID); err != nil {
-			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlAdd, values)
+
+		var idInt64 int64
+
+		if err := persons01Op.stmAdd.QueryRow(values...).Scan(&idInt64); err != nil {
+			return nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlAdd, values)
 		}
+
+		pi.ID = crud.NewIDInt64(idInt64)
 
 		//l.Fatalf("1111111 %#v", pi)
 
@@ -148,7 +153,7 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ *auth.Identity) (person
 
 		values = append(values, pi.ID)
 		if _, err := persons01Op.stmChange.Exec(values...); err != nil {
-			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlChange, values)
+			return nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlChange, values)
 		}
 	}
 
@@ -213,12 +218,13 @@ func (persons01Op persons01Pg) List(*selectors.Term, *auth.Identity) ([]persons0
 	defer rows.Close()
 
 	for rows.Next() {
+		var idInt64 int64
 		var pi persons01.Item
 		var urnBytes, contactBytes, infoBytes, relationsMapBytes, historyBytes []byte
 
 		if err := rows.Scan(pq.Array(&pi.Firstnames), &pi.Middlename, &pi.Lastname, pq.Array(&pi.Nicknames), &contactBytes, &infoBytes,
 			&urnBytes, pq.Array(&pi.Description.Tags), &relationsMapBytes, &pi.Description.OwnerNSS, &pi.Description.ViewerNSS, &historyBytes,
-			&pi.Description.CreatedAt, &pi.Description.UpdatedAt, &pi.ID); err != nil {
+			&pi.Description.CreatedAt, &pi.Description.UpdatedAt, &idInt64); err != nil {
 			return nil, errors.Wrapf(err, onList+": "+sqllib.CantScanQueryRow, persons01Op.sqlList, values)
 		}
 
@@ -236,6 +242,8 @@ func (persons01Op persons01Pg) List(*selectors.Term, *auth.Identity) ([]persons0
 		if err := pi.Description.UnfoldReaded(urnBytes, relationsMapBytes, historyBytes); err != nil {
 			return nil, errors.Wrap(err, onList)
 		}
+
+		pi.ID = crud.NewIDInt64(idInt64)
 
 		items = append(items, pi)
 	}

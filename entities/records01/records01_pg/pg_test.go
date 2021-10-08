@@ -43,5 +43,14 @@ func TestRecordsPgCRUD(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, crudOp)
 
-	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, records01.CRUD01, records01.TestRecord, records01.ChangeForTest)
+	crudData := crud.Data{
+		Key: crud.Key{
+			Type: records01.CRUD01,
+			ID:   records01.TestItem.ID,
+		},
+		Description: records01.TestItem.Description,
+		Value:       records01.TestItem.Record01,
+	}
+
+	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ChangeForTest)
 }

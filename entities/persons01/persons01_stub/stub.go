@@ -1,6 +1,7 @@
 package persons01_stub
 
 import (
+	"github.com/pavlo67/data/components/crud"
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
@@ -35,9 +36,10 @@ var currentID int
 func (personsOp *personsStub) Save(personsItem persons01.Item, _ *auth.Identity) (persons01.ID, error) {
 	if personsItem.ID == nil {
 		currentID++
-		personsItem.ID = currentID
+		personsItem.ID = crud.NewIDInt64(int64(currentID))
+
 		personsOp.personItems = append(personsOp.personItems, personsItem)
-		return currentID, nil
+		return personsItem.ID, nil
 	}
 
 	for i, pi := range personsOp.personItems {
@@ -47,7 +49,7 @@ func (personsOp *personsStub) Save(personsItem persons01.Item, _ *auth.Identity)
 		}
 	}
 
-	return "", errors.Wrapf(common.ErrNotFound, onSave+"no person with the same ID as %#v", personsItem)
+	return nil, errors.Wrapf(common.ErrNotFound, onSave+"no person with the same ID as %#v", personsItem)
 }
 
 const onRead = "on personsStub.Read(): "

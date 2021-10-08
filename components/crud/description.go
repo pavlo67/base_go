@@ -1,15 +1,13 @@
-package entities
+package crud
 
 import (
 	"encoding/json"
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/lib/pq"
-
 	"github.com/pkg/errors"
+	"github.com/stretchr/testify/require"
 
 	"github.com/pavlo67/data/elements/ns"
 	"github.com/pavlo67/data/elements/vcs"
@@ -17,29 +15,29 @@ import (
 
 type RelationKey string
 
-type Relation01 struct {
+type Relation struct {
 	Key RelationKey
 	ns.NSS
 	Note string
 }
 
-type Relations01Map map[string]Relation01
+type RelationsMap map[string]Relation
 
-type Description01 struct {
-	URN          ns.URN         `json:",omitempty" bson:",omitempty"`
-	Tags         []string       `json:",omitempty" bson:",omitempty"`
-	RelationsMap Relations01Map `json:",omitempty" bson:",omitempty"`
-	OwnerNSS     ns.NSS         `json:",omitempty" bson:",omitempty"`
-	ViewerNSS    ns.NSS         `json:",omitempty" bson:",omitempty"`
-	History      vcs.History    `json:",omitempty" bson:",omitempty"`
-	CreatedAt    time.Time      `json:",omitempty" bson:",omitempty"`
-	UpdatedAt    *time.Time     `json:",omitempty" bson:",omitempty"`
+type Description struct {
+	URN          ns.URN       `json:",omitempty" bson:",omitempty"`
+	Tags         []string     `json:",omitempty" bson:",omitempty"`
+	RelationsMap RelationsMap `json:",omitempty" bson:",omitempty"`
+	OwnerNSS     ns.NSS       `json:",omitempty" bson:",omitempty"`
+	ViewerNSS    ns.NSS       `json:",omitempty" bson:",omitempty"`
+	History      vcs.History  `json:",omitempty" bson:",omitempty"`
+	CreatedAt    time.Time    `json:",omitempty" bson:",omitempty"`
+	UpdatedAt    *time.Time   `json:",omitempty" bson:",omitempty"`
 }
 
 var Description01FieldsToSave = []string{"urn", "tags", "relations_map", "owner_nss", "viewer_nss", "history"}
 var Description01FieldsToRead = append(Description01FieldsToSave, "created_at", "updated_at")
 
-func (descr *Description01) FoldToSaveInPg() ([]interface{}, error) {
+func (descr *Description) FoldToSaveInPg() ([]interface{}, error) {
 	if descr == nil {
 		return nil, errors.New("nil persons.Item to be folded")
 	}
@@ -70,9 +68,9 @@ func (descr *Description01) FoldToSaveInPg() ([]interface{}, error) {
 	return []interface{}{urnBytes, pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyBytes}, nil
 }
 
-func (descr *Description01) UnfoldReaded(urnBytes, relationsMapBytes, historyBytes []byte) error {
+func (descr *Description) UnfoldReaded(urnBytes, relationsMapBytes, historyBytes []byte) error {
 	if descr == nil {
-		return errors.New("nil Description01 to be unfolded")
+		return errors.New("nil Description to be unfolded")
 	}
 
 	descr.URN = ns.URN(urnBytes)
@@ -93,7 +91,7 @@ func (descr *Description01) UnfoldReaded(urnBytes, relationsMapBytes, historyByt
 	return nil
 }
 
-func (testDescription Description01) TestIfEqual(t *testing.T, descriptionToCheck Description01) {
+func (testDescription Description) TestIfEqual(t *testing.T, descriptionToCheck Description) {
 	require.Equal(t, testDescription.URN, descriptionToCheck.URN)
 
 	if len(testDescription.Tags) > 0 {
@@ -114,13 +112,13 @@ func (testDescription Description01) TestIfEqual(t *testing.T, descriptionToChec
 	require.Equal(t, testDescription.History, descriptionToCheck.History[:len(testDescription.History)])
 }
 
-func (testDescription Description01) ChangeForTest() Description01 {
+func (testDescription Description) ChangeForTest() Description {
 	testDescription.URN += "_changed"
 	testDescription.Tags = append(testDescription.Tags, "changed_tag")
 	if testDescription.RelationsMap == nil {
-		testDescription.RelationsMap = Relations01Map{}
+		testDescription.RelationsMap = RelationsMap{}
 	}
-	testDescription.RelationsMap["changed"] = Relation01{
+	testDescription.RelationsMap["changed"] = Relation{
 		Key:  "chg",
 		NSS:  "qwer",
 		Note: "wqer qwer",
@@ -131,10 +129,10 @@ func (testDescription Description01) ChangeForTest() Description01 {
 	return testDescription
 }
 
-var TestDescription01 = Description01{
+var TestDescription01 = Description{
 	URN:  "urn1",
 	Tags: []string{"famous", "writer"},
-	RelationsMap: Relations01Map{"r": Relation01{
+	RelationsMap: RelationsMap{"r": Relation{
 		Key:  "r1key",
 		NSS:  "nss_r1",
 		Note: "wetr wert eryry",

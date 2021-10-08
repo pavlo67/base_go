@@ -3,63 +3,123 @@ package crud_http
 import (
 	"encoding/json"
 
-	"github.com/pavlo67/common/common/httplib"
-
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common/auth"
+	"github.com/pavlo67/common/common/httplib"
 	"github.com/pavlo67/common/common/server/server_http"
+
+	"github.com/pavlo67/data/elements/selectors"
+
+	"github.com/pavlo67/data/components/crud"
 )
 
-var _ auth.Operator = &authHTTP{}
+var _ crud.Operator = &crudHTTP{}
 
-type authHTTP struct {
+type crudHTTP struct {
 	serverConfig server_http.Config
 }
 
-const onNew = "on authHTTP.New()"
+const onNew = "on crudHTTP.New()"
 
-func New(serverConfig server_http.Config) (auth.Operator, error) {
-	authOp := authHTTP{
+func New(serverConfig server_http.Config) (crud.Operator, error) {
+	crudOp := crudHTTP{
 		serverConfig: serverConfig,
 	}
 
-	return &authOp, nil
+	return &crudOp, nil
 }
 
-func (authOp *authHTTP) SetCreds(authID auth.ID, toSet auth.Creds) (*auth.Creds, error) {
-	ep := authOp.serverConfig.EndpointsSettled[auth.IntefaceKeySetCreds]
-	serverURL := authOp.serverConfig.Host + authOp.serverConfig.Port + authOp.serverConfig.Prefix + ep.Path
+const onTypes = "on crudHTTP.Types()"
 
-	requestBody, err := json.Marshal(toSet)
-	if err != nil {
-		return nil, errors.Wrapf(err, onAuthenticate+": can't marshal toSet(%#v)", toSet)
-	}
+func (crudOp *crudHTTP) Types() ([]crud.Type, error) {
+	ep := crudOp.serverConfig.EndpointsSettled[crud.IntefaceKeyTypes]
+	serverURL := crudOp.serverConfig.Host + crudOp.serverConfig.Port + crudOp.serverConfig.Prefix + ep.Path
 
+	// TODO!!!
 	var creds *auth.Creds
-	if err := httplib.Request(nil, serverURL, ep.Method, server_http.SetCreds(creds), requestBody, &creds, l); err != nil {
-		return nil, err
+
+	var types []crud.Type
+	if err := httplib.Request(nil, serverURL, ep.Method, server_http.SetCreds(creds), nil, &types, l); err != nil {
+		return nil, errors.Wrap(err, onTypes)
 	}
 
-	return creds, nil
+	return types, nil
 }
 
-// Authenticate can require to call .SetCredsByKey() first and to use some session-generated creds
-const onAuthenticate = "on authHTTP.Authenticate()"
+const onSave = "on crudHTTP.Save()"
 
-func (authOp *authHTTP) Authenticate(toAuth auth.Creds) (*auth.Identity, error) {
-	ep := authOp.serverConfig.EndpointsSettled[auth.IntefaceKeyAuthenticate]
-	serverURL := authOp.serverConfig.Host + authOp.serverConfig.Port + authOp.serverConfig.Prefix + ep.Path
+func (crudOp *crudHTTP) Save(data crud.Data, _ *auth.Identity) (*crud.Key, error) {
+	ep := crudOp.serverConfig.EndpointsSettled[crud.IntefaceKeySave]
+	serverURL := crudOp.serverConfig.Host + crudOp.serverConfig.Port + crudOp.serverConfig.Prefix + ep.Path
 
-	requestBody, err := json.Marshal(toAuth)
+	requestBody, err := json.Marshal(data)
 	if err != nil {
-		return nil, errors.Wrapf(err, onAuthenticate+": can't marshal toAuth(%#v)", toAuth)
+		return nil, errors.Wrapf(err, onSave+": can't marshal data (%#v)", data)
 	}
 
-	var identity *auth.Identity
-	if err = httplib.Request(nil, serverURL, ep.Method, nil, requestBody, &identity, l); err != nil {
-		return nil, err
+	// TODO!!!
+	var creds *auth.Creds
+
+	var key *crud.Key
+	if err := httplib.Request(nil, serverURL, ep.Method, server_http.SetCreds(creds), requestBody, &key, l); err != nil {
+		return nil, errors.Wrap(err, onSave)
 	}
 
-	return identity, nil
+	return key, nil
 }
+
+const onRead = "on crudHTTP.Read()"
+
+func (crudOp *crudHTTP) Read(key crud.Key, _ *auth.Identity) (*crud.Data, error) {
+	ep := crudOp.serverConfig.EndpointsSettled[crud.IntefaceKeyRead]
+	serverURL := crudOp.serverConfig.Host + crudOp.serverConfig.Port + crudOp.serverConfig.Prefix + ep.Path +
+		"/" + string(key.Type) + "/" + key.ID.String()
+
+	// TODO!!!
+	var creds *auth.Creds
+
+	var item crud.Data
+	if err := httplib.Request(nil, serverURL, ep.Method, server_http.SetCreds(creds), nil, &item, l); err != nil {
+		return nil, errors.Wrap(err, onRead)
+	}
+
+	return &item, nil
+}
+
+const onList = "on crudHTTP.List()"
+
+func (crudOp *crudHTTP) List(crudType crud.Type, options selectors.Options, identity *auth.Identity) ([]crud.Data, error) {
+	ep := crudOp.serverConfig.EndpointsSettled[crud.IntefaceKeyList]
+	serverURL := crudOp.serverConfig.Host + crudOp.serverConfig.Port + crudOp.serverConfig.Prefix + ep.Path +
+		"/" + string(crudType)
+
+	// TODO!!! add selector too
+	var creds *auth.Creds
+
+	var items []crud.Data
+	if err := httplib.Request(nil, serverURL, ep.Method, server_http.SetCreds(creds), nil, &items, l); err != nil {
+		return nil, errors.Wrap(err, onList)
+	}
+
+	return items, nil
+}
+
+const onRemove = "on crudHTTP.Remove()"
+
+func (crudOp *crudHTTP) Remove(key crud.Key, identity *auth.Identity) error {
+	ep := crudOp.serverConfig.EndpointsSettled[crud.IntefaceKeyRemove]
+	serverURL := crudOp.serverConfig.Host + crudOp.serverConfig.Port + crudOp.serverConfig.Prefix + ep.Path +
+		"/" + string(key.Type) + "/" + key.ID.String()
+
+	// TODO!!!
+	var creds *auth.Creds
+
+	if err := httplib.Request(nil, serverURL, ep.Method, server_http.SetCreds(creds), nil, nil, l); err != nil {
+		return errors.Wrap(err, onRemove)
+	}
+
+	return nil
+}
+
+const onTestIfEqual = "on crudHTTP.TestIfEqual()"

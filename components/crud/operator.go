@@ -2,12 +2,11 @@ package crud
 
 import (
 	"sort"
-	"testing"
 	"time"
 
+	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/auth"
 
-	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/data/elements/selectors"
 )
 
@@ -15,21 +14,27 @@ type Type common.IDStr
 
 type Key struct {
 	Type
-	ID interface{}
+	ID
 }
 
-type ChangeItem func(interface{}, Key) (interface{}, error)
+type Data struct {
+	Key
+	Description
+	Value interface{}
+}
 
 type Operator interface {
 	Types() ([]Type, error)
 
-	Save(Key, interface{}, *auth.Identity) (*Key, error)
-	Read(Key, *auth.Identity) (interface{}, error)
-	List(Type, selectors.Options, *auth.Identity) ([]interface{}, error)
+	Save(Data, *auth.Identity) (*Key, error)
+	Read(Key, *auth.Identity) (*Data, error)
+	List(Type, selectors.Options, *auth.Identity) ([]Data, error)
 	Remove(Key, *auth.Identity) error
 
-	TestIfEqual(t *testing.T, expectedKey Key, expected interface{}, toCheck interface{}) error
+	// TestIfEqual(t *testing.T, expectedKey Key, checkIfEqual test.CheckIfEqual) error
 }
+
+type ChangeItem func(Data, Key) (*Data, error)
 
 type Stat struct {
 	ChldCount int64

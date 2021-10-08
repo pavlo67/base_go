@@ -46,7 +46,16 @@ func TestDispatcherRecordsPgCRUD(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, crudOp)
 
-	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, records01.CRUD01, records01.TestRecord, records01.ChangeForTest)
+	crudData := crud.Data{
+		Key: crud.Key{
+			Type: records01.CRUD01,
+			ID:   records01.TestItem.ID,
+		},
+		Description: records01.TestItem.Description,
+		Value:       records01.TestItem.Record01,
+	}
+
+	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ChangeForTest)
 }
 
 func TestDispatcherPersonsPgCRUD(t *testing.T) {
@@ -74,5 +83,14 @@ func TestDispatcherPersonsPgCRUD(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, crudOp)
 
-	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, persons01.CRUD01, persons01.TestPersonToSave, persons01.ChangeTestCRUDItem)
+	crudData := crud.Data{
+		Key: crud.Key{
+			Type: persons01.CRUD01,
+			ID:   persons01.TestItem.ID,
+		},
+		Description: persons01.TestItem.Description,
+		Value:       persons01.TestItem.Person01,
+	}
+
+	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons01.ChangeTestCRUDItem)
 }

@@ -1,21 +1,5 @@
 package crud_server_http
 
-//package crud_server_http
-//
-//import (
-//	"encoding/json"
-//	"html"
-//	"net/http"
-//	"reflect"
-//
-//	"github.com/julienschmidt/httprouter"
-//	"github.com/pavlo67/partes/confidenter/sessions"
-//	"github.com/pavlo67/partes/crud"
-//	"github.com/pavlo67/punctum/basis"
-//	"github.com/pavlo67/punctum/basis/viewshtml"
-//	"github.com/pkg/errors"
-//)
-//
 //const pageLengthDefault = 200
 //
 //const onRead = "on crud_serverhttp_jschmhr.Read()"

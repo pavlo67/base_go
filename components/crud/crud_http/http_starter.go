@@ -3,17 +3,19 @@ package crud_http
 import (
 	"fmt"
 
-	"github.com/pavlo67/common/common/crud/crud_server_http"
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/config"
-	"github.com/pavlo67/common/common/crud"
 	"github.com/pavlo67/common/common/joiner"
 	"github.com/pavlo67/common/common/logger"
 	"github.com/pavlo67/common/common/server/server_http"
 	"github.com/pavlo67/common/common/starter"
+
+	"github.com/pavlo67/data/components/crud/crud_server_http"
 )
+
+const InterfaceKey joiner.InterfaceKey = "crud_http"
 
 func Starter() starter.Operator {
 	return &crudHTTPStarter{}
@@ -38,7 +40,6 @@ func (ahs *crudHTTPStarter) Prepare(cfg *config.Config, options common.Map) erro
 		return err
 	}
 
-	// TODO!!! pass for each server separately
 	prefix := options.StringDefault("prefix", "")
 
 	var ok bool
@@ -48,13 +49,10 @@ func (ahs *crudHTTPStarter) Prepare(cfg *config.Config, options common.Map) erro
 
 	ahs.serverConfig.CompleteDirectly(crud_server_http.Endpoints, access.Host, access.Port, prefix)
 
-	ahs.interfaceKey = joiner.InterfaceKey(options.StringDefault("interface_key", string(crud.InterfaceKey)))
+	ahs.interfaceKey = joiner.InterfaceKey(options.StringDefault("interface_key", string(InterfaceKey)))
 
 	return nil
 }
-
-//} else if endpointsPtr, ok := options["endpoints"].(*server_http.Endpoints); ok {
-//	ihs.endpoints = *endpointsPtr
 
 func (ahs *crudHTTPStarter) Run(joinerOp joiner.Operator) error {
 	if l, _ = joinerOp.Interface(logger.InterfaceKey).(logger.Operator); l == nil {

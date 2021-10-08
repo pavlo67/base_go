@@ -17,7 +17,7 @@ import (
 //const toReadI = 0   // must be < numRepeats
 //const toUpdateI = 1 // must be < numRepeats
 
-func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleaner, crudType Type, itemToSave interface{}, changeItem ChangeItem) {
+func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleaner, itemToSave Data, changeItem ChangeItem) {
 	require.NotNil(t, crudOp)
 	require.NotNil(t, crudCleanerOp)
 
@@ -33,6 +33,9 @@ func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleane
 	require.NotNil(t, itemToSave)
 	require.NotNil(t, changeItem)
 
+	crudType := itemToSave.Key.Type
+	require.NotEmpty(t, crudType)
+
 	// clean old data ------------------------------------------
 
 	err = crudCleanerOp.Clean()
@@ -42,7 +45,9 @@ func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleane
 
 	// add item ----------------------------------------------
 
-	savedKey, err := crudOp.Save(Key{Type: crudType}, itemToSave, adminIdentity)
+	t.Log("add item")
+
+	savedKey, err := crudOp.Save(itemToSave, adminIdentity)
 	require.NoError(t, err)
 	require.NotNil(t, savedKey)
 	require.Equal(t, crudType, savedKey.Type)
@@ -52,33 +57,55 @@ func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleane
 
 	// read item ---------------------------------------------
 
+	t.Log("read item")
+
 	crudReaded, err := crudOp.Read(*savedKey, adminIdentity)
 	require.NoError(t, err)
 	require.NotNil(t, crudReaded)
 
-	err = crudOp.TestIfEqual(t, *savedKey, itemToSave, crudReaded)
+	crudSaved := Data{
+		Key:         *savedKey,
+		Description: itemToSave.Description,
+		Value:       itemToSave.Value,
+	}
+
+	TestIfEqual(t, crudSaved, *crudReaded)
 	require.NoError(t, err)
 
 	// change item -------------------------------------------
 
-	itemChanged, err := changeItem(crudReaded, *savedKey)
+	t.Log("change item")
 
-	savedChangedKey, err := crudOp.Save(*savedKey, itemChanged, adminIdentity)
+	itemChanged, err := changeItem(*crudReaded, *savedKey)
+	require.NoError(t, err)
+	require.NotNil(t, itemChanged)
+
+	savedChangedKey, err := crudOp.Save(*itemChanged, adminIdentity)
 	require.NoError(t, err)
 	require.Equal(t, *savedKey, *savedChangedKey)
 
 	CountTestItems(t, crudOp, crudType, adminIdentity, 1)
 
-	// read crud ---------------------------------------------
+	// read item ---------------------------------------------
+
+	t.Log("read item")
 
 	crudReaded, err = crudOp.Read(*savedKey, adminIdentity)
 	require.NoError(t, err)
 	require.NotNil(t, crudReaded)
 
-	err = crudOp.TestIfEqual(t, *savedKey, itemChanged, crudReaded)
+	crudSavedUpdated := Data{
+		Key:         *savedKey,
+		Description: itemChanged.Description,
+		Value:       itemChanged.Value,
+	}
+
+	TestIfEqual(t, crudSavedUpdated, *crudReaded)
 	require.NoError(t, err)
 
-	// remove crud -------------------------------------------
+	// remove item -------------------------------------------
+
+	t.Log("remove item")
 
 	err = crudOp.Remove(*savedKey, adminIdentity)
 	require.NoError(t, err)
@@ -87,110 +114,120 @@ func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleane
 	require.Nil(t, crudReaded)
 	CountTestItems(t, crudOp, crudType, adminIdentity, 0)
 
-	//// add another crud --------------------------------------
-	//
-	//passwordToSaveAnother := "passwordToSaveAnother"
-	//crudToSaveAnother := types.Person01{
-	//	Identity: auth.Identity{
-	//		Nickname: "test_nickname2",
-	//		Roles:    rbac.Roles{rbac.RoleUser},
-	//	},
-	//}
-	//err = crudToSaveAnother.SetCreds(auth.Creds{auth.CredsPassword: passwordToSaveAnother})
-	//require.NoError(t, err)
-	//
-	//crudToSaveAnother.ID, err = crudOp.Save(crudToSaveAnother, adminIdentity)
-	//require.NoErrorf(t, err, "%#v", err)
-	//require.NotEmpty(t, crudToSaveAnother.ID)
-	//
-	//CountTestItems(t, crudOp, adminIdentity, 2)
+}
 
-	//// add crud ----------------------------------------------
-	//
-	//crudItems, err = crudOp.List(adminIdentity)
-	//require.NoErrorf(t, err, "%#v", err)
-	//require.Equal(t, 3, len(crudItems))
-	//
-	//// list crud by itself: error ---------------------------
-	//
-	//crudItems, err = crudOp.List(&crud1Options)
-	//require.Errorf(t, err, "%#v", err)
-	//require.Empty(t, crudItems)
+//// add another crud --------------------------------------
+//
+//passwordToSaveAnother := "passwordToSaveAnother"
+//crudToSaveAnother := types.Person01{
+//	Identity: auth.Identity{
+//		Nickname: "test_nickname2",
+//		Roles:    rbac.Roles{rbac.RoleUser},
+//	},
+//}
+//err = crudToSaveAnother.SetCreds(auth.Creds{auth.CredsPassword: passwordToSaveAnother})
+//require.NoError(t, err)
+//
+//crudToSaveAnother.ID, err = crudOp.Save(crudToSaveAnother, adminIdentity)
+//require.NoErrorf(t, err, "%#v", err)
+//require.NotEmpty(t, crudToSaveAnother.ID)
+//
+//CountTestItems(t, crudOp, adminIdentity, 2)
 
-	//// change crud by admin: ok ------------------------------
-	//
-	//crud1ToChange := *crudReaded
-	//crud1ToChange.Nickname += "_changed"
-	//
-	//crud1Changed, err := crudOp.Change(crud1ToChange, adminIdentity)
-	//require.NoErrorf(t, err, "%#v", err)
-	//require.Equal(t, crud1ToChange.Identity, crud1Changed.Identity)
-	//
-	//crud1ChangedReaded, err := crudOp.Read(crud1Changed.ID, adminIdentity)
-	//require.NoErrorf(t, err, "%#v", err)
-	//require.Equal(t, crud1ToChange.Identity, crud1ChangedReaded.Identity)
-	//
-	//// change crud by itself: ok -----------------------------
-	//
-	//crud1ToChange.Nickname += "_again"
-	//
-	//crud1Changed, err = crudOp.Change(crud1ToChange, &crud1Options)
-	//require.NoErrorf(t, err, "%#v", err)
-	//require.Equal(t, crud1ToChange.Identity, crud1Changed.Identity)
-	//
-	//crud1ChangedReaded, err = crudOp.Read(crud1Changed.ID, &crud1Options)
-	//require.NoErrorf(t, err, "%#v", err)
-	//require.Equal(t, crud1ToChange.Identity, crud1ChangedReaded.Identity)
-	//
-	//// change/read crud by another crud: error -------------
-	//
-	//crud1ToChangeAgain := *crud1ChangedReaded
-	//crud1ToChangeAgain.Nickname += "_again2"
-	//
-	//crud1ChangedWrong, err := crudOp.Change(crud1ToChangeAgain, &crud2Options)
-	//require.Errorf(t, err, "%#v", err)
-	//require.Nil(t, crud1ChangedWrong)
-	//
-	//crud1ReadedWrong, err := crudOp.Read(crudID1, &crud2Options)
-	//require.Errorf(t, err, "%#v", err)
-	//require.Nil(t, crud1ReadedWrong)
-	//
-	//crud1Readed, err := crudOp.Read(crudID1, &crud1Options)
-	//require.NoErrorf(t, err, "%#v", err)
-	//require.NotNil(t, crud1Readed)
-	//require.Equal(t, crud1Changed.Identity, crud1Readed.Identity)
-	//
-	// remove crud by admin: ok ------------------------------
+//// add crud ----------------------------------------------
+//
+//crudItems, err = crudOp.List(adminIdentity)
+//require.NoErrorf(t, err, "%#v", err)
+//require.Equal(t, 3, len(crudItems))
+//
+//// list crud by itself: error ---------------------------
+//
+//crudItems, err = crudOp.List(&crud1Options)
+//require.Errorf(t, err, "%#v", err)
+//require.Empty(t, crudItems)
 
-	//err = crudOp.Remove(crudToSaveAnother.ID, adminIdentity)
-	//require.NoErrorf(t, err, "%#v", err)
-	//
-	//crudAnotherReaded, err := crudOp.Read(crudToSaveAnother.ID, adminIdentity)
-	//require.Errorf(t, err, "%#v", err)
-	//require.Nil(t, crudAnotherReaded)
-	//
-	//CountTestItems(t, crudOp, adminIdentity, 1)
+//// change crud by admin: ok ------------------------------
+//
+//crud1ToChange := *crudReaded
+//crud1ToChange.Nickname += "_changed"
+//
+//crud1Changed, err := crudOp.Change(crud1ToChange, adminIdentity)
+//require.NoErrorf(t, err, "%#v", err)
+//require.Equal(t, crud1ToChange.Identity, crud1Changed.Identity)
+//
+//crud1ChangedReaded, err := crudOp.Read(crud1Changed.ID, adminIdentity)
+//require.NoErrorf(t, err, "%#v", err)
+//require.Equal(t, crud1ToChange.Identity, crud1ChangedReaded.Identity)
+//
+//// change crud by itself: ok -----------------------------
+//
+//crud1ToChange.Nickname += "_again"
+//
+//crud1Changed, err = crudOp.Change(crud1ToChange, &crud1Options)
+//require.NoErrorf(t, err, "%#v", err)
+//require.Equal(t, crud1ToChange.Identity, crud1Changed.Identity)
+//
+//crud1ChangedReaded, err = crudOp.Read(crud1Changed.ID, &crud1Options)
+//require.NoErrorf(t, err, "%#v", err)
+//require.Equal(t, crud1ToChange.Identity, crud1ChangedReaded.Identity)
+//
+//// change/read crud by another crud: error -------------
+//
+//crud1ToChangeAgain := *crud1ChangedReaded
+//crud1ToChangeAgain.Nickname += "_again2"
+//
+//crud1ChangedWrong, err := crudOp.Change(crud1ToChangeAgain, &crud2Options)
+//require.Errorf(t, err, "%#v", err)
+//require.Nil(t, crud1ChangedWrong)
+//
+//crud1ReadedWrong, err := crudOp.Read(crudID1, &crud2Options)
+//require.Errorf(t, err, "%#v", err)
+//require.Nil(t, crud1ReadedWrong)
+//
+//crud1Readed, err := crudOp.Read(crudID1, &crud1Options)
+//require.NoErrorf(t, err, "%#v", err)
+//require.NotNil(t, crud1Readed)
+//require.Equal(t, crud1Changed.Identity, crud1Readed.Identity)
+//
+// remove crud by admin: ok ------------------------------
 
-	//// remove crud by itself: ok -----------------------------
-	//
-	//require.NotNil(t, crud2Options.Identity)
-	//err = crudOp.Remove(crudID2, &crud2Options)
-	//require.NoErrorf(t, err, "%#v / %#v", crud2Options.Identity, err)
-	//
-	//crud2Readed, err := crudOp.Read(crudID2, &crud2Options)
-	//require.Errorf(t, err, "%#v", err)
-	//require.Nil(t, crud2Readed)
-	//
-	//// remove crud by another crud: error ------------------
-	//
-	//err = crudOp.Remove(crudID1, &crud2Options)
-	//require.Errorf(t, err, "%#v", err)
-	//
-	//crud1Readed, err = crudOp.Read(crudID1, adminIdentity)
-	//require.NoErrorf(t, err, "%#v", err)
-	//require.NotNil(t, crud1Readed)
-	//require.Equal(t, crud1ChangedReaded.Identity, crud1Readed.Identity)
+//err = crudOp.Remove(crudToSaveAnother.ID, adminIdentity)
+//require.NoErrorf(t, err, "%#v", err)
+//
+//crudAnotherReaded, err := crudOp.Read(crudToSaveAnother.ID, adminIdentity)
+//require.Errorf(t, err, "%#v", err)
+//require.Nil(t, crudAnotherReaded)
+//
+//CountTestItems(t, crudOp, adminIdentity, 1)
 
+//// remove crud by itself: ok -----------------------------
+//
+//require.NotNil(t, crud2Options.Identity)
+//err = crudOp.Remove(crudID2, &crud2Options)
+//require.NoErrorf(t, err, "%#v / %#v", crud2Options.Identity, err)
+//
+//crud2Readed, err := crudOp.Read(crudID2, &crud2Options)
+//require.Errorf(t, err, "%#v", err)
+//require.Nil(t, crud2Readed)
+//
+//// remove crud by another crud: error ------------------
+//
+//err = crudOp.Remove(crudID1, &crud2Options)
+//require.Errorf(t, err, "%#v", err)
+//
+//crud1Readed, err = crudOp.Read(crudID1, adminIdentity)
+//require.NoErrorf(t, err, "%#v", err)
+//require.NotNil(t, crud1Readed)
+//require.Equal(t, crud1ChangedReaded.Identity, crud1Readed.Identity)
+
+const onCheckIfEqual = "on persons01/crud.TestIfEqual()"
+
+func TestIfEqual(t *testing.T, expected, toCheck Data) error {
+	require.Equal(t, expected.Key, toCheck.Key)
+	require.Equal(t, expected.Value, toCheck.Value)
+	expected.Description.TestIfEqual(t, toCheck.Description)
+
+	return nil
 }
 
 func CountTestItems(t *testing.T, crudOp Operator, crudType Type, identity *auth.Identity, expectedCount int) {
@@ -198,14 +235,3 @@ func CountTestItems(t *testing.T, crudOp Operator, crudType Type, identity *auth
 	require.NoError(t, err)
 	require.Equalf(t, expectedCount, len(crudItems), "crudItems = %#v", crudItems)
 }
-
-//func testData(t *testing.T, op Operator, expectedData, data interface{}, expectedID Key) {
-//	if expectedData == nil {
-//		require.Nil(t, data)
-//		return
-//	}
-//	require.NotNil(t, data)
-//
-//	err := op.TestIfEqual(expectedData, expectedID, data)
-//	require.NoError(t, err)
-//}

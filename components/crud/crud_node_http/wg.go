@@ -1,4 +1,4 @@
-package crud_server_http
+package crud_node_http
 
 import "sync"
 

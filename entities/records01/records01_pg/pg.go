@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pavlo67/data/entities"
+	"github.com/pavlo67/data/components/crud"
 
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
@@ -26,10 +26,10 @@ import (
 
 var fields = []string{"title", "summary", "record_type", "data", "embedded"}
 
-var fieldsToSave = append(fields, entities.Description01FieldsToSave...)
+var fieldsToSave = append(fields, crud.Description01FieldsToSave...)
 var fieldsToSaveStr = `"` + strings.Join(fieldsToSave, `","`) + `"`
 
-var fieldsToRead = append(fields, entities.Description01FieldsToRead...)
+var fieldsToRead = append(fields, crud.Description01FieldsToRead...)
 var fieldsToReadStr = `"` + strings.Join(fieldsToRead, `","`) + `"`
 
 var fieldsToList = append(fieldsToRead, "id")
@@ -123,20 +123,24 @@ func (records01Op records01Pg) Save(ri records01.Item, _ *auth.Identity) (record
 
 	descriptionValues, err := ri.Description.FoldToSaveInPg()
 	if err != nil {
-		return "", errors.Wrap(err, onSave)
+		return nil, errors.Wrap(err, onSave)
 	}
 
 	values := append([]interface{}{ri.Title, ri.Summary, ri.Type, ri.Data, embeddedBytes}, descriptionValues...)
 
 	if ri.ID == nil {
-		if err := records01Op.stmAdd.QueryRow(values...).Scan(&ri.ID); err != nil {
-			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlAdd, values)
+		var idInt64 int64
+
+		if err := records01Op.stmAdd.QueryRow(values...).Scan(&idInt64); err != nil {
+			return nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlAdd, values)
 		}
+
+		ri.ID = crud.NewIDInt64(idInt64)
 
 	} else {
 		values = append(values, ri.ID)
 		if _, err := records01Op.stmChange.Exec(values...); err != nil {
-			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlChange, values)
+			return nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlChange, values)
 		}
 	}
 
@@ -196,13 +200,14 @@ func (records01Op records01Pg) List(*selectors.Term, *auth.Identity) ([]records0
 	defer rows.Close()
 
 	for rows.Next() {
+		var idInt64 int64
 		var ri records01.Item
 		var embeddedBytes, urnBytes, relationsMapBytes, historyBytes []byte
 
 		if err := rows.Scan(
 			&ri.Title, &ri.Summary, &ri.Type, &ri.Data, &embeddedBytes,
 			&urnBytes, pq.Array(&ri.Description.Tags), &relationsMapBytes, &ri.Description.OwnerNSS, &ri.Description.ViewerNSS, &historyBytes,
-			&ri.Description.CreatedAt, &ri.Description.UpdatedAt, &ri.ID); err != nil {
+			&ri.Description.CreatedAt, &ri.Description.UpdatedAt, &idInt64); err != nil {
 			return nil, errors.Wrapf(err, onList+": "+sqllib.CantScanQueryRow, records01Op.sqlList, values)
 		}
 
@@ -215,6 +220,8 @@ func (records01Op records01Pg) List(*selectors.Term, *auth.Identity) ([]records0
 		if err := ri.Description.UnfoldReaded(urnBytes, relationsMapBytes, historyBytes); err != nil {
 			return nil, errors.Wrap(err, onList)
 		}
+
+		ri.ID = crud.NewIDInt64(idInt64)
 
 		items = append(items, ri)
 	}

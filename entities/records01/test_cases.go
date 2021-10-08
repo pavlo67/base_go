@@ -10,37 +10,32 @@ import (
 	"github.com/pkg/errors"
 )
 
-var TestRecord = entities.Record01{
-	Content01: entities.Content01{
-		Title:   "title1",
-		Summary: "summary1",
-		Type:    "something",
-		Data:    "wqer ewr er/yhlk'; '",
+var TestItem = Item{
+	Record01: entities.Record01{
+		Content01: entities.Content01{
+			Title:   "title1",
+			Summary: "summary1",
+			Type:    "something",
+			Data:    "wqer ewr er/yhlk'; '",
+		},
+		Embedded: []entities.Content01{{
+			Title:   "et1",
+			Summary: "es1",
+			Type:    "anything",
+			Data:    "wertesrytr eu yuik",
+		}},
 	},
-	Embedded: []entities.Content01{{
-		Title:   "et1",
-		Summary: "es1",
-		Type:    "anything",
-		Data:    "wertesrytr eu yuik",
-	}},
-	Description: entities.TestDescription01,
+	Description: crud.TestDescription01,
 }
 
 var _ crud.ChangeItem = ChangeForTest
 
 const onChangeItem = "on records01.ChangeForTest()"
 
-func ChangeForTest(data interface{}, key crud.Key) (interface{}, error) {
+func ChangeForTest(data crud.Data, key crud.Key) (*crud.Data, error) {
 	var item Item
 
-	switch v := data.(type) {
-	case Item:
-		item = v
-	case *Item:
-		if v == nil {
-			return nil, errors.New(onChangeItem + ": nil Item to change")
-		}
-		item = *v
+	switch v := data.Value.(type) {
 	case entities.Record01:
 		item = Item{Record01: v}
 	case *entities.Record01:
@@ -52,7 +47,16 @@ func ChangeForTest(data interface{}, key crud.Key) (interface{}, error) {
 		return nil, fmt.Errorf(onChangeItem+": wrong data (%#v) to change with key (%#v)", data, key)
 	}
 
-	return ChangeTestItem(item, key.ID), nil
+	changedItem := ChangeTestItem(item, key.ID)
+
+	return &crud.Data{
+		Key: crud.Key{
+			Type: CRUD01,
+			ID:   changedItem.ID,
+		},
+		Description: changedItem.Description,
+		Value:       changedItem.Record01,
+	}, nil
 }
 
 func ChangeTestItem(recordReaded Item, savedID ID) Item {
