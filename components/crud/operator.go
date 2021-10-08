@@ -1,6 +1,7 @@
 package crud
 
 import (
+	"encoding/json"
 	"sort"
 	"time"
 
@@ -23,6 +24,12 @@ type Data struct {
 	Value interface{}
 }
 
+type DataRaw struct {
+	Key
+	Description
+	Value json.RawMessage
+}
+
 type Operator interface {
 	Types() ([]Type, error)
 
@@ -34,7 +41,8 @@ type Operator interface {
 	// TestIfEqual(t *testing.T, expectedKey Key, checkIfEqual test.CheckIfEqual) error
 }
 
-type ChangeItem func(Data, Key) (*Data, error)
+type ChangeItemForTest func(Data, Key) (*Data, error)
+type ReadValueRaw func(message json.RawMessage) (interface{}, error)
 
 type Stat struct {
 	ChldCount int64

@@ -74,5 +74,5 @@ func TestPersonsPgCRUD(t *testing.T) {
 		Value:       persons01.TestItem.Person01,
 	}
 
-	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons01.ChangeTestCRUDItem)
+	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons01.ReadValueRaw, persons01.ChangeItemForTest)
 }

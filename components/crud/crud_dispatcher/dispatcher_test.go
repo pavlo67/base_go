@@ -53,7 +53,7 @@ func TestDispatcherRecordsPgCRUD(t *testing.T) {
 		Value:       records01.TestItem.Record01,
 	}
 
-	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ChangeForTest)
+	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ReadValueRaw, records01.ChangeItemForTest)
 }
 
 func TestDispatcherPersonsPgCRUD(t *testing.T) {
@@ -86,5 +86,5 @@ func TestDispatcherPersonsPgCRUD(t *testing.T) {
 		Value:       persons01.TestItem.Person01,
 	}
 
-	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons01.ChangeTestCRUDItem)
+	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons01.ReadValueRaw, persons01.ChangeItemForTest)
 }

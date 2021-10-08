@@ -1,6 +1,7 @@
 package crud
 
 import (
+	"encoding/json"
 	"os"
 	"testing"
 
@@ -17,7 +18,8 @@ import (
 //const toReadI = 0   // must be < numRepeats
 //const toUpdateI = 1 // must be < numRepeats
 
-func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleaner, itemToSave Data, changeItem ChangeItem) {
+func OperatorTestScenario(
+	t *testing.T, crudOp Operator, crudCleanerOp db.Cleaner, itemToSave Data, readValueRaw ReadValueRaw, changeItemForTest ChangeItemForTest) {
 	require.NotNil(t, crudOp)
 	require.NotNil(t, crudCleanerOp)
 
@@ -31,7 +33,7 @@ func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleane
 	require.NotNil(t, adminIdentity)
 
 	require.NotNil(t, itemToSave)
-	require.NotNil(t, changeItem)
+	require.NotNil(t, changeItemForTest)
 
 	crudType := itemToSave.Key.Type
 	require.NotEmpty(t, crudType)
@@ -69,14 +71,14 @@ func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleane
 		Value:       itemToSave.Value,
 	}
 
-	TestIfEqual(t, crudSaved, *crudReaded)
+	TestIfEqual(t, crudSaved, *crudReaded, readValueRaw)
 	require.NoError(t, err)
 
 	// change item -------------------------------------------
 
 	t.Log("change item")
 
-	itemChanged, err := changeItem(*crudReaded, *savedKey)
+	itemChanged, err := changeItemForTest(*crudReaded, *savedKey)
 	require.NoError(t, err)
 	require.NotNil(t, itemChanged)
 
@@ -100,7 +102,7 @@ func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleane
 		Value:       itemChanged.Value,
 	}
 
-	TestIfEqual(t, crudSavedUpdated, *crudReaded)
+	TestIfEqual(t, crudSavedUpdated, *crudReaded, readValueRaw)
 	require.NoError(t, err)
 
 	// remove item -------------------------------------------
@@ -222,10 +224,18 @@ func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleane
 
 const onCheckIfEqual = "on persons01/crud.TestIfEqual()"
 
-func TestIfEqual(t *testing.T, expected, toCheck Data) error {
+func TestIfEqual(t *testing.T, expected, toCheck Data, readValueRaw ReadValueRaw) error { //
 	require.Equal(t, expected.Key, toCheck.Key)
-	require.Equal(t, expected.Value, toCheck.Value)
 	expected.Description.TestIfEqual(t, toCheck.Description)
+
+	value := toCheck.Value
+	if jsonRawMessage, ok := value.(json.RawMessage); ok {
+		var err error
+		value, err = readValueRaw(jsonRawMessage)
+		require.NoError(t, err)
+	}
+
+	require.Equal(t, expected.Value, value)
 
 	return nil
 }

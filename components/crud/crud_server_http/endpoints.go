@@ -24,12 +24,6 @@ var Endpoints = server_http.Endpoints{
 	removeEndpoint,
 }
 
-type CrudDataRaw struct {
-	crud.Key
-	crud.Description
-	Value json.RawMessage
-}
-
 var typesEndpoint = server_http.Endpoint{
 	EndpointDescription: server_http.EndpointDescription{
 		InternalKey: crud.IntefaceKeyTypes,
@@ -58,12 +52,12 @@ var saveEndpoint = server_http.Endpoint{
 		if err != nil {
 			return server_http.ResponseRESTError(http.StatusBadRequest, errors.CommonError(common.WrongBodyKey, common.Map{"error": errors.Wrap(err, "can't read body")}), req)
 		}
-		var crudDataRaw CrudDataRaw
-		if err = json.Unmarshal(dataJSON, &crudDataRaw); err != nil {
+		var dataRaw crud.DataRaw
+		if err = json.Unmarshal(dataJSON, &dataRaw); err != nil {
 			return server_http.ResponseRESTError(http.StatusBadRequest, errors.CommonError(common.WrongJSONKey, common.Map{"error": errors.Wrapf(err, "can't unmarshal body: %s", dataJSON)}), req)
 		}
 
-		key, err := crudDispatcherOp.Save(crud.Data{crudDataRaw.Key, crudDataRaw.Description, crudDataRaw.Value}, identity)
+		key, err := crudDispatcherOp.Save(crud.Data{dataRaw.Key, dataRaw.Description, dataRaw.Value}, identity)
 		if err != nil {
 			return server_http.ResponseRESTError(0, err, req)
 		}

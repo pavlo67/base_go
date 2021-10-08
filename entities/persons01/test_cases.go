@@ -1,6 +1,7 @@
 package persons01
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/pavlo67/data/components/crud"
@@ -26,11 +27,23 @@ var TestItem = Item{
 	Description: crud.TestDescription01,
 }
 
-var _ crud.ChangeItem = ChangeTestCRUDItem
+var _ crud.ReadValueRaw = ReadValueRaw
 
-const onChangeItem = "on person01.ChangeTestCRUDItem()"
+func ReadValueRaw(message json.RawMessage) (interface{}, error) {
+	var person01 entities.Person01
 
-func ChangeTestCRUDItem(data crud.Data, key crud.Key) (*crud.Data, error) {
+	if err := json.Unmarshal(message, &person01); err != nil {
+		return nil, fmt.Errorf(onSave+": can't unmarshal (%s) into item.Person01", message)
+	}
+
+	return person01, nil
+}
+
+var _ crud.ChangeItemForTest = ChangeItemForTest
+
+const onChangeItem = "on person01.ChangeItemForTest()"
+
+func ChangeItemForTest(data crud.Data, key crud.Key) (*crud.Data, error) {
 	var item Item
 
 	switch v := data.Value.(type) {
@@ -41,6 +54,10 @@ func ChangeTestCRUDItem(data crud.Data, key crud.Key) (*crud.Data, error) {
 			return nil, errors.New(onChangeItem + ": nil Person01 to change")
 		}
 		item = Item{Person01: *v}
+	case json.RawMessage:
+		if err := json.Unmarshal(v, &item.Person01); err != nil {
+			return nil, fmt.Errorf(onSave+": can't unmarshal (%s) into item.Person01", v)
+		}
 	default:
 		return nil, fmt.Errorf(onChangeItem+": wrong data (%#v) to change with key (%#v)", data, key)
 	}

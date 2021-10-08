@@ -79,12 +79,12 @@ func (crudOp *crudHTTP) Read(key crud.Key, _ *auth.Identity) (*crud.Data, error)
 	// TODO!!!
 	var creds *auth.Creds
 
-	var item crud.Data
-	if err := httplib.Request(nil, serverURL, ep.Method, server_http.SetCreds(creds), nil, &item, l); err != nil {
+	var dataRaw crud.DataRaw
+	if err := httplib.Request(nil, serverURL, ep.Method, server_http.SetCreds(creds), nil, &dataRaw, l); err != nil {
 		return nil, errors.Wrap(err, onRead)
 	}
 
-	return &item, nil
+	return &crud.Data{dataRaw.Key, dataRaw.Description, dataRaw.Value}, nil
 }
 
 const onList = "on crudHTTP.List()"
@@ -97,9 +97,14 @@ func (crudOp *crudHTTP) List(crudType crud.Type, options selectors.Options, iden
 	// TODO!!! add selector too
 	var creds *auth.Creds
 
-	var items []crud.Data
-	if err := httplib.Request(nil, serverURL, ep.Method, server_http.SetCreds(creds), nil, &items, l); err != nil {
+	var dataRaws []crud.DataRaw
+	if err := httplib.Request(nil, serverURL, ep.Method, server_http.SetCreds(creds), nil, &dataRaws, l); err != nil {
 		return nil, errors.Wrap(err, onList)
+	}
+
+	items := make([]crud.Data, len(dataRaws))
+	for i, dataRaw := range dataRaws {
+		items[i] = crud.Data{dataRaw.Key, dataRaw.Description, dataRaw.Value}
 	}
 
 	return items, nil
