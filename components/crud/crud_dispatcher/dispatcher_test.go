@@ -3,6 +3,8 @@ package crud_dispatcher
 import (
 	"testing"
 
+	"github.com/pavlo67/common/common"
+
 	"github.com/pavlo67/data/entities/persons01/persons01_pg"
 
 	"github.com/pavlo67/data/entities/persons01"
@@ -27,7 +29,7 @@ func TestDispatcherRecordsPgCRUD(t *testing.T) {
 
 	components := []starter.Starter{
 		{db_pg.Starter(), nil},
-		{records01_pg.Starter(), nil},
+		{records01_pg.Starter(), common.Map{"crud_key": records01.InterfaceCRUDKey}},
 		{Starter(), nil},
 	}
 
@@ -36,15 +38,11 @@ func TestDispatcherRecordsPgCRUD(t *testing.T) {
 	require.NotNil(t, joinerOp)
 	defer joinerOp.CloseAll()
 
-	recordsOp, _ := joinerOp.Interface(records01.InterfaceKey).(records01.Operator)
-	require.NotNil(t, recordsOp)
+	crudOp, _ := joinerOp.Interface(InterfaceKey).(crud.Operator)
+	require.NotNil(t, crudOp)
 
 	recordsCleanerOp, _ := joinerOp.Interface(records01.InterfaceCleanerKey).(db.Cleaner)
 	require.NotNil(t, recordsCleanerOp)
-
-	crudOp, err := records01.OperatorCRUD(recordsOp)
-	require.NoError(t, err)
-	require.NotNil(t, crudOp)
 
 	crudData := crud.Data{
 		Key: crud.Key{
@@ -64,7 +62,7 @@ func TestDispatcherPersonsPgCRUD(t *testing.T) {
 
 	components := []starter.Starter{
 		{db_pg.Starter(), nil},
-		{persons01_pg.Starter(), nil},
+		{persons01_pg.Starter(), common.Map{"crud_key": persons01.InterfaceCRUDKey}},
 		{Starter(), nil},
 	}
 
@@ -73,15 +71,11 @@ func TestDispatcherPersonsPgCRUD(t *testing.T) {
 	require.NotNil(t, joinerOp)
 	defer joinerOp.CloseAll()
 
-	personsOp, _ := joinerOp.Interface(persons01.InterfaceKey).(persons01.Operator)
-	require.NotNil(t, personsOp)
+	crudOp, _ := joinerOp.Interface(InterfaceKey).(crud.Operator)
+	require.NotNil(t, crudOp)
 
 	personsCleanerOp, _ := joinerOp.Interface(persons01.InterfaceCleanerKey).(db.Cleaner)
 	require.NotNil(t, personsCleanerOp)
-
-	crudOp, err := persons01.OperatorCRUD(personsOp)
-	require.NoError(t, err)
-	require.NotNil(t, crudOp)
 
 	crudData := crud.Data{
 		Key: crud.Key{

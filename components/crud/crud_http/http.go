@@ -121,5 +121,3 @@ func (crudOp *crudHTTP) Remove(key crud.Key, identity *auth.Identity) error {
 
 	return nil
 }
-
-const onTestIfEqual = "on crudHTTP.TestIfEqual()"

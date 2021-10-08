@@ -29,6 +29,7 @@ type persons01PgStarter struct {
 	table string
 
 	interfaceKey joiner.InterfaceKey
+	crudKey      joiner.InterfaceKey
 	cleanerKey   joiner.InterfaceKey
 }
 
@@ -43,6 +44,7 @@ func (p01ps *persons01PgStarter) Prepare(cfg *config.Config, options common.Map)
 	p01ps.table = options.StringDefault("table", persons01.CollectionDefault)
 
 	p01ps.interfaceKey = joiner.InterfaceKey(options.StringDefault("interface_key", string(persons01.InterfaceKey)))
+	p01ps.crudKey = joiner.InterfaceKey(options.StringDefault("crud_key", ""))
 	p01ps.cleanerKey = joiner.InterfaceKey(options.StringDefault("cleaner_key", string(persons01.InterfaceCleanerKey)))
 
 	return nil
@@ -72,6 +74,14 @@ func (p01ps *persons01PgStarter) Run(joinerOp joiner.Operator) error {
 
 	if err = joinerOp.Join(personsOp, p01ps.interfaceKey); err != nil {
 		return errors.Wrapf(err, "can't join *personsStub{} as persons.Operator with key '%s'", p01ps.interfaceKey)
+	}
+
+	if p01ps.crudKey != "" {
+		if crudOp, err := persons01.OperatorCRUD(personsOp); err != nil {
+			return err
+		} else if err = joinerOp.Join(crudOp, p01ps.crudKey); err != nil {
+			return errors.Wrapf(err, "can't join *persons.OperatorCRUD as crud.Operator with key '%s'", p01ps.crudKey)
+		}
 	}
 
 	if err = joinerOp.Join(personsCleanerOp, p01ps.cleanerKey); err != nil {

@@ -1,0 +1,106 @@
+{
+ "info": {
+  "title": "CRUD_NODE REST API",
+  "version": "0.0.1"
+ },
+ "paths": {
+  "/list/{type}": {
+   "get": {
+    "operationId": "crud_list",
+    "parameters": [
+     {
+      "description": "",
+      "in": "path",
+      "name": "type",
+      "required": true,
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "tags": [
+     "crud"
+    ]
+   }
+  },
+  "/read/{type}/{id}": {
+   "get": {
+    "operationId": "crud_read",
+    "parameters": [
+     {
+      "description": "",
+      "in": "path",
+      "name": "type",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "",
+      "in": "path",
+      "name": "id",
+      "required": true,
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "tags": [
+     "crud"
+    ]
+   }
+  },
+  "/remove/{type}/{id}": {
+   "delete": {
+    "operationId": "crud_remove",
+    "parameters": [
+     {
+      "description": "",
+      "in": "path",
+      "name": "type",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "",
+      "in": "path",
+      "name": "id",
+      "required": true,
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "tags": [
+     "crud"
+    ]
+   }
+  },
+  "/save": {
+   "post": {
+    "operationId": "crud_save",
+    "parameters": [
+     {
+      "in": "body",
+      "name": "body_item",
+      "required": true,
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "tags": [
+     "crud"
+    ]
+   }
+  }
+ },
+ "port": ":3902",
+ "schemes": [
+  "http"
+ ],
+ "swagger": "2.0"
+}
