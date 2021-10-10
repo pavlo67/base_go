@@ -5,8 +5,6 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	auth2 "github.com/pavlo67/data/common/auth"
-
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/common/common/errors"
@@ -59,7 +57,7 @@ var saveEndpoint = server_http.Endpoint{
 			return server_http.ResponseRESTError(http.StatusBadRequest, errors.CommonError(common.WrongJSONKey, common.Map{"error": errors.Wrapf(err, "can't unmarshal body: %s", dataJSON)}), req)
 		}
 
-		key, err := crudDispatcherOp.Save(crud.Data{dataRaw.Key, dataRaw.Description, dataRaw.Value}, auth2.Actor{Identity: identity})
+		key, err := crudDispatcherOp.Save(crud.Data{dataRaw.Key, dataRaw.Description, dataRaw.Value}, auth.Actor{Identity: identity})
 		if err != nil {
 			return server_http.ResponseRESTError(0, err, req)
 		}
@@ -81,7 +79,7 @@ var readEndpoint = server_http.Endpoint{
 			ID:   crud.NewID(params["id"]),
 		}
 
-		item, err := crudDispatcherOp.Read(key, auth2.Actor{Identity: identity})
+		item, err := crudDispatcherOp.Read(key, auth.Actor{Identity: identity})
 		if err != nil {
 			return server_http.ResponseRESTError(0, err, req)
 		}
@@ -103,7 +101,7 @@ var listEndpoint = server_http.Endpoint{
 		// TODO!!!
 		var selector selectors.Options
 
-		items, err := crudDispatcherOp.List(crudType, selector, auth2.Actor{Identity: identity})
+		items, err := crudDispatcherOp.List(crudType, selector, auth.Actor{Identity: identity})
 		if err != nil {
 			return server_http.ResponseRESTError(0, err, req)
 		}
@@ -125,7 +123,7 @@ var removeEndpoint = server_http.Endpoint{
 			ID:   crud.NewID(params["id"]),
 		}
 
-		if err := crudDispatcherOp.Remove(key, auth2.Actor{Identity: identity}); err != nil {
+		if err := crudDispatcherOp.Remove(key, auth.Actor{Identity: identity}); err != nil {
 			return server_http.ResponseRESTError(0, err, req)
 		}
 

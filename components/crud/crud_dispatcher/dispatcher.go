@@ -3,7 +3,7 @@ package crud_dispatcher
 import (
 	"fmt"
 
-	"github.com/pavlo67/data/common/auth"
+	"github.com/pavlo67/common/common/auth"
 
 	"github.com/pavlo67/data/elements/selectors"
 

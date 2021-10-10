@@ -10,8 +10,6 @@ import (
 	"github.com/pavlo67/common/common/httplib"
 	"github.com/pavlo67/common/common/server/server_http"
 
-	auth2 "github.com/pavlo67/data/common/auth"
-
 	"github.com/pavlo67/data/elements/selectors"
 
 	"github.com/pavlo67/data/components/crud"
@@ -52,7 +50,7 @@ func (crudOp *crudHTTP) Types() ([]crud.Type, error) {
 
 const onSave = "on crudHTTP.Save()"
 
-func (crudOp *crudHTTP) Save(data crud.Data, _ auth2.Actor) (*crud.Key, error) {
+func (crudOp *crudHTTP) Save(data crud.Data, _ auth.Actor) (*crud.Key, error) {
 	ep := crudOp.serverConfig.EndpointsSettled[crud.IntefaceKeySave]
 	serverURL := crudOp.serverConfig.Host + crudOp.serverConfig.Port + crudOp.serverConfig.Prefix + ep.Path
 
@@ -74,7 +72,7 @@ func (crudOp *crudHTTP) Save(data crud.Data, _ auth2.Actor) (*crud.Key, error) {
 
 const onRead = "on crudHTTP.Read()"
 
-func (crudOp *crudHTTP) Read(key crud.Key, _ auth2.Actor) (*crud.Data, error) {
+func (crudOp *crudHTTP) Read(key crud.Key, _ auth.Actor) (*crud.Data, error) {
 	ep := crudOp.serverConfig.EndpointsSettled[crud.IntefaceKeyRead]
 	serverURL := crudOp.serverConfig.Host + crudOp.serverConfig.Port + crudOp.serverConfig.Prefix + ep.Path +
 		"/" + string(key.Type) + "/" + key.ID.String()
@@ -92,7 +90,7 @@ func (crudOp *crudHTTP) Read(key crud.Key, _ auth2.Actor) (*crud.Data, error) {
 
 const onList = "on crudHTTP.List()"
 
-func (crudOp *crudHTTP) List(crudType crud.Type, options selectors.Options, actor auth2.Actor) ([]crud.Data, error) {
+func (crudOp *crudHTTP) List(crudType crud.Type, options selectors.Options, actor auth.Actor) ([]crud.Data, error) {
 	ep := crudOp.serverConfig.EndpointsSettled[crud.IntefaceKeyList]
 	serverURL := crudOp.serverConfig.Host + crudOp.serverConfig.Port + crudOp.serverConfig.Prefix + ep.Path +
 		"/" + string(crudType)
@@ -115,7 +113,7 @@ func (crudOp *crudHTTP) List(crudType crud.Type, options selectors.Options, acto
 
 const onRemove = "on crudHTTP.Remove()"
 
-func (crudOp *crudHTTP) Remove(key crud.Key, actor auth2.Actor) error {
+func (crudOp *crudHTTP) Remove(key crud.Key, actor auth.Actor) error {
 	ep := crudOp.serverConfig.EndpointsSettled[crud.IntefaceKeyRemove]
 	serverURL := crudOp.serverConfig.Host + crudOp.serverConfig.Port + crudOp.serverConfig.Prefix + ep.Path +
 		"/" + string(key.Type) + "/" + key.ID.String()

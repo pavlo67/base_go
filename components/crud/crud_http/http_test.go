@@ -21,15 +21,18 @@ func TestHTTPRecordsCRUD(t *testing.T) {
 	cfgService, l := config.PrepareTests(t, "../../../_environments/", "test", "http_records01_pg.log")
 	require.NotNil(t, cfgService)
 
-	components := append(
-		node_crud_settings.Components(true),
+	starters, err := node_crud_settings.Starters(cfgService, true)
+	require.NoError(t, err)
+
+	starters = append(
+		starters,
 		starter.Starter{Starter(), common.Map{
 			"prefix":        crud_node_http.PrefixREST,
 			"server_config": crud_node_http.ServerConfig,
 		}},
 	)
 
-	joinerOp, err := starter.Run(components, &cfgService, "CLI BUILD FOR TEST", l)
+	joinerOp, err := starter.Run(starters, &cfgService, "CLI BUILD FOR TEST", l)
 	require.NoError(t, err)
 	require.NotNil(t, joinerOp)
 	defer joinerOp.CloseAll()
@@ -58,15 +61,18 @@ func TestHTTPPersonsCRUD(t *testing.T) {
 	cfgService, l := config.PrepareTests(t, "../../../_environments/", "test", "http_persons01_pg.log")
 	require.NotNil(t, cfgService)
 
-	components := append(
-		node_crud_settings.Components(true),
+	starters, err := node_crud_settings.Starters(cfgService, true)
+	require.NoError(t, err)
+
+	starters = append(
+		starters,
 		starter.Starter{Starter(), common.Map{
 			"prefix":        crud_node_http.PrefixREST,
 			"server_config": crud_node_http.ServerConfig,
 		}},
 	)
 
-	joinerOp, err := starter.Run(components, &cfgService, "CLI BUILD FOR TEST", l)
+	joinerOp, err := starter.Run(starters, &cfgService, "CLI BUILD FOR TEST", l)
 	require.NoError(t, err)
 	require.NotNil(t, joinerOp)
 	defer joinerOp.CloseAll()

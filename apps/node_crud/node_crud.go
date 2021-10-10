@@ -26,7 +26,12 @@ func main() {
 
 	cfgService, l := config.Prepare("_environments/")
 	label := "NODE_CRUD/HTML/REST BUILD"
-	joinerOp, err := starter.Run(node_crud_settings.Components(false), &cfgService, label, l)
+	starters, err := node_crud_settings.Starters(cfgService, false)
+	if err != nil {
+		l.Fatal(err)
+	}
+
+	joinerOp, err := starter.Run(starters, &cfgService, label, l)
 	if err != nil {
 		l.Fatal(err)
 	}

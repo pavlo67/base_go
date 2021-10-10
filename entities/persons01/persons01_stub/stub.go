@@ -6,7 +6,7 @@ import (
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/db"
 
-	"github.com/pavlo67/data/common/auth"
+	"github.com/pavlo67/common/common/auth"
 
 	"github.com/pavlo67/data/elements/selectors"
 

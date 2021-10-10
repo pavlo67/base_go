@@ -6,20 +6,31 @@ import (
 	"github.com/pavlo67/common/common/auth/auth_jwt"
 	"github.com/pavlo67/common/common/auth/auth_server_http"
 	"github.com/pavlo67/common/common/auth/auth_stub"
+	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/control"
 	"github.com/pavlo67/common/common/db/db_pg"
 	"github.com/pavlo67/common/common/server/server_http/server_http_jschmhr"
 	"github.com/pavlo67/common/common/starter"
-	"github.com/pavlo67/data/components/crud/crud_dispatcher"
-	"github.com/pavlo67/data/components/crud/crud_node_http"
-	"github.com/pavlo67/data/components/crud/crud_server_http"
+	"github.com/pkg/errors"
+
 	"github.com/pavlo67/data/entities/persons01"
 	"github.com/pavlo67/data/entities/persons01/persons01_pg"
 	"github.com/pavlo67/data/entities/records01"
 	"github.com/pavlo67/data/entities/records01/records01_pg"
+
+	"github.com/pavlo67/data/components/crud/crud_dispatcher"
+	"github.com/pavlo67/data/components/crud/crud_node_http"
+	"github.com/pavlo67/data/components/crud/crud_server_http"
 )
 
-func Components(logRequests bool) []starter.Starter {
+const onComponents = "on node_crud.Starters()"
+
+func Starters(cfgService config.Config, logRequests bool) ([]starter.Starter, error) {
+
+	var actors []auth.Actor
+	if err := cfgService.Value("actors", &actors); err != nil {
+		return nil, errors.Wrap(err, onComponents)
+	}
 
 	starters := []starter.Starter{
 		// general purposes components
@@ -42,5 +53,5 @@ func Components(logRequests bool) []starter.Starter {
 		{crud_node_http.Starter(), nil},
 	}
 
-	return starters
+	return starters, nil
 }

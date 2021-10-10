@@ -11,14 +11,8 @@ import (
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/rbac"
 
-	auth2 "github.com/pavlo67/data/common/auth"
-
 	"github.com/pavlo67/data/elements/selectors"
 )
-
-//const numRepeats = 3
-//const toReadI = 0   // must be < numRepeats
-//const toUpdateI = 1 // must be < numRepeats
 
 func OperatorTestScenario(
 	t *testing.T, crudOp Operator, crudCleanerOp db.Cleaner, itemToSave Data, readValueRaw ReadValueRaw, changeItemForTest ChangeItemForTest) {
@@ -32,7 +26,7 @@ func OperatorTestScenario(
 	require.Equal(t, "test", os.Getenv("ENV"))
 
 	adminIdentity := auth.IdentityWithRoles(rbac.RoleAdmin)
-	adminActor := auth2.Actor{
+	adminActor := auth.Actor{
 		Identity: adminIdentity,
 	}
 
@@ -246,7 +240,7 @@ func TestIfEqual(t *testing.T, expected, toCheck Data, readValueRaw ReadValueRaw
 	return nil
 }
 
-func CountTestItems(t *testing.T, crudOp Operator, crudType Type, actor auth2.Actor, expectedCount int) {
+func CountTestItems(t *testing.T, crudOp Operator, crudType Type, actor auth.Actor, expectedCount int) {
 	crudItems, err := crudOp.List(crudType, selectors.Options{}, actor)
 	require.NoError(t, err)
 	require.Equalf(t, expectedCount, len(crudItems), "crudItems = %#v", crudItems)
