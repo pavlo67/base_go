@@ -8,20 +8,21 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pavlo67/data/components/crud"
-
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
-	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/sqllib"
 	"github.com/pavlo67/common/common/sqllib/sqllib_pg"
 
+	"github.com/pavlo67/data/common/auth"
+
 	"github.com/pavlo67/data/elements/selectors"
 
 	"github.com/pavlo67/data/entities/records01"
+
+	"github.com/pavlo67/data/components/crud"
 )
 
 var fields = []string{"title", "summary", "record_type", "data", "embedded"}
@@ -108,7 +109,7 @@ var _ records01.Operator = &records01Pg{}
 
 const onSave = "on records01Pg.Save()"
 
-func (records01Op records01Pg) Save(ri records01.Item, _ *auth.Identity) (records01.ID, error) {
+func (records01Op records01Pg) Save(ri records01.Item, _ auth.Actor) (records01.ID, error) {
 
 	// "title", "summary", "record_type", "data", "embedded"
 
@@ -149,7 +150,7 @@ func (records01Op records01Pg) Save(ri records01.Item, _ *auth.Identity) (record
 
 const onRead = "on records01Pg.Read()"
 
-func (records01Op records01Pg) Read(id records01.ID, _ *auth.Identity) (*records01.Item, error) {
+func (records01Op records01Pg) Read(id records01.ID, _ auth.Actor) (*records01.Item, error) {
 
 	values := []interface{}{id}
 	ri := records01.Item{ID: id}
@@ -183,7 +184,7 @@ func (records01Op records01Pg) Read(id records01.ID, _ *auth.Identity) (*records
 
 const onList = "on records01Pg.List()"
 
-func (records01Op records01Pg) List(*selectors.Term, *auth.Identity) ([]records01.Item, error) {
+func (records01Op records01Pg) List(*selectors.Term, auth.Actor) ([]records01.Item, error) {
 
 	// TODO!!! selector
 
@@ -235,7 +236,7 @@ func (records01Op records01Pg) List(*selectors.Term, *auth.Identity) ([]records0
 
 const onRemove = "on records01Pg.Remove()"
 
-func (records01Op records01Pg) Remove(id records01.ID, _ *auth.Identity) error {
+func (records01Op records01Pg) Remove(id records01.ID, _ auth.Actor) error {
 	values := []interface{}{id}
 
 	if _, err := records01Op.stmRemove.Exec(values...); err != nil {

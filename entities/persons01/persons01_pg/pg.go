@@ -12,10 +12,11 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
-	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/sqllib"
 	"github.com/pavlo67/common/common/sqllib/sqllib_pg"
+
+	"github.com/pavlo67/data/common/auth"
 
 	"github.com/pavlo67/data/elements/selectors"
 
@@ -108,7 +109,7 @@ var _ persons01.Operator = &persons01Pg{}
 
 const onSave = "on persons01Pg.Save()"
 
-func (persons01Op persons01Pg) Save(pi persons01.Item, _ *auth.Identity) (persons01.ID, error) {
+func (persons01Op persons01Pg) Save(pi persons01.Item, _ auth.Actor) (persons01.ID, error) {
 
 	// "firstnames", "middlename", "lastname", "nicknames", "contacts", "info"
 
@@ -162,7 +163,7 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ *auth.Identity) (person
 
 const onRead = "on persons01Pg.Read()"
 
-func (persons01Op persons01Pg) Read(id persons01.ID, _ *auth.Identity) (*persons01.Item, error) {
+func (persons01Op persons01Pg) Read(id persons01.ID, _ auth.Actor) (*persons01.Item, error) {
 
 	values := []interface{}{id}
 	pi := persons01.Item{ID: id}
@@ -201,7 +202,7 @@ func (persons01Op persons01Pg) Read(id persons01.ID, _ *auth.Identity) (*persons
 
 const onList = "on persons01Pg.List()"
 
-func (persons01Op persons01Pg) List(*selectors.Term, *auth.Identity) ([]persons01.Item, error) {
+func (persons01Op persons01Pg) List(*selectors.Term, auth.Actor) ([]persons01.Item, error) {
 
 	// TODO!!! selector
 
@@ -257,7 +258,7 @@ func (persons01Op persons01Pg) List(*selectors.Term, *auth.Identity) ([]persons0
 
 const onRemove = "on persons01Pg.Remove()"
 
-func (persons01Op persons01Pg) Remove(id persons01.ID, _ *auth.Identity) error {
+func (persons01Op persons01Pg) Remove(id persons01.ID, _ auth.Actor) error {
 	values := []interface{}{id}
 
 	if _, err := persons01Op.stmRemove.Exec(values...); err != nil {

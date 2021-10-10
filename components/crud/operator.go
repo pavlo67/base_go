@@ -6,7 +6,8 @@ import (
 	"time"
 
 	"github.com/pavlo67/common/common"
-	"github.com/pavlo67/common/common/auth"
+
+	"github.com/pavlo67/data/common/auth"
 
 	"github.com/pavlo67/data/elements/selectors"
 )
@@ -33,10 +34,10 @@ type DataRaw struct {
 type Operator interface {
 	Types() ([]Type, error)
 
-	Save(Data, *auth.Identity) (*Key, error)
-	Read(Key, *auth.Identity) (*Data, error)
-	List(Type, selectors.Options, *auth.Identity) ([]Data, error)
-	Remove(Key, *auth.Identity) error
+	Save(Data, auth.Actor) (*Key, error)
+	Read(Key, auth.Actor) (*Data, error)
+	List(Type, selectors.Options, auth.Actor) ([]Data, error)
+	Remove(Key, auth.Actor) error
 
 	// TestIfEqual(t *testing.T, expectedKey Key, checkIfEqual test.CheckIfEqual) error
 }

@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/data/entities"
 
-	"github.com/pkg/errors"
-
-	"github.com/pavlo67/common/common/auth"
+	"github.com/pavlo67/data/common/auth"
 
 	"github.com/pavlo67/data/elements/selectors"
 )
@@ -37,7 +37,7 @@ func (crudOp *persons01CRUD) Types() ([]crud.Type, error) {
 
 const onSave = "on persons01/crud.Save()"
 
-func (crudOp *persons01CRUD) Save(data crud.Data, identity *auth.Identity) (*crud.Key, error) {
+func (crudOp *persons01CRUD) Save(data crud.Data, actor auth.Actor) (*crud.Key, error) {
 	if data.Key.Type != CRUD01 {
 		return nil, fmt.Errorf(onSave+": wrong key.Type (%#v) to save item (%#v)", data.Key, data.Value)
 	}
@@ -69,7 +69,7 @@ func (crudOp *persons01CRUD) Save(data crud.Data, identity *auth.Identity) (*cru
 
 	item.ID = data.Key.ID
 	item.Description = data.Description
-	id, err := crudOp.personsOp.Save(item, identity)
+	id, err := crudOp.personsOp.Save(item, actor)
 	if err != nil {
 		return nil, errors.Wrap(err, onSave)
 	}
@@ -79,12 +79,12 @@ func (crudOp *persons01CRUD) Save(data crud.Data, identity *auth.Identity) (*cru
 
 const onRead = "on persons01/crud.Read()"
 
-func (crudOp *persons01CRUD) Read(key crud.Key, identity *auth.Identity) (*crud.Data, error) {
+func (crudOp *persons01CRUD) Read(key crud.Key, actor auth.Actor) (*crud.Data, error) {
 	if key.Type != CRUD01 {
 		return nil, fmt.Errorf(onRead+": wrong key.Type (%#v)", key)
 	}
 
-	item, err := crudOp.personsOp.Read(key.ID, identity)
+	item, err := crudOp.personsOp.Read(key.ID, actor)
 	if err != nil || item == nil {
 		return nil, fmt.Errorf(onRead+": got %#v / %s", item, err)
 	}
@@ -101,13 +101,13 @@ func (crudOp *persons01CRUD) Read(key crud.Key, identity *auth.Identity) (*crud.
 
 const onList = "on persons01/crud.List()"
 
-func (crudOp *persons01CRUD) List(crudType crud.Type, _ selectors.Options, identity *auth.Identity) ([]crud.Data, error) {
+func (crudOp *persons01CRUD) List(crudType crud.Type, _ selectors.Options, actor auth.Actor) ([]crud.Data, error) {
 	if crudType != CRUD01 {
 		return nil, fmt.Errorf(onList+": wrong crudType (%#v)", crudType)
 	}
 
 	// TODO!!! use selector
-	items, err := crudOp.personsOp.List(nil, identity)
+	items, err := crudOp.personsOp.List(nil, actor)
 	if err != nil {
 		return nil, errors.Wrap(err, onList)
 	}
@@ -130,10 +130,10 @@ func (crudOp *persons01CRUD) List(crudType crud.Type, _ selectors.Options, ident
 
 const onRemove = "on persons01/crud.Remove()"
 
-func (crudOp *persons01CRUD) Remove(key crud.Key, identity *auth.Identity) error {
+func (crudOp *persons01CRUD) Remove(key crud.Key, actor auth.Actor) error {
 	if key.Type != CRUD01 {
 		return fmt.Errorf(onRemove+": wrong key.Type (%#v)", key)
 	}
 
-	return crudOp.personsOp.Remove(key.ID, identity)
+	return crudOp.personsOp.Remove(key.ID, actor)
 }

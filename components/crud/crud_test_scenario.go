@@ -11,6 +11,8 @@ import (
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/rbac"
 
+	auth2 "github.com/pavlo67/data/common/auth"
+
 	"github.com/pavlo67/data/elements/selectors"
 )
 
@@ -30,7 +32,11 @@ func OperatorTestScenario(
 	require.Equal(t, "test", os.Getenv("ENV"))
 
 	adminIdentity := auth.IdentityWithRoles(rbac.RoleAdmin)
-	require.NotNil(t, adminIdentity)
+	adminActor := auth2.Actor{
+		Identity: adminIdentity,
+	}
+
+	require.NotNil(t, adminActor)
 
 	require.NotNil(t, itemToSave)
 	require.NotNil(t, changeItemForTest)
@@ -43,25 +49,25 @@ func OperatorTestScenario(
 	err = crudCleanerOp.Clean()
 	require.NoError(t, err)
 
-	CountTestItems(t, crudOp, crudType, adminIdentity, 0)
+	CountTestItems(t, crudOp, crudType, adminActor, 0)
 
 	// add item ----------------------------------------------
 
 	t.Log("add item")
 
-	savedKey, err := crudOp.Save(itemToSave, adminIdentity)
+	savedKey, err := crudOp.Save(itemToSave, adminActor)
 	require.NoError(t, err)
 	require.NotNil(t, savedKey)
 	require.Equal(t, crudType, savedKey.Type)
 	require.NotEmpty(t, savedKey.ID)
 
-	CountTestItems(t, crudOp, crudType, adminIdentity, 1)
+	CountTestItems(t, crudOp, crudType, adminActor, 1)
 
 	// read item ---------------------------------------------
 
 	t.Log("read item")
 
-	crudReaded, err := crudOp.Read(*savedKey, adminIdentity)
+	crudReaded, err := crudOp.Read(*savedKey, adminActor)
 	require.NoError(t, err)
 	require.NotNil(t, crudReaded)
 
@@ -82,17 +88,17 @@ func OperatorTestScenario(
 	require.NoError(t, err)
 	require.NotNil(t, itemChanged)
 
-	savedChangedKey, err := crudOp.Save(*itemChanged, adminIdentity)
+	savedChangedKey, err := crudOp.Save(*itemChanged, adminActor)
 	require.NoError(t, err)
 	require.Equal(t, *savedKey, *savedChangedKey)
 
-	CountTestItems(t, crudOp, crudType, adminIdentity, 1)
+	CountTestItems(t, crudOp, crudType, adminActor, 1)
 
 	// read item ---------------------------------------------
 
 	t.Log("read item")
 
-	crudReaded, err = crudOp.Read(*savedKey, adminIdentity)
+	crudReaded, err = crudOp.Read(*savedKey, adminActor)
 	require.NoError(t, err)
 	require.NotNil(t, crudReaded)
 
@@ -109,12 +115,12 @@ func OperatorTestScenario(
 
 	t.Log("remove item")
 
-	err = crudOp.Remove(*savedKey, adminIdentity)
+	err = crudOp.Remove(*savedKey, adminActor)
 	require.NoError(t, err)
-	crudReaded, err = crudOp.Read(*savedKey, adminIdentity)
+	crudReaded, err = crudOp.Read(*savedKey, adminActor)
 	require.Error(t, err)
 	require.Nil(t, crudReaded)
-	CountTestItems(t, crudOp, crudType, adminIdentity, 0)
+	CountTestItems(t, crudOp, crudType, adminActor, 0)
 
 }
 
@@ -240,8 +246,8 @@ func TestIfEqual(t *testing.T, expected, toCheck Data, readValueRaw ReadValueRaw
 	return nil
 }
 
-func CountTestItems(t *testing.T, crudOp Operator, crudType Type, identity *auth.Identity, expectedCount int) {
-	crudItems, err := crudOp.List(crudType, selectors.Options{}, identity)
+func CountTestItems(t *testing.T, crudOp Operator, crudType Type, actor auth2.Actor, expectedCount int) {
+	crudItems, err := crudOp.List(crudType, selectors.Options{}, actor)
 	require.NoError(t, err)
 	require.Equalf(t, expectedCount, len(crudItems), "crudItems = %#v", crudItems)
 }

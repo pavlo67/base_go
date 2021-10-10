@@ -72,7 +72,7 @@ package persons01
 //}
 //
 //// DEPRECATED
-//func CountTestPersons(t *testing.T, personsOp Operator, identity *auth.Identity, expectedCount int) {
+//func CountTestPersons(t *testing.T, personsOp Operator, actor auth.Actor, expectedCount int) {
 //	personItems, err := personsOp.List(nil, identity)
 //	require.NoError(t, err)
 //	require.Equalf(t, expectedCount, len(personItems), "personItems = %#v", personItems)
