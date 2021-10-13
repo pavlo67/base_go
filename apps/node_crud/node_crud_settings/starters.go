@@ -9,6 +9,7 @@ import (
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/control"
 	"github.com/pavlo67/common/common/db/db_pg"
+	"github.com/pavlo67/common/common/rbac"
 	"github.com/pavlo67/common/common/server/server_http/server_http_jschmhr"
 	"github.com/pavlo67/common/common/starter"
 	"github.com/pkg/errors"
@@ -36,7 +37,6 @@ func Starters(cfgService config.Config, logRequests bool) ([]starter.Starter, er
 		// general purposes components
 		{control.Starter(), nil},
 		{db_pg.Starter(), nil},
-
 		{server_http_jschmhr.Starter(), nil},
 
 		// auth components
@@ -44,12 +44,13 @@ func Starters(cfgService config.Config, logRequests bool) ([]starter.Starter, er
 		{auth_jwt.Starter(), nil},
 		{auth_server_http.Starter(), common.Map{"auth_jwt_key": auth_jwt.InterfaceKey}},
 
-		{persons01_pg.Starter(), common.Map{"crud_key": persons01.InterfaceCRUDKey}},
-		{records01_pg.Starter(), common.Map{"crud_key": records01.InterfaceCRUDKey}},
+		// CRUD components
+		{persons01_pg.Starter(), common.Map{"crud_key": persons01.InterfaceCRUDKey, "roles": rbac.Roles{rbac.RoleAdmin}}},
+		{records01_pg.Starter(), common.Map{"crud_key": records01.InterfaceCRUDKey, "roles": rbac.Roles{rbac.RoleAdmin}}},
 		{crud_dispatcher.Starter(), nil},
-
-		// actions starter (connecting specific actions to the corresponding action managers)
 		{crud_server_http.Starter(), nil},
+
+		// app starter
 		{crud_node_http.Starter(), nil},
 	}
 

@@ -3,6 +3,10 @@ package crud_http
 import (
 	"encoding/json"
 
+	"github.com/pavlo67/common/common/rbac"
+
+	"github.com/pavlo67/common/common"
+
 	"github.com/pavlo67/common/common/auth"
 
 	"github.com/pkg/errors"
@@ -29,6 +33,10 @@ func New(serverConfig server_http.Config) (crud.Operator, error) {
 	}
 
 	return &crudOp, nil
+}
+
+func (crudOp *crudHTTP) Roles() (rbac.Roles, error) {
+	return nil, common.ErrNotSupported
 }
 
 const onTypes = "on crudHTTP.Types()"

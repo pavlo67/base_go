@@ -5,6 +5,8 @@ import (
 	"sort"
 	"time"
 
+	"github.com/pavlo67/common/common/rbac"
+
 	"github.com/pavlo67/common/common"
 
 	"github.com/pavlo67/common/common/auth"
@@ -33,13 +35,12 @@ type DataRaw struct {
 
 type Operator interface {
 	Types() ([]Type, error)
+	Roles() (rbac.Roles, error)
 
 	Save(Data, auth.Actor) (*Key, error)
 	Read(Key, auth.Actor) (*Data, error)
 	List(Type, selectors.Options, auth.Actor) ([]Data, error)
 	Remove(Key, auth.Actor) error
-
-	// TestIfEqual(t *testing.T, expectedKey Key, checkIfEqual test.CheckIfEqual) error
 }
 
 type ChangeItemForTest func(Data, Key) (*Data, error)

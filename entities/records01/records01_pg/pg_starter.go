@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/pavlo67/common/common/rbac"
+
 	"github.com/pavlo67/data/entities/records01"
 
 	"github.com/pavlo67/common/common/db/db_pg"
@@ -24,6 +26,8 @@ var l logger.Operator
 var _ starter.Operator = &records01PgStarter{}
 
 type records01PgStarter struct {
+	roles rbac.Roles
+
 	dbGetKey joiner.InterfaceKey
 	dbSetKey joiner.InterfaceKey
 
@@ -39,6 +43,8 @@ func (r01ps *records01PgStarter) Name() string {
 }
 
 func (r01ps *records01PgStarter) Prepare(cfg *config.Config, options common.Map) error {
+	r01ps.roles, _ = options["roles"].(rbac.Roles)
+
 	r01ps.dbGetKey = joiner.InterfaceKey(options.StringDefault("db_get_key", string(db_pg.InterfaceKey)))
 	r01ps.dbSetKey = joiner.InterfaceKey(options.StringDefault("db_set_key", ""))
 
@@ -78,7 +84,7 @@ func (r01ps *records01PgStarter) Run(joinerOp joiner.Operator) error {
 	}
 
 	if r01ps.crudKey != "" {
-		if crudOp, err := records01.OperatorCRUD(recordsOp); err != nil {
+		if crudOp, err := records01.OperatorCRUD(recordsOp, r01ps.roles); err != nil {
 			return err
 		} else if err = joinerOp.Join(crudOp, r01ps.crudKey); err != nil {
 			return errors.Wrapf(err, "can't join *records.OperatorCRUD as crud.Operator with key '%s'", r01ps.crudKey)

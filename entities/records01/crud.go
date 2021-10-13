@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/pavlo67/common/common/rbac"
+
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common/auth"
@@ -15,24 +17,29 @@ import (
 	"github.com/pavlo67/data/components/crud"
 )
 
+const CRUD01 crud.Type = "records01"
+
 var _ crud.Operator = &records01CRUD{}
 
-func OperatorCRUD(recordsOp Operator) (crud.Operator, error) {
+func OperatorCRUD(recordsOp Operator, roles rbac.Roles) (crud.Operator, error) {
 	if recordsOp == nil {
 		return nil, errors.New("recordsOp == nil")
 	}
 
-	return &records01CRUD{recordsOp: recordsOp}, nil
+	return &records01CRUD{recordsOp: recordsOp, roles: roles}, nil
 }
-
-const CRUD01 crud.Type = "records01"
 
 type records01CRUD struct {
 	recordsOp Operator
+	roles     rbac.Roles
 }
 
 func (crudOp *records01CRUD) Types() ([]crud.Type, error) {
 	return []crud.Type{CRUD01}, nil
+}
+
+func (crudOp *records01CRUD) Roles() (rbac.Roles, error) {
+	return crudOp.roles, nil
 }
 
 const onSave = "on records01/crud.Save()"

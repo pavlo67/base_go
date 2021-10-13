@@ -4,10 +4,12 @@ import (
 	"flag"
 	"log"
 
-	"github.com/pavlo67/data/components/crud/crud_node_http"
-
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/starter"
+
+	config2 "github.com/pavlo67/data/common/config"
+
+	"github.com/pavlo67/data/components/crud/crud_node_http"
 
 	"github.com/pavlo67/data/apps/node_crud/node_crud_settings"
 )
@@ -31,7 +33,12 @@ func main() {
 		l.Fatal(err)
 	}
 
-	joinerOp, err := starter.Run(starters, &cfgService, label, l)
+	cfgTest, err := config2.ConfigOther("_environments/", "test", config.MarshalerYAML)
+	if err != nil {
+		l.Fatal(err)
+	}
+
+	joinerOp, err := starter.Run(starters, &cfgService, &cfgTest, label, l)
 	if err != nil {
 		l.Fatal(err)
 	}

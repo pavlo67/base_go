@@ -3,6 +3,8 @@ package crud_dispatcher
 import (
 	"fmt"
 
+	"github.com/pavlo67/common/common/rbac"
+
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
@@ -53,10 +55,26 @@ func (sds *crudDispatcherStarter) Run(joinerOp joiner.Operator) error {
 		} else {
 			types, err := crudOp.Types()
 			if err != nil {
-				return fmt.Errorf("crud.Operator error in joiner.Component (%#v): %s", c, err)
+				return fmt.Errorf("in joiner.Component (%#v): %s", c, err)
 			}
+			if len(types) < 1 {
+				return fmt.Errorf("in joiner.Component (%#v): no types to use this crud.Operator", c)
+			}
+
+			roles, err := crudOp.Roles()
+			if err != nil {
+				return fmt.Errorf("in joiner.Component (%#v): %s", c, err)
+			}
+			if len(roles) < 1 {
+				return fmt.Errorf("in joiner.Component (%#v): no roles to use this crud.Operator", c)
+			}
+
 			for _, t := range types {
-				crudOps[t] = crudOp
+				crudOpsTyped := map[rbac.Role]crud.Operator{}
+				for _, r := range roles {
+					crudOpsTyped[r] = crudOp
+				}
+				crudOps[t] = crudOpsTyped
 			}
 		}
 	}
