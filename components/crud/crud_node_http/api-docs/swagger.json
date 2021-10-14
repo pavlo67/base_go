@@ -4,6 +4,25 @@
   "version": "0.0.1"
  },
  "paths": {
+  "/auth": {
+   "post": {
+    "operationId": "auth_authenticate",
+    "parameters": [
+     {
+      "in": "body",
+      "name": "body_item",
+      "required": true,
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "tags": [
+     "auth"
+    ]
+   }
+  },
   "/list/{type}": {
    "get": {
     "operationId": "crud_list",
@@ -96,9 +115,28 @@
      "crud"
     ]
    }
+  },
+  "/set_creds": {
+   "post": {
+    "operationId": "auth_set_creds",
+    "parameters": [
+     {
+      "in": "body",
+      "name": "body_item",
+      "required": true,
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "tags": [
+     "auth"
+    ]
+   }
   }
  },
- "port": ":3002",
+ "port": ":3902",
  "schemes": [
   "http"
  ],

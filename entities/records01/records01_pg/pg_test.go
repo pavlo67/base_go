@@ -3,6 +3,12 @@ package records01_pg
 import (
 	"testing"
 
+	"github.com/pavlo67/common/common"
+
+	"github.com/pavlo67/common/common/auth"
+
+	"github.com/pavlo67/common/common/rbac"
+
 	"github.com/pavlo67/data/components/crud"
 
 	"github.com/stretchr/testify/require"
@@ -24,8 +30,8 @@ func TestRecordsPgCRUD(t *testing.T) {
 	//require.NoErrorf(t, err, "%#v", cfgService)
 
 	components := []starter.Starter{
-		{db_pg.Starter(), nil},
-		{Starter(), nil},
+		{db_pg.Starter(), nil, nil},
+		{Starter(), common.Map{"roles": rbac.Roles{crud.RoleTester}}, nil},
 	}
 
 	joinerOp, err := starter.Run(components, &cfgService, "CLI BUILD FOR TEST", l)
@@ -33,13 +39,13 @@ func TestRecordsPgCRUD(t *testing.T) {
 	require.NotNil(t, joinerOp)
 	defer joinerOp.CloseAll()
 
-	recordsOp, _ := joinerOp.Interface(records01.InterfaceKey).(records01.Operator)
+	recordsOp, _ := joinerOp.Interface(records01.InterfaceTestKey).(records01.Operator)
 	require.NotNil(t, recordsOp)
 
 	recordsCleanerOp, _ := joinerOp.Interface(records01.InterfaceCleanerKey).(db.Cleaner)
 	require.NotNil(t, recordsCleanerOp)
 
-	crudOp, err := records01.OperatorCRUD(recordsOp)
+	crudOp, err := records01.OperatorCRUD(recordsOp, rbac.Roles{crud.RoleTester})
 	require.NoError(t, err)
 	require.NotNil(t, crudOp)
 
@@ -52,5 +58,7 @@ func TestRecordsPgCRUD(t *testing.T) {
 		Value:       records01.TestItem.Record01,
 	}
 
-	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ReadValueRaw, records01.ChangeItemForTest)
+	testActor := auth.Actor{Identity: auth.IdentityWithRoles(crud.RoleTester)}
+
+	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ReadValueRaw, records01.ChangeItemForTest, testActor)
 }

@@ -70,7 +70,11 @@ func (sds *crudDispatcherStarter) Run(joinerOp joiner.Operator) error {
 			}
 
 			for _, t := range types {
-				crudOpsTyped := map[rbac.Role]crud.Operator{}
+				crudOpsTyped := crudOps[t]
+				if crudOpsTyped == nil {
+					crudOpsTyped = map[rbac.Role]crud.Operator{}
+				}
+
 				for _, r := range roles {
 					crudOpsTyped[r] = crudOp
 				}

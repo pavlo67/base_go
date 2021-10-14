@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/pavlo67/common/common/rbac"
+	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/common/common/db/db_pg"
 
@@ -49,9 +50,14 @@ func (p01ps *persons01PgStarter) Prepare(cfg *config.Config, options common.Map)
 
 	p01ps.table = options.StringDefault("table", persons01.CollectionDefault)
 
-	p01ps.interfaceKey = joiner.InterfaceKey(options.StringDefault("interface_key", string(persons01.InterfaceKey)))
-	p01ps.crudKey = joiner.InterfaceKey(options.StringDefault("crud_key", ""))
-	p01ps.cleanerKey = joiner.InterfaceKey(options.StringDefault("cleaner_key", string(persons01.InterfaceCleanerKey)))
+	interfaceKey, interfaceCRUDKey, cleanerKey := persons01.InterfaceKey, persons01.InterfaceCRUDKey, joiner.InterfaceKey("")
+	if p01ps.roles.Has(crud.RoleTester) {
+		interfaceKey, interfaceCRUDKey, cleanerKey = persons01.InterfaceTestKey, persons01.InterfaceCRUDTestKey, persons01.InterfaceCleanerKey
+	}
+
+	p01ps.interfaceKey = joiner.InterfaceKey(options.StringDefault("interface_key", string(interfaceKey)))
+	p01ps.crudKey = joiner.InterfaceKey(options.StringDefault("crud_key", string(interfaceCRUDKey)))
+	p01ps.cleanerKey = joiner.InterfaceKey(options.StringDefault("cleaner_key", string(cleanerKey)))
 
 	return nil
 }
@@ -79,7 +85,7 @@ func (p01ps *persons01PgStarter) Run(joinerOp joiner.Operator) error {
 	}
 
 	if err = joinerOp.Join(personsOp, p01ps.interfaceKey); err != nil {
-		return errors.Wrapf(err, "can't join *personsStub{} as persons.Operator with key '%s'", p01ps.interfaceKey)
+		return errors.Wrapf(err, "can't join *persons01Pg{} as persons.Operator with key '%s'", p01ps.interfaceKey)
 	}
 
 	if p01ps.crudKey != "" {
@@ -90,8 +96,10 @@ func (p01ps *persons01PgStarter) Run(joinerOp joiner.Operator) error {
 		}
 	}
 
-	if err = joinerOp.Join(personsCleanerOp, p01ps.cleanerKey); err != nil {
-		return errors.Wrapf(err, "can't join *personsStub{} as db.Cleaner with key '%s'", p01ps.cleanerKey)
+	if p01ps.cleanerKey != "" {
+		if err = joinerOp.Join(personsCleanerOp, p01ps.cleanerKey); err != nil {
+			return errors.Wrapf(err, "can't join *persons01Pg{} as db.Cleaner with key '%s'", p01ps.cleanerKey)
+		}
 	}
 
 	return nil

@@ -1,4 +1,4 @@
-package files01_fs
+package files_fs
 
 import (
 	"fmt"

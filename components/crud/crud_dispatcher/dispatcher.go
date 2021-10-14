@@ -34,6 +34,8 @@ func (crudOp crudDispatcher) dispatchedOp(crudType crud.Type, actor auth.Actor) 
 		return nil, fmt.Errorf("no actor.Identity to get crud.Operator for actor (%#v)", actor)
 	}
 
+	// l.Infof("22222222222222222222 %#v", crudOp.dispatchedOps)
+
 	crudOpsTyped := crudOp.dispatchedOps[crudType]
 	for _, role := range actor.Identity.Roles {
 		if crudOp := crudOpsTyped[role]; crudOp != nil {
@@ -41,7 +43,7 @@ func (crudOp crudDispatcher) dispatchedOp(crudType crud.Type, actor auth.Actor) 
 		}
 	}
 
-	return nil, fmt.Errorf("no crud.Operator for type/actor (%s / %#v)", crudType, actor)
+	return nil, fmt.Errorf("no crud.Operator for type/actor.Identity (%s / %#v)", crudType, *actor.Identity)
 }
 
 // operator ----------------------------------------------------------------------------------------------------------------
@@ -52,7 +54,7 @@ func (crudOp crudDispatcher) Save(data crud.Data, actor auth.Actor) (*crud.Key, 
 
 	op, err := crudOp.dispatchedOp(data.Key.Type, actor)
 	if err != nil {
-		return nil, fmt.Errorf("on crudDispatcher.Save(%#v): %s", err)
+		return nil, fmt.Errorf("on crudDispatcher.Save(%#v): %s", data, err)
 	}
 
 	return op.Save(data, actor)
@@ -61,7 +63,7 @@ func (crudOp crudDispatcher) Save(data crud.Data, actor auth.Actor) (*crud.Key, 
 func (crudOp crudDispatcher) Read(key crud.Key, actor auth.Actor) (*crud.Data, error) {
 	op, err := crudOp.dispatchedOp(key.Type, actor)
 	if err != nil {
-		return nil, fmt.Errorf("on crudDispatcher.Read(%#v): %s", err)
+		return nil, fmt.Errorf("on crudDispatcher.Read(%#v): %s", key, err)
 	}
 
 	return op.Read(key, actor)
@@ -70,7 +72,7 @@ func (crudOp crudDispatcher) Read(key crud.Key, actor auth.Actor) (*crud.Data, e
 func (crudOp crudDispatcher) List(crudType crud.Type, options selectors.Options, actor auth.Actor) ([]crud.Data, error) {
 	op, err := crudOp.dispatchedOp(crudType, actor)
 	if err != nil {
-		return nil, fmt.Errorf("on crudDispatcher.List(%#v): %s", err)
+		return nil, fmt.Errorf("on crudDispatcher.List(%s): %s", crudType, err)
 	}
 
 	return op.List(crudType, options, actor)
@@ -80,7 +82,7 @@ func (crudOp crudDispatcher) Remove(key crud.Key, actor auth.Actor) error {
 
 	op, err := crudOp.dispatchedOp(key.Type, actor)
 	if err != nil {
-		return fmt.Errorf("on crudDispatcher.Remove(%#v): %s", err)
+		return fmt.Errorf("on crudDispatcher.Remove(%#v): %s", key, err)
 	}
 
 	return op.Remove(key, actor)

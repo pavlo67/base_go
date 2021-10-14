@@ -9,14 +9,14 @@ import (
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/control"
 	"github.com/pavlo67/common/common/db/db_pg"
+	"github.com/pavlo67/common/common/joiner"
 	"github.com/pavlo67/common/common/rbac"
 	"github.com/pavlo67/common/common/server/server_http/server_http_jschmhr"
 	"github.com/pavlo67/common/common/starter"
+	"github.com/pavlo67/data/components/crud"
 	"github.com/pkg/errors"
 
-	"github.com/pavlo67/data/entities/persons01"
 	"github.com/pavlo67/data/entities/persons01/persons01_pg"
-	"github.com/pavlo67/data/entities/records01"
 	"github.com/pavlo67/data/entities/records01/records01_pg"
 
 	"github.com/pavlo67/data/components/crud/crud_dispatcher"
@@ -26,7 +26,9 @@ import (
 
 const onComponents = "on node_crud.Starters()"
 
-func Starters(cfgService config.Config, logRequests bool) ([]starter.Starter, error) {
+const dbPgTestInterfaceKey joiner.InterfaceKey = "db_pg_test"
+
+func Starters(cfgService, cfgTests config.Config, logRequests bool) ([]starter.Starter, error) {
 
 	var actors []auth.Actor
 	if err := cfgService.Value("actors", &actors); err != nil {
@@ -35,23 +37,26 @@ func Starters(cfgService config.Config, logRequests bool) ([]starter.Starter, er
 
 	starters := []starter.Starter{
 		// general purposes components
-		{control.Starter(), nil},
-		{db_pg.Starter(), nil},
-		{server_http_jschmhr.Starter(), nil},
+		{control.Starter(), nil, nil},
+		{db_pg.Starter(), nil, nil},
+		{db_pg.Starter(), common.Map{"interface_key": dbPgTestInterfaceKey}, &cfgTests},
+		{server_http_jschmhr.Starter(), nil, nil},
 
 		// auth components
-		{auth_stub.Starter(), common.Map{"interface_key": auth.InterfaceKey}},
-		{auth_jwt.Starter(), nil},
-		{auth_server_http.Starter(), common.Map{"auth_jwt_key": auth_jwt.InterfaceKey}},
+		{auth_stub.Starter(), common.Map{"interface_key": auth.InterfaceKey}, nil},
+		{auth_jwt.Starter(), nil, nil},
+		{auth_server_http.Starter(), common.Map{"auth_jwt_key": auth_jwt.InterfaceKey}, nil},
 
 		// CRUD components
-		{persons01_pg.Starter(), common.Map{"crud_key": persons01.InterfaceCRUDKey, "roles": rbac.Roles{rbac.RoleAdmin}}},
-		{records01_pg.Starter(), common.Map{"crud_key": records01.InterfaceCRUDKey, "roles": rbac.Roles{rbac.RoleAdmin}}},
-		{crud_dispatcher.Starter(), nil},
-		{crud_server_http.Starter(), nil},
+		{persons01_pg.Starter(), common.Map{"roles": rbac.Roles{rbac.RoleAdmin}}, nil},
+		{persons01_pg.Starter(), common.Map{"roles": rbac.Roles{crud.RoleTester}, "db_key": dbPgTestInterfaceKey}, nil},
+		{records01_pg.Starter(), common.Map{"roles": rbac.Roles{rbac.RoleAdmin}}, nil},
+		{records01_pg.Starter(), common.Map{"roles": rbac.Roles{crud.RoleTester}, "db_key": dbPgTestInterfaceKey}, nil},
+		{crud_dispatcher.Starter(), nil, nil},
+		{crud_server_http.Starter(), nil, nil},
 
 		// app starter
-		{crud_node_http.Starter(), nil},
+		{crud_node_http.Starter(), nil, nil},
 	}
 
 	return starters, nil

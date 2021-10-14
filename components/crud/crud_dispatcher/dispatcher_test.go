@@ -3,6 +3,10 @@ package crud_dispatcher
 import (
 	"testing"
 
+	"github.com/pavlo67/common/common/rbac"
+
+	"github.com/pavlo67/common/common/auth"
+
 	"github.com/pavlo67/common/common"
 
 	"github.com/pavlo67/data/entities/persons01/persons01_pg"
@@ -28,9 +32,9 @@ func TestDispatcherRecordsPgCRUD(t *testing.T) {
 	require.NotNil(t, cfgService)
 
 	components := []starter.Starter{
-		{db_pg.Starter(), nil},
-		{records01_pg.Starter(), common.Map{"crud_key": records01.InterfaceCRUDKey}},
-		{Starter(), nil},
+		{db_pg.Starter(), nil, nil},
+		{records01_pg.Starter(), common.Map{"roles": rbac.Roles{crud.RoleTester}}, nil},
+		{Starter(), nil, nil},
 	}
 
 	joinerOp, err := starter.Run(components, &cfgService, "CLI BUILD FOR TEST", l)
@@ -53,7 +57,9 @@ func TestDispatcherRecordsPgCRUD(t *testing.T) {
 		Value:       records01.TestItem.Record01,
 	}
 
-	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ReadValueRaw, records01.ChangeItemForTest)
+	testActor := auth.Actor{Identity: auth.IdentityWithRoles(crud.RoleTester)}
+
+	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ReadValueRaw, records01.ChangeItemForTest, testActor)
 }
 
 func TestDispatcherPersonsPgCRUD(t *testing.T) {
@@ -61,9 +67,9 @@ func TestDispatcherPersonsPgCRUD(t *testing.T) {
 	require.NotNil(t, cfgService)
 
 	components := []starter.Starter{
-		{db_pg.Starter(), nil},
-		{persons01_pg.Starter(), common.Map{"crud_key": persons01.InterfaceCRUDKey}},
-		{Starter(), nil},
+		{db_pg.Starter(), nil, nil},
+		{persons01_pg.Starter(), common.Map{"roles": rbac.Roles{crud.RoleTester}}, nil},
+		{Starter(), nil, nil},
 	}
 
 	joinerOp, err := starter.Run(components, &cfgService, "CLI BUILD FOR TEST", l)
@@ -86,5 +92,7 @@ func TestDispatcherPersonsPgCRUD(t *testing.T) {
 		Value:       persons01.TestItem.Person01,
 	}
 
-	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons01.ReadValueRaw, persons01.ChangeItemForTest)
+	testActor := auth.Actor{Identity: auth.IdentityWithRoles(crud.RoleTester)}
+
+	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons01.ReadValueRaw, persons01.ChangeItemForTest, testActor)
 }

@@ -3,6 +3,8 @@ package crud_node_http
 import (
 	"fmt"
 
+	"github.com/pavlo67/common/common/auth"
+
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/filelib"
@@ -46,6 +48,9 @@ var ServerConfig = server_http.Config{
 		Version: "0.0.1",
 	},
 	EndpointsSettled: server_http.EndpointsSettled{
+		auth.IntefaceKeyAuthenticate: {Path: "/auth", Tags: []string{"auth"}},
+		auth.IntefaceKeySetCreds:     {Path: "/set_creds", Tags: []string{"auth"}},
+
 		crud.IntefaceKeySave:   {Path: "/save", Tags: []string{"crud"}},
 		crud.IntefaceKeyRead:   {Path: "/read", Tags: []string{"crud"}},
 		crud.IntefaceKeyList:   {Path: "/list", Tags: []string{"crud"}},

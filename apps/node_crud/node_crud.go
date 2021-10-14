@@ -7,8 +7,6 @@ import (
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/starter"
 
-	config2 "github.com/pavlo67/data/common/config"
-
 	"github.com/pavlo67/data/components/crud/crud_node_http"
 
 	"github.com/pavlo67/data/apps/node_crud/node_crud_settings"
@@ -26,19 +24,20 @@ func main() {
 		return
 	}
 
-	cfgService, l := config.Prepare("_environments/")
+	cfgService, l := config.PrepareApp("_environments/")
+
+	cfgTest, err := config.Get("_environments/test.yaml", config.MarshalerYAML)
+	if err != nil || cfgTest == nil {
+		l.Fatal(err)
+	}
+
+	starters, err := node_crud_settings.Starters(cfgService, *cfgTest, false)
+	if err != nil {
+		l.Fatal(err)
+	}
+
 	label := "NODE_CRUD/HTML/REST BUILD"
-	starters, err := node_crud_settings.Starters(cfgService, false)
-	if err != nil {
-		l.Fatal(err)
-	}
-
-	cfgTest, err := config2.ConfigOther("_environments/", "test", config.MarshalerYAML)
-	if err != nil {
-		l.Fatal(err)
-	}
-
-	joinerOp, err := starter.Run(starters, &cfgService, &cfgTest, label, l)
+	joinerOp, err := starter.Run(starters, &cfgService, label, l)
 	if err != nil {
 		l.Fatal(err)
 	}

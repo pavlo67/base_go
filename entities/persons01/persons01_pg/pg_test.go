@@ -3,6 +3,12 @@ package persons01_pg
 import (
 	"testing"
 
+	"github.com/pavlo67/common/common"
+
+	"github.com/pavlo67/common/common/auth"
+
+	"github.com/pavlo67/common/common/rbac"
+
 	"github.com/pavlo67/data/components/crud"
 
 	"github.com/stretchr/testify/require"
@@ -17,7 +23,7 @@ import (
 
 //// DEPRECATED
 //func TestPersons01Pg(t *testing.T) {
-//	cfgService, l := config.PrepareTests(t, "../../../_environments/", "test", "persons01_pg.log")
+//	cfgService, l := config.PrepareAppTests(t, "../../../_environments/", "test", "persons01_pg.log")
 //	require.NotNil(t, cfgService)
 //
 //	//var cfg config.Access
@@ -46,8 +52,8 @@ func TestPersonsPgCRUD(t *testing.T) {
 	//require.NoErrorf(t, err, "%#v", cfgService)
 
 	components := []starter.Starter{
-		{db_pg.Starter(), nil},
-		{Starter(), nil},
+		{db_pg.Starter(), nil, nil},
+		{Starter(), common.Map{"roles": rbac.Roles{crud.RoleTester}}, nil},
 	}
 
 	joinerOp, err := starter.Run(components, &cfgService, "CLI BUILD FOR TEST", l)
@@ -55,13 +61,13 @@ func TestPersonsPgCRUD(t *testing.T) {
 	require.NotNil(t, joinerOp)
 	defer joinerOp.CloseAll()
 
-	personsOp, _ := joinerOp.Interface(persons01.InterfaceKey).(persons01.Operator)
+	personsOp, _ := joinerOp.Interface(persons01.InterfaceTestKey).(persons01.Operator)
 	require.NotNil(t, personsOp)
 
 	personsCleanerOp, _ := joinerOp.Interface(persons01.InterfaceCleanerKey).(db.Cleaner)
 	require.NotNil(t, personsCleanerOp)
 
-	crudOp, err := persons01.OperatorCRUD(personsOp)
+	crudOp, err := persons01.OperatorCRUD(personsOp, rbac.Roles{crud.RoleTester})
 	require.NoError(t, err)
 	require.NotNil(t, crudOp)
 
@@ -74,5 +80,7 @@ func TestPersonsPgCRUD(t *testing.T) {
 		Value:       persons01.TestItem.Person01,
 	}
 
-	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons01.ReadValueRaw, persons01.ChangeItemForTest)
+	testActor := auth.Actor{Identity: auth.IdentityWithRoles(crud.RoleTester)}
+
+	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons01.ReadValueRaw, persons01.ChangeItemForTest, testActor)
 }

@@ -1,4 +1,4 @@
-package files01_fs
+package files_fs
 
 import (
 	"testing"
@@ -20,7 +20,7 @@ func TestFilesFS(t *testing.T) {
 	require.NoErrorf(t, err, "%#v", cfgService)
 
 	components := []starter.Starter{
-		{Starter(), common.Map{"base_path": cfg.Path}},
+		{Starter(), common.Map{"base_path": cfg.Path}, nil},
 	}
 
 	joinerOp, err := starter.Run(components, &cfgService, "CLI BUILD FOR TEST", l)
