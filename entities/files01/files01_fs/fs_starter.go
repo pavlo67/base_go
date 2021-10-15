@@ -1,4 +1,4 @@
-package files_fs
+package files01_fs
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	"github.com/pavlo67/common/common/joiner"
 	"github.com/pavlo67/common/common/logger"
 	"github.com/pavlo67/common/common/starter"
-	"github.com/pavlo67/data/entities/files"
+	"github.com/pavlo67/data/entities/files01"
 )
 
 func Starter() starter.Operator {
@@ -51,8 +51,8 @@ func (ffs *filesFSStarter) Prepare(cfg *config.Config, options common.Map) error
 
 	log.Printf("%s --> %#v", configKey, ffs.access)
 
-	ffs.interfaceKey = joiner.InterfaceKey(options.StringDefault("interface_key", string(files.InterfaceKey)))
-	ffs.cleanerKey = joiner.InterfaceKey(options.StringDefault("cleaner_key", string(files.InterfaceKeyCleaner)))
+	ffs.interfaceKey = joiner.InterfaceKey(options.StringDefault("interface_key", string(files01.InterfaceKey)))
+	ffs.cleanerKey = joiner.InterfaceKey(options.StringDefault("cleaner_key", string(files01.InterfaceKeyCleaner)))
 
 	return nil
 }

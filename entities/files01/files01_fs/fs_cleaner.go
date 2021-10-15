@@ -1,4 +1,4 @@
-package files_fs
+package files01_fs
 
 import (
 	"os"

@@ -7,9 +7,7 @@ import (
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/starter"
 
-	"github.com/pavlo67/data/components/crud/crud_node_http"
-
-	"github.com/pavlo67/data/apps/node_crud/node_crud_settings"
+	"github.com/pavlo67/data/components/crud/crud_node"
 )
 
 var BuildDate, BuildTag, BuildCommit string
@@ -31,7 +29,7 @@ func main() {
 		l.Fatal(err)
 	}
 
-	starters, err := node_crud_settings.Starters(cfgService, *cfgTest, false)
+	starters, err := crud_node.Starters(cfgService, *cfgTest, false)
 	if err != nil {
 		l.Fatal(err)
 	}
@@ -43,5 +41,5 @@ func main() {
 	}
 	defer joinerOp.CloseAll()
 
-	crud_node_http.WG.Wait()
+	crud_node.WG.Wait()
 }

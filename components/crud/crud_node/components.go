@@ -1,4 +1,4 @@
-package node_crud_settings
+package crud_node
 
 import (
 	"github.com/pavlo67/common/common"
@@ -20,7 +20,6 @@ import (
 	"github.com/pavlo67/data/entities/records01/records01_pg"
 
 	"github.com/pavlo67/data/components/crud/crud_dispatcher"
-	"github.com/pavlo67/data/components/crud/crud_node_http"
 	"github.com/pavlo67/data/components/crud/crud_server_http"
 )
 
@@ -56,7 +55,7 @@ func Starters(cfgService, cfgTests config.Config, logRequests bool) ([]starter.S
 		{crud_server_http.Starter(), nil, nil},
 
 		// app starter
-		{crud_node_http.Starter(), nil, nil},
+		{Starter(), nil, nil},
 	}
 
 	return starters, nil

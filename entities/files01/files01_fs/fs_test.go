@@ -1,4 +1,4 @@
-package files_fs
+package files01_fs
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/starter"
-	"github.com/pavlo67/data/entities/files"
+	"github.com/pavlo67/data/entities/files01"
 )
 
 func TestFilesFS(t *testing.T) {
@@ -28,5 +28,5 @@ func TestFilesFS(t *testing.T) {
 	require.NotNil(t, joinerOp)
 	defer joinerOp.CloseAll()
 
-	files.FilesTestScenario(t, joinerOp, files.InterfaceKey, files.InterfaceKeyCleaner)
+	files01.FilesTestScenario(t, joinerOp, files01.InterfaceKey, files01.InterfaceKeyCleaner)
 }

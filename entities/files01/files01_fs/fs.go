@@ -1,4 +1,4 @@
-package files_fs
+package files01_fs
 
 import (
 	"fmt"
@@ -8,14 +8,14 @@ import (
 	"strings"
 
 	"github.com/pavlo67/data/components/crud"
+	"github.com/pavlo67/data/entities/files01"
 
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/errors"
 	"github.com/pavlo67/common/common/filelib"
-	"github.com/pavlo67/data/entities/files"
 )
 
-var _ files.Operator = &filesFS{}
+var _ files01.Operator = &filesFS{}
 
 type filesFS struct {
 	basePath string
@@ -23,7 +23,7 @@ type filesFS struct {
 
 const onNew = "on filesFS.New(): "
 
-func New(basePath string) (files.Operator, db.Cleaner, error) {
+func New(basePath string) (files01.Operator, db.Cleaner, error) {
 	filesOp := filesFS{}
 
 	var err error
@@ -110,10 +110,10 @@ func (filesOp *filesFS) Remove(path string) error {
 
 const onList = "on filesFS.Items()"
 
-func (filesOp *filesFS) List(path string, depth int) (files.Items, error) {
+func (filesOp *filesFS) List(path string, depth int) (files01.Items, error) {
 	filePath := filesOp.basePath + path
 
-	var filesInfo files.Items
+	var filesInfo files01.Items
 
 	if depth == 0 {
 		fis, err := ioutil.ReadDir(filePath)
@@ -162,7 +162,7 @@ func (filesOp *filesFS) Stat(path string, depth int) (*crud.Stat, error) {
 		return nil, errors.Wrapf(err, onStat+": can't  os.Stat01(%s)", filePath)
 	}
 
-	filesInfo, err := files.Items{}.Append("", fi) // basePath
+	filesInfo, err := files01.Items{}.Append("", fi) // basePath
 	if err != nil || len(filesInfo) != 1 {
 		return nil, fmt.Errorf(onStat+": got %#v / %s", filesInfo, err)
 	}

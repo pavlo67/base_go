@@ -4,32 +4,30 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pavlo67/data/entities/records01"
-
-	"github.com/pavlo67/common/common/auth"
-
-	"github.com/pavlo67/common/common/auth/auth_http"
-
-	"github.com/pavlo67/data/entities/persons01"
+	"github.com/stretchr/testify/require"
 
 	"github.com/pavlo67/common/common"
+	"github.com/pavlo67/common/common/auth"
+	"github.com/pavlo67/common/common/auth/auth_http"
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/starter"
-	"github.com/pavlo67/data/apps/node_crud/node_crud_settings"
+
+	"github.com/pavlo67/data/entities/persons01"
+	"github.com/pavlo67/data/entities/records01"
+
 	"github.com/pavlo67/data/components/crud"
-	"github.com/pavlo67/data/components/crud/crud_node_http"
-	"github.com/stretchr/testify/require"
+	"github.com/pavlo67/data/components/crud/crud_node"
 )
 
 func TestHTTPRecordsCRUD(t *testing.T) {
 	cfgService, l := config.PrepareTests(t, "../../../_environments/", "test", "http_records01_pg.log")
 	require.NotNil(t, cfgService)
 
-	starters, err := node_crud_settings.Starters(cfgService, cfgService, true)
+	starters, err := crud_node.Starters(cfgService, cfgService, true)
 	require.NoError(t, err)
 
-	httpOptions := common.Map{"prefix": crud_node_http.PrefixREST, "server_config": crud_node_http.ServerConfig}
+	httpOptions := common.Map{"prefix": crud_node.PrefixREST, "server_config": crud_node.ServerConfig}
 
 	starters = append(
 		starters,
@@ -62,7 +60,7 @@ func TestHTTPRecordsCRUD(t *testing.T) {
 		Value:       records01.TestItem.Record01,
 	}
 
-	testActor, err := crud_node_http.Auth(cfgService, authOp, crud.RoleTester)
+	testActor, err := crud_node.Auth(cfgService, authOp, crud.RoleTester)
 	require.NoError(t, err)
 	require.NotNil(t, testActor)
 
@@ -73,10 +71,10 @@ func TestHTTPPersonsCRUD(t *testing.T) {
 	cfgService, l := config.PrepareTests(t, "../../../_environments/", "test", "http_persons01_pg.log")
 	require.NotNil(t, cfgService)
 
-	starters, err := node_crud_settings.Starters(cfgService, cfgService, true)
+	starters, err := crud_node.Starters(cfgService, cfgService, true)
 	require.NoError(t, err)
 
-	httpOptions := common.Map{"prefix": crud_node_http.PrefixREST, "server_config": crud_node_http.ServerConfig}
+	httpOptions := common.Map{"prefix": crud_node.PrefixREST, "server_config": crud_node.ServerConfig}
 
 	starters = append(
 		starters,
@@ -94,7 +92,7 @@ func TestHTTPPersonsCRUD(t *testing.T) {
 	authOp, _ := joinerOp.Interface(auth_http.InterfaceKey).(auth.Operator)
 	require.NotNil(t, authOp)
 
-	testActor, err := crud_node_http.Auth(cfgService, authOp, crud.RoleTester)
+	testActor, err := crud_node.Auth(cfgService, authOp, crud.RoleTester)
 	require.NoError(t, err)
 	require.NotNil(t, testActor)
 
