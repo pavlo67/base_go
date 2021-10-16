@@ -44,7 +44,7 @@ package persons01
 //
 //	// change person -------------------------------------------
 //
-//	personToSaveChanged := ChangeTestItem(*personReaded, savedID)
+//	personToSaveChanged := ChangeItemForTest(*personReaded, savedID)
 //
 //	savedChangedID, err := personsOp.Save(personToSaveChanged, adminIdentity)
 //	require.NoError(t, err)

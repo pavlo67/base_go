@@ -129,7 +129,7 @@ func (testDescription Description) ChangeForTest() Description {
 	return testDescription
 }
 
-var TestDescription01 = Description{
+var TestDescription = Description{
 	URN:  "urn1",
 	Tags: []string{"famous", "writer"},
 	RelationsMap: RelationsMap{"r": Relation{
@@ -141,3 +141,6 @@ var TestDescription01 = Description{
 	ViewerNSS: "viever_nss",
 	// History:      nil,
 }
+
+// DEPRECATED
+var TestDescription01 = TestDescription

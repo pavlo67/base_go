@@ -39,11 +39,11 @@ func ReadValueRaw(message json.RawMessage) (interface{}, error) {
 	return person01, nil
 }
 
-var _ crud.ChangeItemForTest = ChangeItemForTest
+var _ crud.ChangeItemForTest = ChangeCRUDItemForTest
 
-const onChangeItem = "on person01.ChangeItemForTest()"
+const onChangeItem = "on person01.ChangeCRUDItemForTest()"
 
-func ChangeItemForTest(data crud.Data, key crud.Key) (*crud.Data, error) {
+func ChangeCRUDItemForTest(data crud.Data, key crud.Key) (*crud.Data, error) {
 	var item Item
 
 	switch v := data.Value.(type) {
@@ -62,7 +62,7 @@ func ChangeItemForTest(data crud.Data, key crud.Key) (*crud.Data, error) {
 		return nil, fmt.Errorf(onChangeItem+": wrong data (%#v) to change with key (%#v)", data, key)
 	}
 
-	changedItem := ChangeTestItem(item, key.ID)
+	changedItem := ChangeItemForTest(item, key.ID)
 
 	return &crud.Data{
 		Key: crud.Key{
@@ -74,7 +74,7 @@ func ChangeItemForTest(data crud.Data, key crud.Key) (*crud.Data, error) {
 	}, nil
 }
 
-func ChangeTestItem(personReaded Item, savedID ID) Item {
+func ChangeItemForTest(personReaded Item, savedID ID) Item {
 	personToSaveChanged := personReaded
 	personToSaveChanged.ID = savedID
 	personToSaveChanged.Firstnames = personToSaveChanged.Firstnames[:1]

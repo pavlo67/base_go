@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	auth2 "github.com/pavlo67/data/common/auth"
+
 	"github.com/stretchr/testify/require"
 
 	"github.com/pavlo67/common/common"
@@ -60,11 +62,11 @@ func TestHTTPRecordsCRUD(t *testing.T) {
 		Value:       records01.TestItem.Record01,
 	}
 
-	testActor, err := crud_node.Auth(cfgService, authOp, crud.RoleTester)
+	testActor, err := auth2.Auth(cfgService, authOp, crud.RoleTester)
 	require.NoError(t, err)
 	require.NotNil(t, testActor)
 
-	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ReadValueRaw, records01.ChangeItemForTest, *testActor)
+	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ReadValueRaw, records01.ChangeCRUDItemForTest, *testActor)
 }
 
 func TestHTTPPersonsCRUD(t *testing.T) {
@@ -92,7 +94,7 @@ func TestHTTPPersonsCRUD(t *testing.T) {
 	authOp, _ := joinerOp.Interface(auth_http.InterfaceKey).(auth.Operator)
 	require.NotNil(t, authOp)
 
-	testActor, err := crud_node.Auth(cfgService, authOp, crud.RoleTester)
+	testActor, err := auth2.Auth(cfgService, authOp, crud.RoleTester)
 	require.NoError(t, err)
 	require.NotNil(t, testActor)
 
@@ -111,5 +113,5 @@ func TestHTTPPersonsCRUD(t *testing.T) {
 		Value:       persons01.TestItem.Person01,
 	}
 
-	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons01.ReadValueRaw, persons01.ChangeItemForTest, *testActor)
+	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons01.ReadValueRaw, persons01.ChangeCRUDItemForTest, *testActor)
 }

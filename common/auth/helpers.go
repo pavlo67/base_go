@@ -1,4 +1,4 @@
-package crud_node
+package auth
 
 import (
 	"fmt"

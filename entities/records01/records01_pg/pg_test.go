@@ -60,5 +60,5 @@ func TestRecordsPgCRUD(t *testing.T) {
 
 	testActor := auth.Actor{Identity: auth.IdentityWithRoles(crud.RoleTester)}
 
-	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ReadValueRaw, records01.ChangeItemForTest, testActor)
+	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ReadValueRaw, records01.ChangeCRUDItemForTest, testActor)
 }

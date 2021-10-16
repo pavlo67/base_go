@@ -59,7 +59,7 @@ func TestDispatcherRecordsPgCRUD(t *testing.T) {
 
 	testActor := auth.Actor{Identity: auth.IdentityWithRoles(crud.RoleTester)}
 
-	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ReadValueRaw, records01.ChangeItemForTest, testActor)
+	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records01.ReadValueRaw, records01.ChangeCRUDItemForTest, testActor)
 }
 
 func TestDispatcherPersonsPgCRUD(t *testing.T) {
@@ -94,5 +94,5 @@ func TestDispatcherPersonsPgCRUD(t *testing.T) {
 
 	testActor := auth.Actor{Identity: auth.IdentityWithRoles(crud.RoleTester)}
 
-	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons01.ReadValueRaw, persons01.ChangeItemForTest, testActor)
+	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons01.ReadValueRaw, persons01.ChangeCRUDItemForTest, testActor)
 }
