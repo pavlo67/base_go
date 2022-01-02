@@ -19,17 +19,17 @@ import (
 	"github.com/pavlo67/data/entities/records01"
 
 	"github.com/pavlo67/data/components/crud"
-	"github.com/pavlo67/data/components/crud/crud_node"
+	"github.com/pavlo67/data/components/crud/crud_app"
 )
 
 func TestHTTPRecordsCRUD(t *testing.T) {
 	cfgService, l := config.PrepareTests(t, "../../../_environments/", "test", "http_records01_pg.log")
 	require.NotNil(t, cfgService)
 
-	starters, err := crud_node.Starters(cfgService, cfgService, true)
+	starters, err := crud_app.Components(cfgService, cfgService, true)
 	require.NoError(t, err)
 
-	httpOptions := common.Map{"prefix": crud_node.PrefixREST, "server_config": crud_node.ServerConfig}
+	httpOptions := common.Map{"prefix": crud_app.PrefixREST, "server_config": crud_app.ServerConfig}
 
 	starters = append(
 		starters,
@@ -73,10 +73,10 @@ func TestHTTPPersonsCRUD(t *testing.T) {
 	cfgService, l := config.PrepareTests(t, "../../../_environments/", "test", "http_persons01_pg.log")
 	require.NotNil(t, cfgService)
 
-	starters, err := crud_node.Starters(cfgService, cfgService, true)
+	starters, err := crud_app.Components(cfgService, cfgService, true)
 	require.NoError(t, err)
 
-	httpOptions := common.Map{"prefix": crud_node.PrefixREST, "server_config": crud_node.ServerConfig}
+	httpOptions := common.Map{"prefix": crud_app.PrefixREST, "server_config": crud_app.ServerConfig}
 
 	starters = append(
 		starters,

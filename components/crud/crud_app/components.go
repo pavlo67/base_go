@@ -1,4 +1,4 @@
-package crud_node
+package crud_app
 
 import (
 	"github.com/pavlo67/common/common"
@@ -23,18 +23,18 @@ import (
 	"github.com/pavlo67/data/components/crud/crud_server_http"
 )
 
-const onComponents = "on node_crud.Starters()"
+const onComponents = "on node_crud.Components()"
 
 const dbPgTestInterfaceKey joiner.InterfaceKey = "db_pg_test"
 
-func Starters(cfgService, cfgTests config.Config, logRequests bool) ([]starter.Starter, error) {
+func Components(cfgService, cfgTests config.Config, logRequests bool) ([]starter.Starter, error) {
 
 	var actors []auth.Actor
 	if err := cfgService.Value("actors", &actors); err != nil {
 		return nil, errors.Wrap(err, onComponents)
 	}
 
-	starters := []starter.Starter{
+	components := []starter.Starter{
 		// general purposes components
 		{control.Starter(), nil, nil},
 		{db_pg.Starter(), nil, nil},
@@ -58,5 +58,5 @@ func Starters(cfgService, cfgTests config.Config, logRequests bool) ([]starter.S
 		{Starter(), nil, nil},
 	}
 
-	return starters, nil
+	return components, nil
 }

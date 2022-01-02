@@ -1,7 +1,8 @@
-package crud_node
+package crud_app
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/pavlo67/common/common/auth"
 
@@ -103,3 +104,5 @@ func (ds *crudNodeHTTPStarter) Run(joinerOp joiner.Operator) error {
 
 	return nil
 }
+
+var WG sync.WaitGroup
