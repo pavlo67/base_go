@@ -1,4 +1,4 @@
-package crud
+package crud01
 
 import (
 	"encoding/json"
@@ -34,21 +34,17 @@ type Description struct {
 	UpdatedAt    *time.Time   `json:",omitempty" bson:",omitempty"`
 }
 
-var Description01FieldsToSave = []string{"urn", "tags", "relations_map", "owner_nss", "viewer_nss", "history"}
-var Description01FieldsToRead = append(Description01FieldsToSave, "created_at", "updated_at")
+var Description01FieldsToUpdate = []string{"tags", "relations_map", "owner_nss", "viewer_nss", "history"}
+var Description01FieldsToInsert = append([]string{"urn"}, Description01FieldsToUpdate...)
+var Description01FieldsToRead = append(Description01FieldsToInsert, "created_at", "updated_at")
 
-func (descr *Description) FoldToSaveInPg() ([]interface{}, error) {
+func (descr *Description) FoldToSaveInPg(onInsert bool) ([]interface{}, error) {
 	if descr == nil {
 		return nil, errors.New("nil persons.Item to be folded")
 	}
 
-	var urnBytes, relationsMapBytes, historyBytes []byte
+	var relationsMapBytes, historyBytes []byte
 	var err error
-
-	if len(descr.URN) > 0 {
-		urnBytes = []byte(descr.URN)
-	}
-	// TODO!!! append to descr.History
 
 	// relationsMapBytes = []byte{} // to satisfy NOT NULL constraint
 	if len(descr.RelationsMap) > 0 {
@@ -65,7 +61,17 @@ func (descr *Description) FoldToSaveInPg() ([]interface{}, error) {
 		}
 	}
 
-	return []interface{}{urnBytes, pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyBytes}, nil
+	if onInsert {
+		var urnBytes []byte
+		if len(descr.URN) > 0 {
+			urnBytes = []byte(descr.URN)
+		}
+		return []interface{}{urnBytes, pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyBytes}, nil
+	}
+	// TODO!!! append to descr.History
+
+	return []interface{}{pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyBytes}, nil
+
 }
 
 func (descr *Description) UnfoldReaded(urnBytes, relationsMapBytes, historyBytes []byte) error {

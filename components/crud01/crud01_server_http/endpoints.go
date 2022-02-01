@@ -1,9 +1,11 @@
-package crud_server_http
+package crud01_server_http
 
 import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/auth"
@@ -12,8 +14,6 @@ import (
 	"github.com/pavlo67/common/common/server/server_http"
 
 	"github.com/pavlo67/data/elements/selectors"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 var Endpoints = server_http.Endpoints{

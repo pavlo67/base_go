@@ -1,6 +1,11 @@
-package crud_app
+package crud01_app
 
 import (
+	"github.com/pavlo67/data/components/crud"
+	"github.com/pavlo67/data/components/crud01/crud01_dispatcher"
+	"github.com/pavlo67/data/components/crud01/crud01_server_http"
+	"github.com/pkg/errors"
+
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/common/common/auth/auth_jwt"
@@ -13,14 +18,9 @@ import (
 	"github.com/pavlo67/common/common/rbac"
 	"github.com/pavlo67/common/common/server/server_http/server_http_jschmhr"
 	"github.com/pavlo67/common/common/starter"
-	"github.com/pavlo67/data/components/crud"
-	"github.com/pkg/errors"
 
 	"github.com/pavlo67/data/entities/persons01/persons01_pg"
 	"github.com/pavlo67/data/entities/records01/records01_pg"
-
-	"github.com/pavlo67/data/components/crud/crud_dispatcher"
-	"github.com/pavlo67/data/components/crud/crud_server_http"
 )
 
 const onComponents = "on node_crud.Components()"
@@ -51,8 +51,8 @@ func Components(cfgService, cfgTests config.Config, logRequests bool) ([]starter
 		{persons01_pg.Starter(), common.Map{"roles": rbac.Roles{crud.RoleTester}, "db_key": dbPgTestInterfaceKey}, nil},
 		{records01_pg.Starter(), common.Map{"roles": rbac.Roles{rbac.RoleAdmin}}, nil},
 		{records01_pg.Starter(), common.Map{"roles": rbac.Roles{crud.RoleTester}, "db_key": dbPgTestInterfaceKey}, nil},
-		{crud_dispatcher.Starter(), nil, nil},
-		{crud_server_http.Starter(), nil, nil},
+		{crud01_dispatcher.Starter(), nil, nil},
+		{crud01_server_http.Starter(), nil, nil},
 
 		// app starter
 		{Starter(), nil, nil},

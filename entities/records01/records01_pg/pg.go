@@ -8,6 +8,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pavlo67/data/components/crud"
+	crud012 "github.com/pavlo67/data/components/crud01"
+
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
@@ -20,16 +23,16 @@ import (
 	"github.com/pavlo67/data/elements/selectors"
 
 	"github.com/pavlo67/data/entities/records01"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 var fields = []string{"title", "summary", "record_type", "data", "embedded"}
 
-var fieldsToSave = append(fields, crud.Description01FieldsToSave...)
-var fieldsToSaveStr = `"` + strings.Join(fieldsToSave, `","`) + `"`
+var fieldsToInsert = append(fields, crud012.Description01FieldsToInsert...)
+var fieldsToInsertStr = `"` + strings.Join(fieldsToInsert, `","`) + `"`
 
-var fieldsToRead = append(fields, crud.Description01FieldsToRead...)
+var fieldsToUpdate = append(fields, crud012.Description01FieldsToUpdate...)
+
+var fieldsToRead = append(fields, crud012.Description01FieldsToRead...)
 var fieldsToReadStr = `"` + strings.Join(fieldsToRead, `","`) + `"`
 
 var fieldsToList = append(fieldsToRead, "id")
@@ -43,8 +46,8 @@ type records01Pg struct {
 
 	table string
 
-	sqlClean, sqlRead, sqlRemove, sqlList, sqlAdd, sqlChange string
-	stmClean, stmRead, stmRemove, stmList, stmAdd, stmChange *sql.Stmt
+	sqlClean, sqlRead, sqlRemove, sqlList, sqlInsert, sqlUpdate string
+	stmClean, stmRead, stmRemove, stmList, stmInsert, stmUpdate *sql.Stmt
 }
 
 const onNew = "on records01Pg.New()"
@@ -66,8 +69,8 @@ func New(dbGet, dbSet *sql.DB, table string) (records01.Operator, db.Cleaner, er
 		dbSet: dbSet,
 		table: table,
 
-		sqlAdd:    "INSERT INTO " + table + " (" + fieldsToSaveStr + ") VALUES (" + sqllib_pg.WildcardsForInsert(fieldsToSave) + ") RETURNING id",
-		sqlChange: "UPDATE " + table + " SET " + sqllib_pg.WildcardsForUpdate(fieldsToSave) + " WHERE id = $" + strconv.Itoa(len(fieldsToSave)+1),
+		sqlInsert: "INSERT INTO " + table + " (" + fieldsToInsertStr + ") VALUES (" + sqllib_pg.WildcardsForInsert(fieldsToInsert) + ") RETURNING id",
+		sqlUpdate: "UPDATE " + table + " SET " + sqllib_pg.WildcardsForUpdate(fieldsToUpdate) + " WHERE id = $" + strconv.Itoa(len(fieldsToUpdate)+1),
 		sqlRead:   "SELECT " + fieldsToReadStr + " FROM " + table + " WHERE id = $1",
 		sqlList:   "SELECT " + fieldsToListStr + " FROM " + table + ` ORDER BY id`,
 		sqlRemove: "DELETE FROM " + table + " WHERE id = $1",
@@ -86,8 +89,8 @@ func New(dbGet, dbSet *sql.DB, table string) (records01.Operator, db.Cleaner, er
 	}
 
 	sqlStmtsSet := []sqllib.SqlStmt{
-		{&records01Op.stmAdd, records01Op.sqlAdd},
-		{&records01Op.stmChange, records01Op.sqlChange},
+		{&records01Op.stmInsert, records01Op.sqlInsert},
+		{&records01Op.stmUpdate, records01Op.sqlUpdate},
 		{&records01Op.stmRemove, records01Op.sqlRemove},
 		{&records01Op.stmClean, records01Op.sqlClean},
 	}
@@ -121,26 +124,27 @@ func (records01Op records01Pg) Save(ri records01.Item, _ auth.Actor) (records01.
 		}
 	}
 
-	descriptionValues, err := ri.Description.FoldToSaveInPg()
+	onInsert := ri.ID == ""
+	descriptionValues, err := ri.Description.FoldToSaveInPg(onInsert)
 	if err != nil {
 		return "", errors.Wrap(err, onSave)
 	}
 
 	values := append([]interface{}{ri.Title, ri.Summary, ri.Type, ri.Data, embeddedBytes}, descriptionValues...)
 
-	if ri.ID == "" {
+	if onInsert {
 		var idInt64 int64
 
-		if err := records01Op.stmAdd.QueryRow(values...).Scan(&idInt64); err != nil {
-			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlAdd, values)
+		if err := records01Op.stmInsert.QueryRow(values...).Scan(&idInt64); err != nil {
+			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlInsert, values)
 		}
 
 		ri.ID = crud.NewIDInt64(idInt64)
 
 	} else {
 		values = append(values, ri.ID)
-		if _, err := records01Op.stmChange.Exec(values...); err != nil {
-			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlChange, values)
+		if _, err := records01Op.stmUpdate.Exec(values...); err != nil {
+			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlUpdate, values)
 		}
 	}
 

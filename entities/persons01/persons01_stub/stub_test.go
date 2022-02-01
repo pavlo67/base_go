@@ -3,11 +3,11 @@ package persons01_stub
 import (
 	"testing"
 
+	"github.com/pavlo67/data/components/crud"
+
 	"github.com/pavlo67/common/common/auth"
 
 	"github.com/pavlo67/common/common/rbac"
-
-	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/db"

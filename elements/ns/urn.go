@@ -42,6 +42,11 @@ type NSS common.IDStr
 
 // -----------------------------------------------------------------------------------------------
 
+func CreateURN(domain, crudType, id string) URN {
+	// TODO!!! escape string
+	return URN(strings.TrimSpace(domain) + "/" + strings.TrimSpace(crudType) + "/" + strings.TrimSpace(id))
+}
+
 var reProto = regexp.MustCompile(`^.*?:`)
 var rePath = regexp.MustCompile(`/.*`)
 var reFragment = regexp.MustCompile(`#.*`)

@@ -8,6 +8,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pavlo67/data/components/crud"
+	crud012 "github.com/pavlo67/data/components/crud01"
+
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
@@ -20,16 +23,16 @@ import (
 	"github.com/pavlo67/data/elements/selectors"
 
 	"github.com/pavlo67/data/entities/persons01"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 var fields = []string{"firstnames", "middlename", "lastname", "nicknames", "contacts", "info"}
 
-var fieldsToSave = append(fields, crud.Description01FieldsToSave...)
-var fieldsToSaveStr = `"` + strings.Join(fieldsToSave, `","`) + `"`
+var fieldsToInsert = append(fields, crud012.Description01FieldsToInsert...)
+var fieldsToInsertStr = `"` + strings.Join(fieldsToInsert, `","`) + `"`
 
-var fieldsToRead = append(fields, crud.Description01FieldsToRead...)
+var fieldsToUpdate = append(fields, crud012.Description01FieldsToUpdate...)
+
+var fieldsToRead = append(fields, crud012.Description01FieldsToRead...)
 var fieldsToReadStr = `"` + strings.Join(fieldsToRead, `","`) + `"`
 
 var fieldsToList = append(fieldsToRead, "id")
@@ -43,8 +46,8 @@ type persons01Pg struct {
 
 	table string
 
-	sqlClean, sqlRead, sqlRemove, sqlList, sqlAdd, sqlChange string
-	stmClean, stmRead, stmRemove, stmList, stmAdd, stmChange *sql.Stmt
+	sqlClean, sqlRead, sqlRemove, sqlList, sqlInsert, sqlUpdate string
+	stmClean, stmRead, stmRemove, stmList, stmInsert, stmUpdate *sql.Stmt
 }
 
 const onNew = "on persons01Pg.New()"
@@ -66,8 +69,8 @@ func New(dbGet, dbSet *sql.DB, table string) (persons01.Operator, db.Cleaner, er
 		dbSet: dbSet,
 		table: table,
 
-		sqlAdd:    "INSERT INTO " + table + " (" + fieldsToSaveStr + ") VALUES (" + sqllib_pg.WildcardsForInsert(fieldsToSave) + ") RETURNING id",
-		sqlChange: "UPDATE " + table + " SET " + sqllib_pg.WildcardsForUpdate(fieldsToSave) + " WHERE id = $" + strconv.Itoa(len(fieldsToSave)+1),
+		sqlInsert: "INSERT INTO " + table + " (" + fieldsToInsertStr + ") VALUES (" + sqllib_pg.WildcardsForInsert(fieldsToInsert) + ") RETURNING id",
+		sqlUpdate: "UPDATE " + table + " SET " + sqllib_pg.WildcardsForUpdate(fieldsToUpdate) + " WHERE id = $" + strconv.Itoa(len(fieldsToUpdate)+1),
 		sqlRead:   "SELECT " + fieldsToReadStr + " FROM " + table + " WHERE id = $1",
 		sqlList:   "SELECT " + fieldsToListStr + " FROM " + table + ` ORDER BY id`,
 		sqlRemove: "DELETE FROM " + table + " WHERE id = $1",
@@ -86,8 +89,8 @@ func New(dbGet, dbSet *sql.DB, table string) (persons01.Operator, db.Cleaner, er
 	}
 
 	sqlStmtsSet := []sqllib.SqlStmt{
-		{&persons01Op.stmAdd, persons01Op.sqlAdd},
-		{&persons01Op.stmChange, persons01Op.sqlChange},
+		{&persons01Op.stmInsert, persons01Op.sqlInsert},
+		{&persons01Op.stmUpdate, persons01Op.sqlUpdate},
 		{&persons01Op.stmRemove, persons01Op.sqlRemove},
 		{&persons01Op.stmClean, persons01Op.sqlClean},
 	}
@@ -126,7 +129,9 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ auth.Actor) (persons01.
 		}
 	}
 
-	descriptionValues, err := pi.Description.FoldToSaveInPg()
+	onInsert := pi.ID == ""
+
+	descriptionValues, err := pi.Description.FoldToSaveInPg(onInsert)
 	if err != nil {
 		return "", errors.Wrap(err, onSave)
 	}
@@ -135,12 +140,12 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ auth.Actor) (persons01.
 		[]interface{}{pq.Array(pi.Firstnames), pi.Middlename, pi.Lastname, pq.Array(pi.Nicknames), contactsBytes, infoBytes},
 		descriptionValues...)
 
-	if pi.ID == "" {
+	if onInsert {
 
 		var idInt64 int64
 
-		if err := persons01Op.stmAdd.QueryRow(values...).Scan(&idInt64); err != nil {
-			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlAdd, values)
+		if err := persons01Op.stmInsert.QueryRow(values...).Scan(&idInt64); err != nil {
+			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlInsert, values)
 		}
 
 		pi.ID = crud.NewIDInt64(idInt64)
@@ -152,8 +157,8 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ auth.Actor) (persons01.
 		//l.Fatalf("22222 %#v", pi)
 
 		values = append(values, pi.ID)
-		if _, err := persons01Op.stmChange.Exec(values...); err != nil {
-			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlChange, values)
+		if _, err := persons01Op.stmUpdate.Exec(values...); err != nil {
+			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlUpdate, values)
 		}
 	}
 

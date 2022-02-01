@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/pavlo67/common/common/rbac"
+	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pkg/errors"
 
@@ -13,8 +14,6 @@ import (
 	"github.com/pavlo67/data/elements/selectors"
 
 	"github.com/pavlo67/data/entities"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 const CRUD01 crud.Type = "records01"

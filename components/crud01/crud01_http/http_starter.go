@@ -1,7 +1,9 @@
-package crud_http
+package crud01_http
 
 import (
 	"fmt"
+
+	"github.com/pavlo67/data/components/crud01/crud01_server_http"
 
 	"github.com/pkg/errors"
 
@@ -11,8 +13,6 @@ import (
 	"github.com/pavlo67/common/common/logger"
 	"github.com/pavlo67/common/common/server/server_http"
 	"github.com/pavlo67/common/common/starter"
-
-	"github.com/pavlo67/data/components/crud/crud_server_http"
 )
 
 const InterfaceKey joiner.InterfaceKey = "crud_http"
@@ -47,7 +47,7 @@ func (ahs *crudHTTPStarter) Prepare(cfg *config.Config, options common.Map) erro
 		return errors.New("no server config for crudHTTPStarter")
 	}
 
-	ahs.serverConfig.CompleteDirectly(crud_server_http.Endpoints, access.Host, access.Port, prefix)
+	ahs.serverConfig.CompleteDirectly(crud01_server_http.Endpoints, access.Host, access.Port, prefix)
 
 	ahs.interfaceKey = joiner.InterfaceKey(options.StringDefault("interface_key", string(InterfaceKey)))
 

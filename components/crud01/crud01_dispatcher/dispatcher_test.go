@@ -1,7 +1,9 @@
-package crud_dispatcher
+package crud01_dispatcher
 
 import (
 	"testing"
+
+	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/common/common/rbac"
 
@@ -23,8 +25,6 @@ import (
 	"github.com/pavlo67/common/common/starter"
 
 	"github.com/pavlo67/data/entities/records01"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 func TestDispatcherRecordsPgCRUD(t *testing.T) {

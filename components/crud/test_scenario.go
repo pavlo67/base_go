@@ -36,7 +36,7 @@ func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleane
 
 	CountTestItems(t, crudOp, crudType, actor, 0)
 
-	// add item ----------------------------------------------
+	// insert item -------------------------------------------
 
 	t.Log("add item")
 
@@ -62,16 +62,20 @@ func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleane
 		Value:       itemToSave.Value,
 	}
 
+	urnOriginal := itemToSave.Description.URN
+
 	TestIfEqual(t, crudSaved, *crudReaded, readValueRaw)
 	require.NoError(t, err)
 
-	// change item -------------------------------------------
+	// update item -------------------------------------------
 
 	t.Log("change item")
 
 	itemChanged, err := changeItemForTest(*crudReaded, *savedKey)
 	require.NoError(t, err)
 	require.NotNil(t, itemChanged)
+
+	itemChanged.Description.URN = urnOriginal + "_changed"
 
 	savedChangedKey, err := crudOp.Save(*itemChanged, actor)
 	require.NoError(t, err)
@@ -92,6 +96,8 @@ func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleane
 		Description: itemChanged.Description,
 		Value:       itemChanged.Value,
 	}
+
+	crudSavedUpdated.Description.URN = urnOriginal // UNCHANGED!!!
 
 	TestIfEqual(t, crudSavedUpdated, *crudReaded, readValueRaw)
 	require.NoError(t, err)

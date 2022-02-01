@@ -1,7 +1,9 @@
-package crud_http
+package crud01_http
 
 import (
 	"encoding/json"
+
+	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/common/common/rbac"
 
@@ -15,8 +17,6 @@ import (
 	"github.com/pavlo67/common/common/server/server_http"
 
 	"github.com/pavlo67/data/elements/selectors"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 var _ crud.Operator = &crudHTTP{}

@@ -1,8 +1,10 @@
-package crud_app
+package crud01_app
 
 import (
 	"fmt"
 	"sync"
+
+	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/common/common/auth"
 
@@ -13,8 +15,6 @@ import (
 	"github.com/pavlo67/common/common/logger"
 	"github.com/pavlo67/common/common/server/server_http"
 	"github.com/pavlo67/common/common/starter"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 func Starter() starter.Operator {

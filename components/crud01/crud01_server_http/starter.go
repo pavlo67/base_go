@@ -1,10 +1,10 @@
-package crud_server_http
+package crud01_server_http
 
 import (
 	"fmt"
 
 	"github.com/pavlo67/data/components/crud"
-	"github.com/pavlo67/data/components/crud/crud_dispatcher"
+	"github.com/pavlo67/data/components/crud01/crud01_dispatcher"
 
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/config"
@@ -39,8 +39,8 @@ func (ds *crudServerHTTPStarter) Run(joinerOp joiner.Operator) error {
 		return fmt.Errorf("no logger.Operator with key %s", logger.InterfaceKey)
 	}
 
-	if crudDispatcherOp, _ = joinerOp.Interface(crud_dispatcher.InterfaceKey).(crud.Operator); crudDispatcherOp == nil {
-		return fmt.Errorf("no crud.Operator with key %s", crud_dispatcher.InterfaceKey)
+	if crudDispatcherOp, _ = joinerOp.Interface(crud01_dispatcher.InterfaceKey).(crud.Operator); crudDispatcherOp == nil {
+		return fmt.Errorf("no crud.Operator with key %s", crud01_dispatcher.InterfaceKey)
 	}
 
 	return Endpoints.Join(joinerOp)

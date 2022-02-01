@@ -1,9 +1,10 @@
-package crud_dispatcher
+package crud01_dispatcher
 
 import (
 	"fmt"
 
 	"github.com/pavlo67/common/common/rbac"
+	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pkg/errors"
 
@@ -12,8 +13,6 @@ import (
 	"github.com/pavlo67/common/common/joiner"
 	"github.com/pavlo67/common/common/logger"
 	"github.com/pavlo67/common/common/starter"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 const InterfaceKey joiner.InterfaceKey = "crud_dispatcher"

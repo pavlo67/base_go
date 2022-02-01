@@ -4,9 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/pavlo67/data/components/crud"
-
 	"github.com/pavlo67/common/common/rbac"
+	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/data/entities/records01"
 

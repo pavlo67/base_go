@@ -2,8 +2,9 @@ package persons01
 
 import (
 	"github.com/pavlo67/common/common/auth"
-
 	"github.com/pavlo67/data/components/crud"
+	crud012 "github.com/pavlo67/data/components/crud01"
+
 	"github.com/pavlo67/data/entities"
 
 	"github.com/pavlo67/data/elements/selectors"
@@ -21,6 +22,6 @@ type Operator interface {
 
 type Item struct {
 	ID
-	crud.Description `json:",inline"    bson:",inline"`
+	crud012.Description `json:",inline"    bson:",inline"`
 	entities.Person01
 }

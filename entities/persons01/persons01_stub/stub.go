@@ -1,6 +1,7 @@
 package persons01_stub
 
 import (
+	"github.com/pavlo67/data/components/crud"
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
@@ -11,8 +12,6 @@ import (
 	"github.com/pavlo67/data/elements/selectors"
 
 	"github.com/pavlo67/data/entities/persons01"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 var _ persons01.Operator = &personsStub{}
@@ -46,7 +45,9 @@ func (personsOp *personsStub) Save(personsItem persons01.Item, _ auth.Actor) (pe
 
 	for i, pi := range personsOp.personItems {
 		if pi.ID == personsItem.ID {
+			urnOriginal := pi.Description.URN
 			personsOp.personItems[i] = personsItem
+			personsOp.personItems[i].Description.URN = urnOriginal // UNCHANGED!!!
 			return pi.ID, nil
 		}
 	}

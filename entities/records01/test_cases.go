@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/pavlo67/data/components/crud"
+	crud012 "github.com/pavlo67/data/components/crud01"
 
 	"github.com/pavlo67/data/entities"
 
@@ -26,7 +27,7 @@ var TestItem = Item{
 			Data:    "wertesrytr eu yuik",
 		}},
 	},
-	Description: crud.TestDescription01,
+	Description: crud012.TestDescription01,
 }
 
 var _ crud.ReadValueRaw = ReadValueRaw

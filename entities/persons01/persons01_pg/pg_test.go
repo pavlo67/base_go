@@ -3,13 +3,13 @@ package persons01_pg
 import (
 	"testing"
 
+	"github.com/pavlo67/data/components/crud"
+
 	"github.com/pavlo67/common/common"
 
 	"github.com/pavlo67/common/common/auth"
 
 	"github.com/pavlo67/common/common/rbac"
-
-	"github.com/pavlo67/data/components/crud"
 
 	"github.com/stretchr/testify/require"
 

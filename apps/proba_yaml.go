@@ -3,12 +3,12 @@ package main
 import (
 	"log"
 
+	"github.com/pavlo67/data/components/crud"
+
 	"gopkg.in/yaml.v3"
 
 	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/common/common/rbac"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 func main() {

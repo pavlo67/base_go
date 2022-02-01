@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/pavlo67/data/components/crud"
+	crud012 "github.com/pavlo67/data/components/crud01"
 
 	"github.com/pavlo67/data/entities"
 
@@ -24,7 +25,7 @@ var TestItem = Item{
 		Contacts:   []contacts.Item{{Type: "phone", Value: "777", Connected: []contacts.Item{{Type: "fax", Value: "888"}}}},
 		Info:       common.Map{"info1": "data1", "info2": "data2"},
 	},
-	Description: crud.TestDescription01,
+	Description: crud012.TestDescription01,
 }
 
 var _ crud.ReadValueRaw = ReadValueRaw

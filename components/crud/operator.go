@@ -5,6 +5,8 @@ import (
 	"sort"
 	"time"
 
+	"github.com/pavlo67/data/components/crud01"
+
 	"github.com/pavlo67/common/common/rbac"
 
 	"github.com/pavlo67/common/common"
@@ -23,13 +25,13 @@ type Key struct {
 
 type Data struct {
 	Key
-	Description
+	crud01.Description
 	Value interface{}
 }
 
 type DataRaw struct {
 	Key
-	Description
+	crud01.Description
 	Value json.RawMessage
 }
 

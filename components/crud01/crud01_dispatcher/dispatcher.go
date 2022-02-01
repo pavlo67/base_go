@@ -1,15 +1,14 @@
-package crud_dispatcher
+package crud01_dispatcher
 
 import (
 	"fmt"
 
 	"github.com/pavlo67/common/common/rbac"
+	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/common/common/auth"
 
 	"github.com/pavlo67/data/elements/selectors"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 var _ crud.Operator = &crudDispatcher{}

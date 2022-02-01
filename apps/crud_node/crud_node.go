@@ -4,10 +4,10 @@ import (
 	"flag"
 	"log"
 
+	crud01_app2 "github.com/pavlo67/data/components/crud01/crud01_app"
+
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/starter"
-
-	"github.com/pavlo67/data/components/crud/crud_app"
 )
 
 var BuildDate, BuildTag, BuildCommit string
@@ -29,7 +29,7 @@ func main() {
 		l.Fatal(err)
 	}
 
-	starters, err := crud_app.Components(cfgService, *cfgTest, false)
+	starters, err := crud01_app2.Components(cfgService, *cfgTest, false)
 	if err != nil {
 		l.Fatal(err)
 	}
@@ -41,5 +41,5 @@ func main() {
 	}
 	defer joinerOp.CloseAll()
 
-	crud_app.WG.Wait()
+	crud01_app2.WG.Wait()
 }

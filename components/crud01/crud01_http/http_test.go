@@ -1,10 +1,11 @@
-package crud_http
+package crud01_http
 
 import (
 	"testing"
 	"time"
 
-	auth2 "github.com/pavlo67/data/common/auth"
+	"github.com/pavlo67/data/components/crud"
+	crud01_app2 "github.com/pavlo67/data/components/crud01/crud01_app"
 
 	"github.com/stretchr/testify/require"
 
@@ -15,21 +16,20 @@ import (
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/starter"
 
+	auth2 "github.com/pavlo67/data/common/auth"
+
 	"github.com/pavlo67/data/entities/persons01"
 	"github.com/pavlo67/data/entities/records01"
-
-	"github.com/pavlo67/data/components/crud"
-	"github.com/pavlo67/data/components/crud/crud_app"
 )
 
 func TestHTTPRecordsCRUD(t *testing.T) {
 	cfgService, l := config.PrepareTests(t, "../../../_environments/", "test", "http_records01_pg.log")
 	require.NotNil(t, cfgService)
 
-	starters, err := crud_app.Components(cfgService, cfgService, true)
+	starters, err := crud01_app2.Components(cfgService, cfgService, true)
 	require.NoError(t, err)
 
-	httpOptions := common.Map{"prefix": crud_app.PrefixREST, "server_config": crud_app.ServerConfig}
+	httpOptions := common.Map{"prefix": crud01_app2.PrefixREST, "server_config": crud01_app2.ServerConfig}
 
 	starters = append(
 		starters,
@@ -73,10 +73,10 @@ func TestHTTPPersonsCRUD(t *testing.T) {
 	cfgService, l := config.PrepareTests(t, "../../../_environments/", "test", "http_persons01_pg.log")
 	require.NotNil(t, cfgService)
 
-	starters, err := crud_app.Components(cfgService, cfgService, true)
+	starters, err := crud01_app2.Components(cfgService, cfgService, true)
 	require.NoError(t, err)
 
-	httpOptions := common.Map{"prefix": crud_app.PrefixREST, "server_config": crud_app.ServerConfig}
+	httpOptions := common.Map{"prefix": crud01_app2.PrefixREST, "server_config": crud01_app2.ServerConfig}
 
 	starters = append(
 		starters,
