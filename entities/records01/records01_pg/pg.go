@@ -70,7 +70,7 @@ func New(dbGet, dbSet *sql.DB, table string) (records01.Operator, db.Cleaner, er
 		table: table,
 
 		sqlInsert: "INSERT INTO " + table + " (" + fieldsToInsertStr + ") VALUES (" + sqllib_pg.WildcardsForInsert(fieldsToInsert) + ") RETURNING id",
-		sqlUpdate: "UPDATE " + table + " SET " + sqllib_pg.WildcardsForUpdate(fieldsToUpdate) + " WHERE id = $" + strconv.Itoa(len(fieldsToUpdate)+1),
+		sqlUpdate: "UPDATE " + table + " SET " + sqllib_pg.WildcardsForUpdate(fieldsToUpdate) + " WHERE id = $" + strconv.Itoa(len(fieldsToUpdate)+1) + " AND history = $" + strconv.Itoa(len(fieldsToUpdate)+2),
 		sqlRead:   "SELECT " + fieldsToReadStr + " FROM " + table + " WHERE id = $1",
 		sqlList:   "SELECT " + fieldsToListStr + " FROM " + table + ` ORDER BY id`,
 		sqlRemove: "DELETE FROM " + table + " WHERE id = $1",
@@ -120,12 +120,12 @@ func (records01Op records01Pg) Save(ri records01.Item, _ auth.Actor) (records01.
 
 	if len(ri.Embedded) > 0 {
 		if embeddedBytes, err = json.Marshal(ri.Embedded); err != nil {
-			return "", errors.Wrapf(err, "can't marshal .Contacts (%#v)", ri.Embedded)
+			return "", errors.Wrapf(err, onSave+": can't marshal .Contacts (%#v)", ri.Embedded)
 		}
 	}
 
 	onInsert := ri.ID == ""
-	descriptionValues, err := ri.Description.FoldToSaveInPg(onInsert)
+	descriptionValues, historyOriginalBytes, err := ri.Description.FoldToSavePg(onInsert)
 	if err != nil {
 		return "", errors.Wrap(err, onSave)
 	}
@@ -142,7 +142,7 @@ func (records01Op records01Pg) Save(ri records01.Item, _ auth.Actor) (records01.
 		ri.ID = crud.NewIDInt64(idInt64)
 
 	} else {
-		values = append(values, ri.ID)
+		values = append(values, ri.ID, historyOriginalBytes)
 		if _, err := records01Op.stmUpdate.Exec(values...); err != nil {
 			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlUpdate, values)
 		}

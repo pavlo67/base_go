@@ -70,7 +70,7 @@ func New(dbGet, dbSet *sql.DB, table string) (persons01.Operator, db.Cleaner, er
 		table: table,
 
 		sqlInsert: "INSERT INTO " + table + " (" + fieldsToInsertStr + ") VALUES (" + sqllib_pg.WildcardsForInsert(fieldsToInsert) + ") RETURNING id",
-		sqlUpdate: "UPDATE " + table + " SET " + sqllib_pg.WildcardsForUpdate(fieldsToUpdate) + " WHERE id = $" + strconv.Itoa(len(fieldsToUpdate)+1),
+		sqlUpdate: "UPDATE " + table + " SET " + sqllib_pg.WildcardsForUpdate(fieldsToUpdate) + " WHERE id = $" + strconv.Itoa(len(fieldsToUpdate)+1) + " AND history = $" + strconv.Itoa(len(fieldsToUpdate)+2),
 		sqlRead:   "SELECT " + fieldsToReadStr + " FROM " + table + " WHERE id = $1",
 		sqlList:   "SELECT " + fieldsToListStr + " FROM " + table + ` ORDER BY id`,
 		sqlRemove: "DELETE FROM " + table + " WHERE id = $1",
@@ -120,7 +120,7 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ auth.Actor) (persons01.
 
 	if len(pi.Contacts) > 0 {
 		if contactsBytes, err = json.Marshal(pi.Contacts); err != nil {
-			return "", errors.Wrapf(err, "can't marshal .Contacts (%#v)", pi.Contacts)
+			return "", errors.Wrapf(err, onSave+": can't marshal .Contacts (%#v)", pi.Contacts)
 		}
 	}
 	if len(pi.Info) > 0 {
@@ -131,7 +131,7 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ auth.Actor) (persons01.
 
 	onInsert := pi.ID == ""
 
-	descriptionValues, err := pi.Description.FoldToSaveInPg(onInsert)
+	descriptionValues, historyOriginalBytes, err := pi.Description.FoldToSavePg(onInsert)
 	if err != nil {
 		return "", errors.Wrap(err, onSave)
 	}
@@ -156,7 +156,7 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ auth.Actor) (persons01.
 
 		//l.Fatalf("22222 %#v", pi)
 
-		values = append(values, pi.ID)
+		values = append(values, pi.ID, historyOriginalBytes)
 		if _, err := persons01Op.stmUpdate.Exec(values...); err != nil {
 			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlUpdate, values)
 		}

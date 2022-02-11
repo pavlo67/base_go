@@ -10,13 +10,12 @@ import (
 
 const maxHistoryLength = 5
 
-func ModifyHistoryStr(history History, params common.Map) (historyChanged History, historyStr, historyChangedStr string, err error) {
+func ModifyHistory(history History, params common.Map) (historyChanged History, historyBytes, historyChangedBytes []byte, err error) {
 	if len(history) > 0 {
-		historyBytes, err := json.Marshal(history)
+		historyBytes, err = json.Marshal(history)
 		if err != nil {
-			return nil, "", "", errors.Wrapf(err, "can't marshal history (%#v)", history)
+			return nil, nil, nil, errors.Wrapf(err, "can't marshal history (%#v)", history)
 		}
-		historyStr = string(historyBytes)
 
 		if len(history) >= maxHistoryLength {
 			history = history[:maxHistoryLength-1]
@@ -30,10 +29,10 @@ func ModifyHistoryStr(history History, params common.Map) (historyChanged Histor
 		// Error:  nil, // TODO!!!
 	})
 
-	historyChangedBytes, err := json.Marshal(historyChanged)
+	historyChangedBytes, err = json.Marshal(historyChanged)
 	if err != nil {
-		return nil, "", "", errors.Wrapf(err, "can't marshal changed history (%#v)", historyChanged)
+		return nil, nil, nil, errors.Wrapf(err, "can't marshal changed history (%#v)", historyChanged)
 	}
 
-	return historyChanged, string(historyChangedBytes), historyStr, nil
+	return historyChanged, historyChangedBytes, historyBytes, nil
 }

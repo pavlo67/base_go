@@ -38,27 +38,24 @@ var Description01FieldsToUpdate = []string{"tags", "relations_map", "owner_nss",
 var Description01FieldsToInsert = append([]string{"urn"}, Description01FieldsToUpdate...)
 var Description01FieldsToRead = append(Description01FieldsToInsert, "created_at", "updated_at")
 
-func (descr *Description) FoldToSaveInPg(onInsert bool) ([]interface{}, error) {
+func (descr *Description) FoldToSavePg(onInsert bool) ([]interface{}, []byte, error) {
 	if descr == nil {
-		return nil, errors.New("nil persons.Item to be folded")
+		return nil, nil, errors.New("on FoldToSavePg(): nil persons.Item to be folded")
 	}
 
-	var relationsMapBytes, historyBytes []byte
+	var relationsMapBytes []byte
 	var err error
 
 	// relationsMapBytes = []byte{} // to satisfy NOT NULL constraint
 	if len(descr.RelationsMap) > 0 {
 		if relationsMapBytes, err = json.Marshal(descr.RelationsMap); err != nil {
-			return nil, errors.Wrapf(err, "can't marshal .RelationsMap (%#v)", descr.RelationsMap)
+			return nil, nil, errors.Wrapf(err, "on FoldToSavePg(): can't marshal .RelationsMap (%#v)", descr.RelationsMap)
 		}
 	}
 
-	// historyBytes = []byte{} // to to satisfy NOT NULL constraint
-	if len(descr.History) > 0 {
-		historyBytes, err = json.Marshal(descr.History)
-		if err != nil {
-			return nil, errors.Wrapf(err, "can't marshal .History(%#v)", descr.History)
-		}
+	_, historyBytes, historyChangedBytes, err := vcs.ModifyHistory(descr.History, nil)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "on FoldToSavePg()")
 	}
 
 	if onInsert {
@@ -66,11 +63,10 @@ func (descr *Description) FoldToSaveInPg(onInsert bool) ([]interface{}, error) {
 		if len(descr.URN) > 0 {
 			urnBytes = []byte(descr.URN)
 		}
-		return []interface{}{urnBytes, pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyBytes}, nil
+		return []interface{}{urnBytes, pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyChangedBytes}, historyBytes, nil
 	}
-	// TODO!!! append to descr.History
 
-	return []interface{}{pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyBytes}, nil
+	return []interface{}{pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyChangedBytes}, historyBytes, nil
 
 }
 
