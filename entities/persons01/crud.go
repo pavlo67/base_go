@@ -4,6 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/pavlo67/data/components/vcs"
+
+	"github.com/pavlo67/data/components/selectors"
+
 	"github.com/pavlo67/common/common/rbac"
 	"github.com/pavlo67/data/components/crud"
 
@@ -12,8 +16,6 @@ import (
 	"github.com/pavlo67/data/entities"
 
 	"github.com/pavlo67/common/common/auth"
-
-	"github.com/pavlo67/data/elements/selectors"
 )
 
 var _ crud.Operator = &persons01CRUD{}
@@ -43,9 +45,9 @@ func (crudOp *persons01CRUD) Roles() (rbac.Roles, error) {
 
 const onSave = "on persons01/crud.Save()"
 
-func (crudOp *persons01CRUD) Save(data crud.Data, actor auth.Actor) (*crud.Key, error) {
+func (crudOp *persons01CRUD) Save(data crud.Data, actor auth.Actor) (*crud.Key, vcs.History, error) {
 	if data.Key.Type != CRUD01 {
-		return nil, fmt.Errorf(onSave+": wrong key.Type (%#v) to save item (%#v)", data.Key, data.Value)
+		return nil, nil, fmt.Errorf(onSave+": wrong key.Type (%#v) to save item (%#v)", data.Key, data.Value)
 	}
 
 	var item Item
@@ -55,32 +57,32 @@ func (crudOp *persons01CRUD) Save(data crud.Data, actor auth.Actor) (*crud.Key, 
 		item = v
 	case *Item:
 		if v == nil {
-			return nil, errors.New(onSave + ": nil Item to save")
+			return nil, nil, errors.New(onSave + ": nil Item to save")
 		}
 		item = *v
 	case json.RawMessage:
 		if err := json.Unmarshal(v, &item.Person01); err != nil {
-			return nil, fmt.Errorf(onSave+": can't unmarshal (%s) into item.Person01", v)
+			return nil, nil, fmt.Errorf(onSave+": can't unmarshal (%s) into item.Person01", v)
 		}
 	case entities.Person01:
 		item = Item{Person01: v}
 	case *entities.Person01:
 		if v == nil {
-			return nil, errors.New(onSave + ": nil Person01 to save")
+			return nil, nil, errors.New(onSave + ": nil Person01 to save")
 		}
 		item = Item{Person01: *v}
 	default:
-		return nil, fmt.Errorf(onSave+": wrong data (%#v) to save with key (%#v)", data.Value, data.Key)
+		return nil, nil, fmt.Errorf(onSave+": wrong data (%#v) to save with key (%#v)", data.Value, data.Key)
 	}
 
 	item.ID = data.Key.ID
 	item.Description = data.Description
-	id, err := crudOp.personsOp.Save(item, actor)
+	id, historyChanged, err := crudOp.personsOp.Save(item, actor)
 	if err != nil {
-		return nil, errors.Wrap(err, onSave)
+		return nil, nil, errors.Wrap(err, onSave)
 	}
 
-	return &crud.Key{Type: CRUD01, ID: id}, nil
+	return &crud.Key{Type: CRUD01, ID: id}, historyChanged, nil
 }
 
 const onRead = "on persons01/crud.Read()"

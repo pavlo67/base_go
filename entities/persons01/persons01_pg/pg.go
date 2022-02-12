@@ -8,6 +8,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pavlo67/data/components/vcs"
+
+	"github.com/pavlo67/data/components/selectors"
+
 	"github.com/pavlo67/data/components/crud"
 	crud012 "github.com/pavlo67/data/components/crud01"
 
@@ -19,8 +23,6 @@ import (
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/sqllib"
 	"github.com/pavlo67/common/common/sqllib/sqllib_pg"
-
-	"github.com/pavlo67/data/elements/selectors"
 
 	"github.com/pavlo67/data/entities/persons01"
 )
@@ -111,7 +113,7 @@ var _ persons01.Operator = &persons01Pg{}
 
 const onSave = "on persons01Pg.Save()"
 
-func (persons01Op persons01Pg) Save(pi persons01.Item, _ auth.Actor) (persons01.ID, error) {
+func (persons01Op persons01Pg) Save(pi persons01.Item, _ auth.Actor) (persons01.ID, vcs.History, error) {
 
 	// "firstnames", "middlename", "lastname", "nicknames", "contacts", "info"
 
@@ -120,20 +122,20 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ auth.Actor) (persons01.
 
 	if len(pi.Contacts) > 0 {
 		if contactsBytes, err = json.Marshal(pi.Contacts); err != nil {
-			return "", errors.Wrapf(err, onSave+": can't marshal .Contacts (%#v)", pi.Contacts)
+			return "", nil, errors.Wrapf(err, onSave+": can't marshal .Contacts (%#v)", pi.Contacts)
 		}
 	}
 	if len(pi.Info) > 0 {
 		if infoBytes, err = json.Marshal(pi.Info); err != nil {
-			return "", errors.Wrapf(err, "can't marshal .Info (%#v)", pi.Info)
+			return "", nil, errors.Wrapf(err, "can't marshal .Info (%#v)", pi.Info)
 		}
 	}
 
 	onInsert := pi.ID == ""
 
-	descriptionValues, historyOriginalBytes, err := pi.Description.FoldToSavePg(onInsert)
+	descriptionValues, historyChanged, historyOriginalStr, err := pi.Description.FoldToSavePg(onInsert)
 	if err != nil {
-		return "", errors.Wrap(err, onSave)
+		return "", nil, errors.Wrap(err, onSave)
 	}
 
 	values := append(
@@ -145,24 +147,27 @@ func (persons01Op persons01Pg) Save(pi persons01.Item, _ auth.Actor) (persons01.
 		var idInt64 int64
 
 		if err := persons01Op.stmInsert.QueryRow(values...).Scan(&idInt64); err != nil {
-			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlInsert, values)
+			return "", nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlInsert, values)
 		}
 
 		pi.ID = crud.NewIDInt64(idInt64)
 
-		//l.Fatalf("1111111 %#v", pi)
-
 	} else {
+		values = append(values, pi.ID, historyOriginalStr)
+		if res, err := persons01Op.stmUpdate.Exec(values...); err != nil {
+			return "", nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlUpdate, values)
+		} else {
+			rowsAffected, err := res.RowsAffected()
 
-		//l.Fatalf("22222 %#v", pi)
-
-		values = append(values, pi.ID, historyOriginalBytes)
-		if _, err := persons01Op.stmUpdate.Exec(values...); err != nil {
-			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, persons01Op.sqlUpdate, values)
+			if err != nil {
+				return "", nil, errors.Wrapf(err, onSave+": "+sqllib.CantGetRowsAffected, persons01Op.sqlUpdate, values)
+			} else if rowsAffected < 1 {
+				return "", nil, fmt.Errorf(onSave+": res.RowsAffected() < 1 on "+sqllib.CantExec, persons01Op.sqlUpdate, values)
+			}
 		}
 	}
 
-	return pi.ID, nil
+	return pi.ID, historyChanged, nil
 }
 
 const onRead = "on persons01Pg.Read()"

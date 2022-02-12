@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
+	"github.com/pavlo67/data/components/ns"
 
-	"github.com/pavlo67/data/elements/ns"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHistoryCheckOn(t *testing.T) {

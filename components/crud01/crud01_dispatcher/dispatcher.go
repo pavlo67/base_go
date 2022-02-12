@@ -3,12 +3,14 @@ package crud01_dispatcher
 import (
 	"fmt"
 
+	"github.com/pavlo67/data/components/vcs"
+
+	"github.com/pavlo67/data/components/selectors"
+
 	"github.com/pavlo67/common/common/rbac"
 	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/common/common/auth"
-
-	"github.com/pavlo67/data/elements/selectors"
 )
 
 var _ crud.Operator = &crudDispatcher{}
@@ -49,11 +51,11 @@ func (crudOp crudDispatcher) dispatchedOp(crudType crud.Type, actor auth.Actor) 
 
 var _ crud.Operator = &crudDispatcher{}
 
-func (crudOp crudDispatcher) Save(data crud.Data, actor auth.Actor) (*crud.Key, error) {
+func (crudOp crudDispatcher) Save(data crud.Data, actor auth.Actor) (*crud.Key, vcs.History, error) {
 
 	op, err := crudOp.dispatchedOp(data.Key.Type, actor)
 	if err != nil {
-		return nil, fmt.Errorf("on crudDispatcher.Save(%#v): %s", data, err)
+		return nil, nil, fmt.Errorf("on crudDispatcher.Save(%#v): %s", data, err)
 	}
 
 	return op.Save(data, actor)

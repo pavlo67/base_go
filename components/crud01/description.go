@@ -9,8 +9,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pavlo67/data/elements/ns"
-	"github.com/pavlo67/data/elements/vcs"
+	"github.com/pavlo67/data/components/ns"
+	"github.com/pavlo67/data/components/vcs"
 )
 
 type RelationKey string
@@ -38,9 +38,9 @@ var Description01FieldsToUpdate = []string{"tags", "relations_map", "owner_nss",
 var Description01FieldsToInsert = append([]string{"urn"}, Description01FieldsToUpdate...)
 var Description01FieldsToRead = append(Description01FieldsToInsert, "created_at", "updated_at")
 
-func (descr *Description) FoldToSavePg(onInsert bool) ([]interface{}, []byte, error) {
+func (descr *Description) FoldToSavePg(onInsert bool) ([]interface{}, vcs.History, string, error) {
 	if descr == nil {
-		return nil, nil, errors.New("on FoldToSavePg(): nil persons.Item to be folded")
+		return nil, nil, "", errors.New("on FoldToSavePg(): nil persons.Item to be folded")
 	}
 
 	var relationsMapBytes []byte
@@ -49,13 +49,8 @@ func (descr *Description) FoldToSavePg(onInsert bool) ([]interface{}, []byte, er
 	// relationsMapBytes = []byte{} // to satisfy NOT NULL constraint
 	if len(descr.RelationsMap) > 0 {
 		if relationsMapBytes, err = json.Marshal(descr.RelationsMap); err != nil {
-			return nil, nil, errors.Wrapf(err, "on FoldToSavePg(): can't marshal .RelationsMap (%#v)", descr.RelationsMap)
+			return nil, nil, "", errors.Wrapf(err, "on FoldToSavePg(): can't marshal .RelationsMap (%#v)", descr.RelationsMap)
 		}
-	}
-
-	_, historyBytes, historyChangedBytes, err := vcs.ModifyHistory(descr.History, nil)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "on FoldToSavePg()")
 	}
 
 	if onInsert {
@@ -63,10 +58,15 @@ func (descr *Description) FoldToSavePg(onInsert bool) ([]interface{}, []byte, er
 		if len(descr.URN) > 0 {
 			urnBytes = []byte(descr.URN)
 		}
-		return []interface{}{urnBytes, pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyChangedBytes}, historyBytes, nil
+		return []interface{}{urnBytes, pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, ""}, nil, "", nil
 	}
 
-	return []interface{}{pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyChangedBytes}, historyBytes, nil
+	historyChanged, historyChangedStr, historyOriginalStr, err := vcs.ModifyHistory(descr.History, nil)
+	if err != nil {
+		return nil, nil, "", errors.Wrap(err, "on FoldToSavePg()")
+	}
+
+	return []interface{}{pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyChangedStr}, historyChanged, historyOriginalStr, nil
 
 }
 
@@ -111,7 +111,9 @@ func (testDescription Description) TestIfEqual(t *testing.T, descriptionToCheck 
 	require.Equal(t, testDescription.OwnerNSS, descriptionToCheck.OwnerNSS)
 
 	require.True(t, len(descriptionToCheck.History) >= len(testDescription.History))
-	require.Equal(t, testDescription.History, descriptionToCheck.History[:len(testDescription.History)])
+	if len(testDescription.History) > 0 {
+		require.Equal(t, testDescription.History, descriptionToCheck.History[:len(testDescription.History)])
+	}
 }
 
 func (testDescription Description) ChangeForTest() Description {
@@ -144,5 +146,5 @@ var TestDescription = Description{
 	// History:      nil,
 }
 
-// DEPRECATED
-var TestDescription01 = TestDescription
+//// DEPRECATED
+//var TestDescription01 = TestDescription

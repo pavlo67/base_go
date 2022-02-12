@@ -14,7 +14,7 @@ CREATE TABLE records01 (
   relations_map TEXT                     ,
   owner_nss     TEXT                     NOT NULL,
   viewer_nss    TEXT                     NOT NULL,
-  history       TEXT                     ,
+  history       TEXT                     NOT NULL, -- !!!
   created_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at    TIMESTAMP WITH TIME ZONE
 );

@@ -2,8 +2,13 @@ package crud01_server_http
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/pavlo67/data/components/vcs"
+
+	"github.com/pavlo67/data/components/selectors"
 
 	"github.com/pavlo67/data/components/crud"
 
@@ -12,8 +17,6 @@ import (
 	"github.com/pavlo67/common/common/errors"
 	"github.com/pavlo67/common/common/server"
 	"github.com/pavlo67/common/common/server/server_http"
-
-	"github.com/pavlo67/data/elements/selectors"
 )
 
 var Endpoints = server_http.Endpoints{
@@ -41,6 +44,11 @@ var typesEndpoint = server_http.Endpoint{
 	},
 }
 
+type SaveResult struct {
+	crud.Key
+	vcs.History
+}
+
 var saveEndpoint = server_http.Endpoint{
 	EndpointDescription: server_http.EndpointDescription{
 		InternalKey: crud.IntefaceKeySave,
@@ -57,12 +65,14 @@ var saveEndpoint = server_http.Endpoint{
 			return server_http.ResponseRESTError(http.StatusBadRequest, errors.CommonError(common.WrongJSONKey, common.Map{"error": errors.Wrapf(err, "can't unmarshal body: %s", dataJSON)}), req)
 		}
 
-		key, err := crudDispatcherOp.Save(crud.Data{dataRaw.Key, dataRaw.Description, dataRaw.Value}, auth.Actor{Identity: identity})
+		key, historyChanged, err := crudDispatcherOp.Save(crud.Data{dataRaw.Key, dataRaw.Description, dataRaw.Value}, auth.Actor{Identity: identity})
 		if err != nil {
 			return server_http.ResponseRESTError(0, err, req)
+		} else if key == nil {
+			return server_http.ResponseRESTError(0, fmt.Errorf("key == nil"), req)
 		}
 
-		return server_http.ResponseRESTOk(http.StatusOK, key, req)
+		return server_http.ResponseRESTOk(http.StatusOK, SaveResult{Key: *key, History: historyChanged}, req)
 	},
 }
 

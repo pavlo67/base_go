@@ -3,9 +3,9 @@ package entities
 import (
 	"time"
 
-	"github.com/pavlo67/common/common"
+	"github.com/pavlo67/data/components/contacts"
 
-	"github.com/pavlo67/data/elements/contacts"
+	"github.com/pavlo67/common/common"
 )
 
 // person ------------------------------------------------------------

@@ -8,6 +8,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pavlo67/data/components/vcs"
+
+	"github.com/pavlo67/data/components/selectors"
+
 	"github.com/pavlo67/data/components/crud"
 	crud012 "github.com/pavlo67/data/components/crud01"
 
@@ -19,8 +23,6 @@ import (
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/sqllib"
 	"github.com/pavlo67/common/common/sqllib/sqllib_pg"
-
-	"github.com/pavlo67/data/elements/selectors"
 
 	"github.com/pavlo67/data/entities/records01"
 )
@@ -111,7 +113,7 @@ var _ records01.Operator = &records01Pg{}
 
 const onSave = "on records01Pg.Save()"
 
-func (records01Op records01Pg) Save(ri records01.Item, _ auth.Actor) (records01.ID, error) {
+func (records01Op records01Pg) Save(ri records01.Item, _ auth.Actor) (records01.ID, vcs.History, error) {
 
 	// "title", "summary", "record_type", "data", "embedded"
 
@@ -120,14 +122,14 @@ func (records01Op records01Pg) Save(ri records01.Item, _ auth.Actor) (records01.
 
 	if len(ri.Embedded) > 0 {
 		if embeddedBytes, err = json.Marshal(ri.Embedded); err != nil {
-			return "", errors.Wrapf(err, onSave+": can't marshal .Contacts (%#v)", ri.Embedded)
+			return "", nil, errors.Wrapf(err, onSave+": can't marshal .Contacts (%#v)", ri.Embedded)
 		}
 	}
 
 	onInsert := ri.ID == ""
-	descriptionValues, historyOriginalBytes, err := ri.Description.FoldToSavePg(onInsert)
+	descriptionValues, historyChanged, historyOriginalStr, err := ri.Description.FoldToSavePg(onInsert)
 	if err != nil {
-		return "", errors.Wrap(err, onSave)
+		return "", nil, errors.Wrap(err, onSave)
 	}
 
 	values := append([]interface{}{ri.Title, ri.Summary, ri.Type, ri.Data, embeddedBytes}, descriptionValues...)
@@ -136,19 +138,28 @@ func (records01Op records01Pg) Save(ri records01.Item, _ auth.Actor) (records01.
 		var idInt64 int64
 
 		if err := records01Op.stmInsert.QueryRow(values...).Scan(&idInt64); err != nil {
-			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlInsert, values)
+			return "", historyChanged, errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlInsert, values)
 		}
 
 		ri.ID = crud.NewIDInt64(idInt64)
 
 	} else {
-		values = append(values, ri.ID, historyOriginalBytes)
-		if _, err := records01Op.stmUpdate.Exec(values...); err != nil {
-			return "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlUpdate, values)
+		values = append(values, ri.ID, historyOriginalStr)
+		res, err := records01Op.stmUpdate.Exec(values...)
+		if err != nil {
+			return "", nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, records01Op.sqlUpdate, values)
+		} else {
+			rowsAffected, err := res.RowsAffected()
+
+			if err != nil {
+				return "", nil, errors.Wrapf(err, onSave+": "+sqllib.CantGetRowsAffected, records01Op.sqlUpdate, values)
+			} else if rowsAffected < 1 {
+				return "", nil, fmt.Errorf(onSave+": res.RowsAffected() < 1 on "+sqllib.CantExec, records01Op.sqlUpdate, values)
+			}
 		}
 	}
 
-	return ri.ID, nil
+	return ri.ID, historyChanged, nil
 }
 
 const onRead = "on records01Pg.Read()"

@@ -1,6 +1,6 @@
 module github.com/pavlo67/data
 
-go 1.17
+go 1.16
 
 require (
 	github.com/lib/pq v1.9.0

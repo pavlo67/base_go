@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/pavlo67/data/components/crud"
-	crud012 "github.com/pavlo67/data/components/crud01"
-
-	"github.com/pavlo67/data/entities"
+	"github.com/pavlo67/data/components/contacts"
 
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
 
-	"github.com/pavlo67/data/elements/contacts"
+	"github.com/pavlo67/data/entities"
+
+	"github.com/pavlo67/data/components/crud"
+	"github.com/pavlo67/data/components/crud01"
 )
 
 var TestItem = Item{
@@ -25,7 +25,7 @@ var TestItem = Item{
 		Contacts:   []contacts.Item{{Type: "phone", Value: "777", Connected: []contacts.Item{{Type: "fax", Value: "888"}}}},
 		Info:       common.Map{"info1": "data1", "info2": "data2"},
 	},
-	Description: crud012.TestDescription01,
+	Description: crud01.TestDescription,
 }
 
 var _ crud.ReadValueRaw = ReadValueRaw

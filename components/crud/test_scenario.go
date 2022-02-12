@@ -5,11 +5,12 @@ import (
 	"os"
 	"testing"
 
+	"github.com/pavlo67/data/components/selectors"
+
 	"github.com/stretchr/testify/require"
 
 	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/common/common/db"
-	"github.com/pavlo67/data/elements/selectors"
 )
 
 func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleaner,
@@ -40,7 +41,8 @@ func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleane
 
 	t.Log("add item")
 
-	savedKey, err := crudOp.Save(itemToSave, actor)
+	var savedKey *Key
+	savedKey, itemToSave.History, err = crudOp.Save(itemToSave, actor)
 	require.NoError(t, err)
 	require.NotNil(t, savedKey)
 	require.Equal(t, crudType, savedKey.Type)
@@ -77,7 +79,8 @@ func OperatorTestScenario(t *testing.T, crudOp Operator, crudCleanerOp db.Cleane
 
 	itemChanged.Description.URN = urnOriginal + "_changed"
 
-	savedChangedKey, err := crudOp.Save(*itemChanged, actor)
+	var savedChangedKey *Key
+	savedChangedKey, itemChanged.History, err = crudOp.Save(*itemChanged, actor)
 	require.NoError(t, err)
 	require.Equal(t, *savedKey, *savedChangedKey)
 

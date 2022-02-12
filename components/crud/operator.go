@@ -5,6 +5,10 @@ import (
 	"sort"
 	"time"
 
+	"github.com/pavlo67/data/components/vcs"
+
+	"github.com/pavlo67/data/components/selectors"
+
 	"github.com/pavlo67/data/components/crud01"
 
 	"github.com/pavlo67/common/common/rbac"
@@ -12,8 +16,6 @@ import (
 	"github.com/pavlo67/common/common"
 
 	"github.com/pavlo67/common/common/auth"
-
-	"github.com/pavlo67/data/elements/selectors"
 )
 
 type Type common.IDStr
@@ -39,7 +41,7 @@ type Operator interface {
 	Types() ([]Type, error)
 	Roles() (rbac.Roles, error)
 
-	Save(Data, auth.Actor) (*Key, error)
+	Save(Data, auth.Actor) (*Key, vcs.History, error)
 	Read(Key, auth.Actor) (*Data, error)
 	List(Type, selectors.Options, auth.Actor) ([]Data, error)
 	Remove(Key, auth.Actor) error

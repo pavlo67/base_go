@@ -2,14 +2,14 @@ package persons01_stub
 
 import (
 	"github.com/pavlo67/data/components/crud"
+	"github.com/pavlo67/data/components/selectors"
+	"github.com/pavlo67/data/components/vcs"
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/db"
 
 	"github.com/pavlo67/common/common/auth"
-
-	"github.com/pavlo67/data/elements/selectors"
 
 	"github.com/pavlo67/data/entities/persons01"
 )
@@ -34,13 +34,13 @@ const onSave = "on personsStub.Save(): "
 
 var currentID int
 
-func (personsOp *personsStub) Save(personsItem persons01.Item, _ auth.Actor) (persons01.ID, error) {
+func (personsOp *personsStub) Save(personsItem persons01.Item, _ auth.Actor) (persons01.ID, vcs.History, error) {
 	if personsItem.ID == "" {
 		currentID++
 		personsItem.ID = crud.NewIDInt64(int64(currentID))
 
 		personsOp.personItems = append(personsOp.personItems, personsItem)
-		return personsItem.ID, nil
+		return personsItem.ID, nil, nil
 	}
 
 	for i, pi := range personsOp.personItems {
@@ -48,11 +48,11 @@ func (personsOp *personsStub) Save(personsItem persons01.Item, _ auth.Actor) (pe
 			urnOriginal := pi.Description.URN
 			personsOp.personItems[i] = personsItem
 			personsOp.personItems[i].Description.URN = urnOriginal // UNCHANGED!!!
-			return pi.ID, nil
+			return pi.ID, nil, nil
 		}
 	}
 
-	return "", errors.Wrapf(common.ErrNotFound, onSave+"no person with the same ID as %#v", personsItem)
+	return "", nil, errors.Wrapf(common.ErrNotFound, onSave+"no person with the same ID as %#v", personsItem)
 }
 
 const onRead = "on personsStub.Read(): "

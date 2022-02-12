@@ -3,6 +3,12 @@ package crud01_http
 import (
 	"encoding/json"
 
+	"github.com/pavlo67/data/components/crud01/crud01_server_http"
+
+	"github.com/pavlo67/data/components/vcs"
+
+	"github.com/pavlo67/data/components/selectors"
+
 	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/common/common/rbac"
@@ -15,8 +21,6 @@ import (
 
 	"github.com/pavlo67/common/common/httplib"
 	"github.com/pavlo67/common/common/server/server_http"
-
-	"github.com/pavlo67/data/elements/selectors"
 )
 
 var _ crud.Operator = &crudHTTP{}
@@ -55,21 +59,21 @@ func (crudOp *crudHTTP) Types() ([]crud.Type, error) {
 
 const onSave = "on crudHTTP.Save()"
 
-func (crudOp *crudHTTP) Save(data crud.Data, actor auth.Actor) (*crud.Key, error) {
+func (crudOp *crudHTTP) Save(data crud.Data, actor auth.Actor) (*crud.Key, vcs.History, error) {
 	ep := crudOp.serverConfig.EndpointsSettled[crud.IntefaceKeySave]
 	serverURL := crudOp.serverConfig.Host + crudOp.serverConfig.Port + crudOp.serverConfig.Prefix + ep.Path
 
 	requestBody, err := json.Marshal(data)
 	if err != nil {
-		return nil, errors.Wrapf(err, onSave+": can't marshal data (%#v)", data)
+		return nil, nil, errors.Wrapf(err, onSave+": can't marshal data (%#v)", data)
 	}
 
-	var key *crud.Key
-	if err := httplib.Request(nil, serverURL, ep.Method, server_http.SetCreds(actor.Creds), requestBody, &key, l); err != nil {
-		return nil, errors.Wrap(err, onSave)
+	var saveResult crud01_server_http.SaveResult
+	if err := httplib.Request(nil, serverURL, ep.Method, server_http.SetCreds(actor.Creds), requestBody, &saveResult, l); err != nil {
+		return nil, nil, errors.Wrap(err, onSave)
 	}
 
-	return key, nil
+	return &saveResult.Key, saveResult.History, nil
 }
 
 const onRead = "on crudHTTP.Read()"
