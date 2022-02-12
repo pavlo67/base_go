@@ -3,9 +3,9 @@ package persons01
 import (
 	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/data/components/crud"
-	crud012 "github.com/pavlo67/data/components/crud01"
 	"github.com/pavlo67/data/components/selectors"
 	"github.com/pavlo67/data/components/vcs"
+	crud012 "github.com/pavlo67/data/entities/crud01"
 
 	"github.com/pavlo67/data/entities"
 )

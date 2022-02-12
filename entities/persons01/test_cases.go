@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/pavlo67/data/entities/crud01"
+
 	"github.com/pavlo67/data/components/contacts"
 
 	"github.com/pkg/errors"
@@ -13,7 +15,6 @@ import (
 	"github.com/pavlo67/data/entities"
 
 	"github.com/pavlo67/data/components/crud"
-	"github.com/pavlo67/data/components/crud01"
 )
 
 var TestItem = Item{

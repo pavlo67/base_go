@@ -5,11 +5,11 @@ import (
 	"sort"
 	"time"
 
+	"github.com/pavlo67/data/entities/crud01"
+
 	"github.com/pavlo67/data/components/vcs"
 
 	"github.com/pavlo67/data/components/selectors"
-
-	"github.com/pavlo67/data/components/crud01"
 
 	"github.com/pavlo67/common/common/rbac"
 

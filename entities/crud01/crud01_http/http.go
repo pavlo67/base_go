@@ -3,7 +3,7 @@ package crud01_http
 import (
 	"encoding/json"
 
-	"github.com/pavlo67/data/components/crud01/crud01_server_http"
+	"github.com/pavlo67/data/entities/crud01/crud01_server_http"
 
 	"github.com/pavlo67/data/components/vcs"
 

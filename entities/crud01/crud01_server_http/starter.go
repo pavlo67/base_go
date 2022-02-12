@@ -3,14 +3,14 @@ package crud01_server_http
 import (
 	"fmt"
 
-	"github.com/pavlo67/data/components/crud"
-	"github.com/pavlo67/data/components/crud01/crud01_dispatcher"
+	"github.com/pavlo67/data/entities/crud01/crud01_dispatcher"
 
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/joiner"
 	"github.com/pavlo67/common/common/logger"
 	"github.com/pavlo67/common/common/starter"
+	"github.com/pavlo67/data/components/crud"
 )
 
 func Starter() starter.Operator {

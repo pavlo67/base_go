@@ -8,14 +8,14 @@ import (
 	"strconv"
 	"strings"
 
+	crud012 "github.com/pavlo67/data/entities/crud01"
+
 	"github.com/pavlo67/data/components/vcs"
 
 	"github.com/pavlo67/data/components/selectors"
 
-	"github.com/pavlo67/data/components/crud"
-	crud012 "github.com/pavlo67/data/components/crud01"
-
 	"github.com/lib/pq"
+	"github.com/pavlo67/data/components/crud"
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
