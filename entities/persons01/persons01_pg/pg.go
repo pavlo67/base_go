@@ -8,14 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	crud012 "github.com/pavlo67/data/entities/crud01"
-
-	"github.com/pavlo67/data/components/vcs"
-
-	"github.com/pavlo67/data/components/selectors"
-
 	"github.com/lib/pq"
-	"github.com/pavlo67/data/components/crud"
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
@@ -24,17 +17,22 @@ import (
 	"github.com/pavlo67/common/common/sqllib"
 	"github.com/pavlo67/common/common/sqllib/sqllib_pg"
 
+	"github.com/pavlo67/data/entities/crud01"
 	"github.com/pavlo67/data/entities/persons01"
+
+	"github.com/pavlo67/data/components/crud"
+	"github.com/pavlo67/data/components/selectors"
+	"github.com/pavlo67/data/components/vcs"
 )
 
 var fields = []string{"firstnames", "middlename", "lastname", "nicknames", "contacts", "info"}
 
-var fieldsToInsert = append(fields, crud012.Description01FieldsToInsert...)
+var fieldsToInsert = append(fields, crud01.Description01FieldsToInsert...)
 var fieldsToInsertStr = `"` + strings.Join(fieldsToInsert, `","`) + `"`
 
-var fieldsToUpdate = append(fields, crud012.Description01FieldsToUpdate...)
+var fieldsToUpdate = append(fields, crud01.Description01FieldsToUpdate...)
 
-var fieldsToRead = append(fields, crud012.Description01FieldsToRead...)
+var fieldsToRead = append(fields, crud01.Description01FieldsToRead...)
 var fieldsToReadStr = `"` + strings.Join(fieldsToRead, `","`) + `"`
 
 var fieldsToList = append(fieldsToRead, "id")
@@ -185,7 +183,7 @@ func (persons01Op persons01Pg) Read(id persons01.ID, _ auth.Actor) (*persons01.I
 	if err := persons01Op.stmRead.QueryRow(values...).Scan(
 		pq.Array(&pi.Firstnames), &pi.Middlename, &pi.Lastname, pq.Array(&pi.Nicknames), &contactBytes, &infoBytes,
 		&urnBytes, pq.Array(&pi.Description.Tags), &relationsMapBytes, &pi.Description.OwnerNSS, &pi.Description.ViewerNSS, &historyBytes,
-		&pi.Description.CreatedAt, &pi.Description.UpdatedAt); err == sql.ErrNoRows {
+		&pi.Description.UpdatedAt, &pi.Description.CreatedAt); err == sql.ErrNoRows {
 		return nil, errors.Wrapf(common.ErrNotFound, onRead+": "+sqllib.CantScanQueryRow, persons01Op.sqlRead, values)
 	} else if err != nil {
 		return nil, errors.Wrapf(err, onRead+": "+sqllib.CantScanQueryRow, persons01Op.sqlRead, values)
@@ -234,7 +232,7 @@ func (persons01Op persons01Pg) List(*selectors.Term, auth.Actor) ([]persons01.It
 
 		if err := rows.Scan(pq.Array(&pi.Firstnames), &pi.Middlename, &pi.Lastname, pq.Array(&pi.Nicknames), &contactBytes, &infoBytes,
 			&urnBytes, pq.Array(&pi.Description.Tags), &relationsMapBytes, &pi.Description.OwnerNSS, &pi.Description.ViewerNSS, &historyBytes,
-			&pi.Description.CreatedAt, &pi.Description.UpdatedAt, &idInt64); err != nil {
+			&pi.Description.UpdatedAt, &pi.Description.CreatedAt, &idInt64); err != nil {
 			return nil, errors.Wrapf(err, onList+": "+sqllib.CantScanQueryRow, persons01Op.sqlList, values)
 		}
 

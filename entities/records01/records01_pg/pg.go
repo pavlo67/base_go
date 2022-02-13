@@ -177,7 +177,7 @@ func (records01Op records01Pg) Read(id records01.ID, _ auth.Actor) (*records01.I
 	if err := records01Op.stmRead.QueryRow(values...).Scan(
 		&ri.Title, &ri.Summary, &ri.Type, &ri.Data, &embeddedBytes,
 		&urnBytes, pq.Array(&ri.Description.Tags), &relationsMapBytes, &ri.Description.OwnerNSS, &ri.Description.ViewerNSS, &historyBytes,
-		&ri.Description.CreatedAt, &ri.Description.UpdatedAt); err == sql.ErrNoRows {
+		&ri.Description.UpdatedAt, &ri.Description.CreatedAt); err == sql.ErrNoRows {
 		return nil, errors.Wrapf(common.ErrNotFound, onRead+": "+sqllib.CantScanQueryRow, records01Op.sqlRead, values)
 	} else if err != nil {
 		return nil, errors.Wrapf(err, onRead+": "+sqllib.CantScanQueryRow, records01Op.sqlRead, values)
@@ -222,7 +222,7 @@ func (records01Op records01Pg) List(*selectors.Term, auth.Actor) ([]records01.It
 		if err := rows.Scan(
 			&ri.Title, &ri.Summary, &ri.Type, &ri.Data, &embeddedBytes,
 			&urnBytes, pq.Array(&ri.Description.Tags), &relationsMapBytes, &ri.Description.OwnerNSS, &ri.Description.ViewerNSS, &historyBytes,
-			&ri.Description.CreatedAt, &ri.Description.UpdatedAt, &idInt64); err != nil {
+			&ri.Description.UpdatedAt, &ri.Description.CreatedAt, &idInt64); err != nil {
 			return nil, errors.Wrapf(err, onList+": "+sqllib.CantScanQueryRow, records01Op.sqlList, values)
 		}
 

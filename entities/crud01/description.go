@@ -34,9 +34,10 @@ type Description struct {
 	UpdatedAt    *time.Time   `json:",omitempty" bson:",omitempty"`
 }
 
-var Description01FieldsToUpdate = []string{"tags", "relations_map", "owner_nss", "viewer_nss", "history"}
-var Description01FieldsToInsert = append([]string{"urn"}, Description01FieldsToUpdate...)
-var Description01FieldsToRead = append(Description01FieldsToInsert, "created_at", "updated_at")
+var Description01FieldsBasis = []string{"tags", "relations_map", "owner_nss", "viewer_nss", "history"}
+var Description01FieldsToUpdate = append(Description01FieldsBasis, "updated_at")
+var Description01FieldsToInsert = append([]string{"urn"}, Description01FieldsBasis...)
+var Description01FieldsToRead = append(Description01FieldsToInsert, "updated_at", "created_at")
 
 func (descr *Description) FoldToSavePg(onInsert bool) ([]interface{}, vcs.History, string, error) {
 	if descr == nil {
@@ -66,7 +67,7 @@ func (descr *Description) FoldToSavePg(onInsert bool) ([]interface{}, vcs.Histor
 		return nil, nil, "", errors.Wrap(err, "on FoldToSavePg()")
 	}
 
-	return []interface{}{pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyChangedStr}, historyChanged, historyOriginalStr, nil
+	return []interface{}{pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyChangedStr, time.Now().UTC()}, historyChanged, historyOriginalStr, nil
 
 }
 
@@ -145,6 +146,3 @@ var TestDescription = Description{
 	ViewerNSS: "viever_nss",
 	// History:      nil,
 }
-
-//// DEPRECATED
-//var TestDescription01 = TestDescription
