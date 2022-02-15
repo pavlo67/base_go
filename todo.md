@@ -1,3 +1,7 @@
+## crud
+
+* Backup() method
+
 ## transport
 
 * transpOp.Track()
@@ -14,8 +18,6 @@
 * при конектах (а навіть при старті?) — перевіряти "очікувані" формати пакетів
 * sender.Operator.Handle, sender.Operator.History
 * мережа довірених адресатів
-
-## transfer
 
 ### json_any
 
