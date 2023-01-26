@@ -5,35 +5,29 @@ import (
 	"sort"
 	"time"
 
-	"github.com/pavlo67/data/entities/crud01"
-
-	"github.com/pavlo67/data/components/vcs"
-
-	"github.com/pavlo67/data/components/selectors"
-
+	"github.com/pavlo67/common/common"
+	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/common/common/rbac"
 
-	"github.com/pavlo67/common/common"
-
-	"github.com/pavlo67/common/common/auth"
+	"github.com/pavlo67/data/components/vcs"
 )
 
 type Type common.IDStr
 
 type Key struct {
 	Type
-	ID
+	ID common.IDStr
 }
 
 type Data struct {
 	Key
-	crud01.Description
+	Description
 	Value interface{}
 }
 
 type DataRaw struct {
 	Key
-	crud01.Description
+	Description
 	Value json.RawMessage
 }
 
@@ -43,7 +37,7 @@ type Operator interface {
 
 	Save(Data, auth.Actor) (*Key, vcs.History, error)
 	Read(Key, auth.Actor) (*Data, error)
-	List(Type, selectors.Options, auth.Actor) ([]Data, error)
+	List(Type, Options, auth.Actor) ([]Data, error)
 	Remove(Key, auth.Actor) error
 }
 
