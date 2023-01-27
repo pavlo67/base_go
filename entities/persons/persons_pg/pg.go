@@ -17,25 +17,22 @@ import (
 	"github.com/pavlo67/common/common/sqllib"
 	"github.com/pavlo67/common/common/sqllib/sqllib_pg"
 
-	"github.com/pavlo67/data/entities/crud01"
+	"github.com/pavlo67/data/entities/persons"
+	"github.com/pavlo67/data/entities/records"
 
 	"github.com/pavlo67/data/components/crud"
 	"github.com/pavlo67/data/components/ns"
-	"github.com/pavlo67/data/components/selectors"
 	"github.com/pavlo67/data/components/vcs"
-
-	"github.com/pavlo67/data/entities/persons"
-	"github.com/pavlo67/data/entities/records"
 )
 
 var fields = []string{"firstnames", "middlename", "lastname", "nicknames", "contacts", "info"}
 
-var fieldsToInsert = append(fields, crud01.Description01FieldsToInsert...)
+var fieldsToInsert = append(fields, crud.Description01FieldsBasis...)
 var fieldsToInsertStr = `"` + strings.Join(fieldsToInsert, `","`) + `"`
 
-var fieldsToUpdate = append(fields, crud01.Description01FieldsToUpdate...)
+var fieldsToUpdate = append(fields, crud.Description01FieldsToUpdate...)
 
-var fieldsToRead = append(fields, crud01.Description01FieldsToRead...)
+var fieldsToRead = append(fields, crud.Description01FieldsToRead...)
 var fieldsToReadStr = `"` + strings.Join(fieldsToRead, `","`) + `"`
 
 var fieldsToList = append(fieldsToRead, "id")
@@ -178,7 +175,7 @@ func (personsOp personsPg) Save(pi persons.Item, _ auth.Actor) (persons.ID, ns.U
 			return "", "", nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, personsOp.sqlInsert, values)
 		}
 
-		pi.ID = crud.NewIDInt64(idInt64)
+		pi.ID = (common.IDNum(idInt64)).Key()
 
 		if pi.URN == "" {
 			if pi.URN, err = personsOp.SetURN(pi.ID); err != nil {
@@ -245,7 +242,7 @@ func (personsOp personsPg) Read(id persons.ID, _ auth.Actor) (*persons.Item, err
 
 const onList = "on personsPg.List()"
 
-func (personsOp personsPg) List(*selectors.Term, auth.Actor) ([]persons.Item, error) {
+func (personsOp personsPg) List(*crud.Term, auth.Actor) ([]persons.Item, error) {
 
 	// TODO!!! selector
 
@@ -287,7 +284,7 @@ func (personsOp personsPg) List(*selectors.Term, auth.Actor) ([]persons.Item, er
 			return nil, errors.Wrap(err, onList)
 		}
 
-		pi.ID = crud.NewIDInt64(idInt64)
+		pi.ID = (common.IDNum(idInt64)).Key()
 
 		items = append(items, pi)
 	}

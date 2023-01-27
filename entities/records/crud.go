@@ -4,15 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/pavlo67/data/components/selectors"
-	"github.com/pavlo67/data/components/vcs"
-
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/common/common/rbac"
 
 	"github.com/pavlo67/data/components/crud"
+	"github.com/pavlo67/data/components/vcs"
 )
 
 const CRUD crud.Type = "records"
@@ -106,7 +104,7 @@ func (crudOp *recordsCRUD) Read(key crud.Key, actor auth.Actor) (*crud.Data, err
 
 const onList = "on records/crud.List()"
 
-func (crudOp *recordsCRUD) List(crudType crud.Type, _ selectors.Options, actor auth.Actor) ([]crud.Data, error) {
+func (crudOp *recordsCRUD) List(crudType crud.Type, _ crud.Options, actor auth.Actor) ([]crud.Data, error) {
 	if crudType != CRUD {
 		return nil, fmt.Errorf(onList+": wrong crudType (%#v)", crudType)
 	}

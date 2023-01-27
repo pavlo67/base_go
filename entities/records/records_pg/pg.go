@@ -17,11 +17,8 @@ import (
 	"github.com/pavlo67/common/common/sqllib"
 	"github.com/pavlo67/common/common/sqllib/sqllib_pg"
 
-	"github.com/pavlo67/data/entities/crud01"
-
 	"github.com/pavlo67/data/components/crud"
 	"github.com/pavlo67/data/components/ns"
-	"github.com/pavlo67/data/components/selectors"
 	"github.com/pavlo67/data/components/vcs"
 
 	"github.com/pavlo67/data/entities/records"
@@ -29,12 +26,12 @@ import (
 
 var fields = []string{"title", "summary", "record_type", "data", "embedded"}
 
-var fieldsToInsert = append(fields, crud01.Description01FieldsToInsert...)
+var fieldsToInsert = append(fields, crud.Description01FieldsBasis...)
 var fieldsToInsertStr = `"` + strings.Join(fieldsToInsert, `","`) + `"`
 
-var fieldsToUpdate = append(fields, crud01.Description01FieldsToUpdate...)
+var fieldsToUpdate = append(fields, crud.Description01FieldsToUpdate...)
 
-var fieldsToRead = append(fields, crud01.Description01FieldsToRead...)
+var fieldsToRead = append(fields, crud.Description01FieldsToRead...)
 var fieldsToReadStr = `"` + strings.Join(fieldsToRead, `","`) + `"`
 
 var fieldsToList = append(fieldsToRead, "id")
@@ -171,7 +168,7 @@ func (recordsOp recordsPg) Save(ri records.Item, _ auth.Actor) (records.ID, ns.U
 			return "", "", nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, recordsOp.sqlInsert, values)
 		}
 
-		ri.ID = crud.NewIDInt64(idInt64)
+		ri.ID = (common.IDNum(idInt64)).Key()
 
 		if ri.URN == "" {
 			if ri.URN, err = recordsOp.SetURN(ri.ID); err != nil {
@@ -236,7 +233,7 @@ func (recordsOp recordsPg) Read(id records.ID, _ auth.Actor) (*records.Item, err
 
 const onList = "on recordsPg.List()"
 
-func (recordsOp recordsPg) List(*selectors.Term, auth.Actor) ([]records.Item, error) {
+func (recordsOp recordsPg) List(*crud.Term, auth.Actor) ([]records.Item, error) {
 
 	// TODO!!! selector
 
@@ -274,7 +271,7 @@ func (recordsOp recordsPg) List(*selectors.Term, auth.Actor) ([]records.Item, er
 			return nil, errors.Wrap(err, onList)
 		}
 
-		ri.ID = crud.NewIDInt64(idInt64)
+		ri.ID = (common.IDNum(idInt64)).Key()
 
 		items = append(items, ri)
 	}

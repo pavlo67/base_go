@@ -34,10 +34,9 @@ type Description struct {
 	UpdatedAt    *time.Time   `json:",omitempty" bson:",omitempty"`
 }
 
-var Description01FieldsBasis = []string{"tags", "relations_map", "owner_nss", "viewer_nss", "history"}
+var Description01FieldsBasis = []string{"urn", "tags", "relations_map", "owner_nss", "viewer_nss", "history"}
 var Description01FieldsToUpdate = append(Description01FieldsBasis, "updated_at")
-var Description01FieldsToInsert = append([]string{"urn"}, Description01FieldsBasis...)
-var Description01FieldsToRead = append(Description01FieldsToInsert, "updated_at", "created_at")
+var Description01FieldsToRead = append(Description01FieldsBasis, "updated_at", "created_at")
 
 func (descr *Description) FoldToSavePg(onInsert bool) ([]interface{}, vcs.History, string, error) {
 	if descr == nil {
@@ -54,11 +53,12 @@ func (descr *Description) FoldToSavePg(onInsert bool) ([]interface{}, vcs.Histor
 		}
 	}
 
+	var urnBytes []byte
+	if len(descr.URN) > 0 {
+		urnBytes = []byte(descr.URN)
+	}
+
 	if onInsert {
-		var urnBytes []byte
-		if len(descr.URN) > 0 {
-			urnBytes = []byte(descr.URN)
-		}
 		return []interface{}{urnBytes, pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, ""}, nil, "", nil
 	}
 
@@ -67,7 +67,7 @@ func (descr *Description) FoldToSavePg(onInsert bool) ([]interface{}, vcs.Histor
 		return nil, nil, "", errors.Wrap(err, "on FoldToSavePg()")
 	}
 
-	return []interface{}{pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyChangedStr, time.Now().UTC()}, historyChanged, historyOriginalStr, nil
+	return []interface{}{urnBytes, pq.Array(descr.Tags), relationsMapBytes, descr.OwnerNSS, descr.ViewerNSS, historyChangedStr, time.Now().UTC()}, historyChanged, historyOriginalStr, nil
 
 }
 

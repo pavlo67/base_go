@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/pavlo67/data/entities/crud01"
+	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/common/common"
 
@@ -41,7 +41,7 @@ func ItemFromMap(data common.Map) (*Item, error) {
 
 	return &Item{
 		ID: ID(data.StringDefault("id", "")),
-		Description: crud01.Description{
+		Description: crud.Description{
 			// URN:          "",
 			Tags: tags,
 			// RelationsMap: nil,

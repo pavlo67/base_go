@@ -4,11 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/pavlo67/data/entities/crud01"
+	"github.com/pkg/errors"
 
 	"github.com/pavlo67/data/components/crud"
-
-	"github.com/pkg/errors"
 )
 
 var TestItem = Item{
@@ -26,7 +24,7 @@ var TestItem = Item{
 			Data:    "wertesrytr eu yuik",
 		}},
 	},
-	Description: crud01.TestDescription,
+	Description: crud.TestDescription,
 }
 
 var _ crud.ReadValueRaw = ReadValueRaw
