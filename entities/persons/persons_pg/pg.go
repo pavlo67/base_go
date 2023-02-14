@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pavlo67/data/entities"
+
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
@@ -20,19 +22,18 @@ import (
 	"github.com/pavlo67/data/entities/persons"
 	"github.com/pavlo67/data/entities/records"
 
-	"github.com/pavlo67/data/components/crud"
 	"github.com/pavlo67/data/components/ns"
 	"github.com/pavlo67/data/components/vcs"
 )
 
 var fields = []string{"firstnames", "middlename", "lastname", "nicknames", "contacts", "info"}
 
-var fieldsToInsert = append(fields, crud.Description01FieldsBasis...)
+var fieldsToInsert = append(fields, entities.Description01FieldsBasis...)
 var fieldsToInsertStr = `"` + strings.Join(fieldsToInsert, `","`) + `"`
 
-var fieldsToUpdate = append(fields, crud.Description01FieldsToUpdate...)
+var fieldsToUpdate = append(fields, entities.Description01FieldsToUpdate...)
 
-var fieldsToRead = append(fields, crud.Description01FieldsToRead...)
+var fieldsToRead = append(fields, entities.Description01FieldsToRead...)
 var fieldsToReadStr = `"` + strings.Join(fieldsToRead, `","`) + `"`
 
 var fieldsToList = append(fieldsToRead, "id")
@@ -242,7 +243,7 @@ func (personsOp personsPg) Read(id persons.ID, _ auth.Actor) (*persons.Item, err
 
 const onList = "on personsPg.List()"
 
-func (personsOp personsPg) List(*crud.Term, auth.Actor) ([]persons.Item, error) {
+func (personsOp personsPg) List(*entities.Term, auth.Actor) ([]persons.Item, error) {
 
 	// TODO!!! selector
 

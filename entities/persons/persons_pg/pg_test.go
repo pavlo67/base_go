@@ -3,6 +3,8 @@ package persons_pg
 import (
 	"testing"
 
+	"github.com/pavlo67/data/entities"
+
 	"github.com/stretchr/testify/require"
 
 	"github.com/pavlo67/common/common"
@@ -12,8 +14,6 @@ import (
 	"github.com/pavlo67/common/common/db/db_pg"
 	"github.com/pavlo67/common/common/rbac"
 	"github.com/pavlo67/common/common/starter"
-
-	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/data/entities/persons"
 )
@@ -28,7 +28,7 @@ func TestPersonsPgCRUD(t *testing.T) {
 
 	components := []starter.Starter{
 		{db_pg.Starter(), nil, nil},
-		{Starter(), common.Map{"roles": rbac.Roles{crud.RoleTester}, "domain": "test"}, nil},
+		{Starter(), common.Map{"roles": rbac.Roles{entities.RoleTester}, "domain": "test"}, nil},
 	}
 
 	joinerOp, err := starter.Run(components, &cfgService, "CLI BUILD FOR TEST", l)
@@ -42,12 +42,12 @@ func TestPersonsPgCRUD(t *testing.T) {
 	personsCleanerOp, _ := joinerOp.Interface(persons.InterfaceCleanerKey).(db.Cleaner)
 	require.NotNil(t, personsCleanerOp)
 
-	crudOp, err := persons.OperatorCRUD(personsOp, rbac.Roles{crud.RoleTester})
+	crudOp, err := persons.OperatorCRUD(personsOp, rbac.Roles{entities.RoleTester})
 	require.NoError(t, err)
 	require.NotNil(t, crudOp)
 
-	crudData := crud.Data{
-		Key: crud.Key{
+	crudData := entities.Data{
+		Key: entities.Key{
 			Type: persons.CRUD,
 			ID:   persons.TestItem.ID,
 		},
@@ -55,7 +55,7 @@ func TestPersonsPgCRUD(t *testing.T) {
 		Value:       persons.TestItem.Person,
 	}
 
-	testActor := auth.Actor{Identity: auth.IdentityWithRoles(crud.RoleTester)}
+	testActor := auth.Actor{Identity: auth.IdentityWithRoles(entities.RoleTester)}
 
-	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons.ReadValueRaw, persons.ChangeCRUDItemForTest, testActor)
+	entities.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons.ReadValueRaw, persons.ChangeCRUDItemForTest, testActor)
 }

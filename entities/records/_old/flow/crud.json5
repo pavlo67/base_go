@@ -1,0 +1,51 @@
+{
+    name: "фрагменти",
+    primaryTableKey: "flowTable",
+    pagination: 10,
+    tables: {
+        flowTable: [
+            {
+                key: "ID",
+                name: "",
+                field: "id",
+                format: "string",
+                check: "",
+                sort: "",
+            },
+            {
+                key: "OriginalID",
+                name: "",
+                field: "original_id",
+                format: "string",
+                check: "1",
+                sort: "",
+            },
+            {
+                key: "Short",
+                name: "Коротко",
+                field: "short",
+                format: "string",
+                check: "1",
+                sort: "1",
+            },
+            {
+                key: "FountIS",
+                name: "IS",
+                field: "fount_is",
+                format: "string",
+                check: "1",
+                sort: "1",
+            },
+            {
+                key: "FountURL",
+                name: "URL",
+                field: "fount_url",
+                format: "string",
+                check: "1",
+                sort: "1",
+            },
+        ],
+    },
+    queries: {
+    },
+}

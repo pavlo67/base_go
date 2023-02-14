@@ -3,6 +3,10 @@ package records_pg
 import (
 	"testing"
 
+	"github.com/pavlo67/data/entities"
+
+	records2 "github.com/pavlo67/data/entities/records/records_scenarios"
+
 	"github.com/stretchr/testify/require"
 
 	"github.com/pavlo67/common/common"
@@ -12,8 +16,6 @@ import (
 	"github.com/pavlo67/common/common/db/db_pg"
 	"github.com/pavlo67/common/common/rbac"
 	"github.com/pavlo67/common/common/starter"
-
-	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/data/entities/records"
 )
@@ -28,7 +30,7 @@ func TestRecordsPgCRUD(t *testing.T) {
 
 	components := []starter.Starter{
 		{db_pg.Starter(), nil, nil},
-		{Starter(), common.Map{"roles": rbac.Roles{crud.RoleTester}, "domain": "test"}, nil},
+		{Starter(), common.Map{"roles": rbac.Roles{entities.RoleTester}, "domain": "test"}, nil},
 	}
 
 	joinerOp, err := starter.Run(components, &cfgService, "CLI BUILD FOR TEST", l)
@@ -42,20 +44,20 @@ func TestRecordsPgCRUD(t *testing.T) {
 	recordsCleanerOp, _ := joinerOp.Interface(records.InterfaceCleanerKey).(db.Cleaner)
 	require.NotNil(t, recordsCleanerOp)
 
-	crudOp, err := records.OperatorCRUD(recordsOp, rbac.Roles{crud.RoleTester})
+	crudOp, err := records.OperatorCRUD(recordsOp, rbac.Roles{entities.RoleTester})
 	require.NoError(t, err)
 	require.NotNil(t, crudOp)
 
-	crudData := crud.Data{
-		Key: crud.Key{
+	crudData := entities.Data{
+		Key: entities.Key{
 			Type: records.CRUD,
-			ID:   records.TestItem.ID,
+			ID:   records2.TestItem.ID,
 		},
-		Description: records.TestItem.Description,
-		Value:       records.TestItem.Record,
+		Description: records2.TestItem.Description,
+		Value:       records2.TestItem.Record,
 	}
 
-	testActor := auth.Actor{Identity: auth.IdentityWithRoles(crud.RoleTester)}
+	testActor := auth.Actor{Identity: auth.IdentityWithRoles(entities.RoleTester)}
 
-	crud.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records.ReadValueRaw, records.ChangeCRUDItemForTest, testActor)
+	entities.OperatorTestScenario(t, crudOp, recordsCleanerOp, crudData, records2.ReadValueRaw, records2.ChangeCRUDItemForTest, testActor)
 }

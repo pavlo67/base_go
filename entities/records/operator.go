@@ -3,8 +3,8 @@ package records
 import (
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/auth"
+	"github.com/pavlo67/data/entities"
 
-	"github.com/pavlo67/data/components/crud"
 	"github.com/pavlo67/data/components/ns"
 	"github.com/pavlo67/data/components/vcs"
 )
@@ -19,22 +19,44 @@ type Content struct {
 }
 
 type Record struct {
-	Content  `          json:",inline"    bson:",inline"`
-	Embedded []Content `json:",omitempty" bson:",omitempty"`
+	SourceURN ns.URN `   json:",omitempty" bson:",omitempty"`
+	Content   `          json:",inline"    bson:",inline"`
+	Additions []Content `json:",omitempty" bson:",omitempty"`
+}
+
+type Item struct {
+	ID
+	entities.Description `json:",inline" bson:",inline"`
+	Record               `json:",inline" bson:",inline"`
 }
 
 type Operator interface {
 	Save(Item, auth.Actor) (ID, ns.URN, vcs.History, error)
 	Read(ID, auth.Actor) (*Item, error)
 	Remove(ID, auth.Actor) error
-	List(*crud.Term, auth.Actor) ([]Item, error)
+	List(*entities.Term, auth.Actor) ([]Item, error)
 
 	SetURN(id ID) (ns.URN, error)
+
+	//List(*selectors.Term, *auth.Identity) ([]Item, error)
+	//Stat(*selectors.Term, *auth.Identity) (db.StatMap, error)
+	//Tags(*selectors.Term, *auth.Identity) (tags.StatMap, error)
+	//
+	//AddParent(ts []tags.Item, id ID) ([]tags.Item, error)
+
 }
 
-type Item struct {
-	ID
-
-	crud.Description `json:",inline" bson:",inline"`
-	Record           `json:",inline" bson:",inline"`
-}
+//func ReadWithChildren(recordsOp OperatorCRUD, id ID, identity *auth.Identity) (*Item, []Item, error) {
+//	r, err := recordsOp.Read(id, identity)
+//	if err != nil {
+//		return r, nil, err
+//	}
+//
+//	selectorParent := selectors.Term{
+//		Key:    HasParent,
+//		Values: []string{string(id)},
+//	}
+//
+//	children, err := recordsOp.List(&selectorParent, identity)
+//	return r, children, err
+//}

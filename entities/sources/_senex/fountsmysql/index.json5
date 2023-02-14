@@ -1,0 +1,10 @@
+{
+    params: {
+        fountTable:       "fount",
+        fountStatTable:   "fount_stat",
+        scannerStatTable: "scanner_stat",
+        fountTagsTable:   "fount_tags",
+    }
+
+}
+

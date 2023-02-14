@@ -1,101 +1,68 @@
 package records
 
-import (
-	"regexp"
-	"strings"
-
-	"github.com/pavlo67/data/components/crud"
-
-	"github.com/pavlo67/common/common"
-
-	"github.com/pavlo67/data/common/timelib"
-	"github.com/pavlo67/data/common/views_html"
-)
-
-var Fields = views_html.Fields{
-	// {"visibility", "тип", "select", "", common.Map{"class": "ut"}},
-	{"id", "", "hidden", "", nil},
-	{"title", "заголовок", "", "", nil},
-	{"summary", "коротко", "", "", nil},
-	{"type", "тип", "", "", nil},
-	{"data", "опис", "textarea", "", common.Map{"rows": 35}},
-
-	// {"embedded", "", "", "", common.Map{"class": "ut"}},
-	// {"files", "Завантажити файл", "file", "", common.Map{"class": "ut"}},
-
-	{"tags", "теми, розділи", "tag-it", "", nil},
-	{"created_at", "запис створено", "view", "datetime", common.Map{views_html.NotEmptyKey: true}},
-	{"updated_at", "востаннє відредаґовано", "view", "datetime", common.Map{views_html.NotEmptyKey: true}},
-
-	{"save", "", "submit", "зберегти запис", nil},
-}
-
-var reTagsSplit = regexp.MustCompile(`\s+;\s+`)
-
-func ItemFromMap(data common.Map) (*Item, error) {
-	tags := data.Strings("tags_prepared")
-	if len(tags) < 1 {
-		tagsStr := strings.TrimSpace(data.StringDefault("tags", ""))
-		tags = reTagsSplit.Split(tagsStr, -1)
-	}
-
-	return &Item{
-		ID: ID(data.StringDefault("id", "")),
-		Description: crud.Description{
-			// URN:          "",
-			Tags: tags,
-			// RelationsMap: nil,
-			// OwnerNSS:     "",
-			// ViewerNSS:    "",
-			// History:      nil,
-		},
-		Record: Record{
-			Content: Content{
-				Title:   data.StringDefault("title", ""),
-				Summary: data.StringDefault("summary", ""),
-				Type:    data.StringDefault("type", ""),
-				Data:    data.StringDefault("data", ""),
-			},
-			// Embedded: nil,
-		},
-	}, nil
-}
-
-func MapFromItem(item Item) views_html.ValuesString {
-	return views_html.ValuesString{
-		"id":         string(item.ID),
-		"title":      item.Title,
-		"summary":    item.Summary,
-		"type":       item.Type,
-		"data":       item.Data,
-		"tags":       strings.Join(item.Tags, "; "),
-		"created_at": timelib.String(&item.CreatedAt),
-		"updated_at": timelib.String(item.UpdatedAt),
-
-		//"visibility": item.,
-		//"embedded": item.,
-		//"files": item.,
-	}
-
-}
-
-//type Content struct {
-//	Title   string `json:",omitempty" bson:",omitempty"`
-//	Summary string `json:",omitempty" bson:",omitempty"`
-//	Type    string `json:",omitempty" bson:",omitempty"`
-//	Data    string `json:",omitempty" bson:",omitempty"`
+//var Fields = views_html.Fields{
+//	// {"visibility", "тип", "select", "", common.Map{"class": "ut"}},
+//	{"id", "", "hidden", "", nil},
+//	{"title", "заголовок", "", "", nil},
+//	{"summary", "коротко", "", "", nil},
+//	{"type", "тип", "", "", nil},
+//	{"data", "опис", "textarea", "", common.Map{"rows": 35}},
+//
+//	// {"embedded", "", "", "", common.Map{"class": "ut"}},
+//	// {"files", "Завантажити файл", "file", "", common.Map{"class": "ut"}},
+//
+//	{"tags", "теми, розділи", "tag-it", "", nil},
+//	{"created_at", "запис створено", "view", "datetime", common.Map{views_html.NotEmptyKey: true}},
+//	{"updated_at", "востаннє відредаґовано", "view", "datetime", common.Map{views_html.NotEmptyKey: true}},
+//
+//	{"save", "", "submit", "зберегти запис", nil},
 //}
-//type Record struct {
-//	Content  `          json:",inline"    bson:",inline"`
-//	Embedded []Content `json:",omitempty" bson:",omitempty"`
+//
+//var reTagsSplit = regexp.MustCompile(`\s+;\s+`)
+//
+//func ItemFromMap(data common.Map) (*Item, error) {
+//	tags := data.Strings("tags_prepared")
+//	if len(tags) < 1 {
+//		tagsStr := strings.TrimSpace(data.StringDefault("tags", ""))
+//		tags = reTagsSplit.Split(tagsStr, -1)
+//	}
+//
+//	return &Item{
+//		ID: ID(data.StringDefault("id", "")),
+//		Description: crud.Description{
+//			// URN:          "",
+//			Tags: tags,
+//			// RelationsMap: nil,
+//			// OwnerNSS:     "",
+//			// ViewerNSS:    "",
+//			// History:      nil,
+//		},
+//		Record: Record{
+//			Content: Content{
+//				Title:   data.StringDefault("title", ""),
+//				Summary: data.StringDefault("summary", ""),
+//				Type:    data.StringDefault("type", ""),
+//				Records:    data.StringDefault("data", ""),
+//			},
+//			// Additions: nil,
+//		},
+//	}, nil
 //}
-//type Description struct {
-//	URN          ns.URN       `json:",omitempty" bson:",omitempty"`
-//	Tags         []string     `json:",omitempty" bson:",omitempty"`
-//	RelationsMap RelationsMap `json:",omitempty" bson:",omitempty"`
-//	OwnerNSS     ns.NSS       `json:",omitempty" bson:",omitempty"`
-//	ViewerNSS    ns.NSS       `json:",omitempty" bson:",omitempty"`
-//	History      vcs.History  `json:",omitempty" bson:",omitempty"`
-//	CreatedAt    time.Time    `json:",omitempty" bson:",omitempty"`
-//	UpdatedAt    *time.Time   `json:",omitempty" bson:",omitempty"`
+//
+//func MapFromItem(item Item) views_html.ValuesString {
+//	return views_html.ValuesString{
+//		"id":         string(item.ID),
+//		"title":      item.Title,
+//		"summary":    item.Summary,
+//		"type":       item.Type,
+//		"data":       item.Records,
+//		"tags":       strings.Join(item.Tags, "; "),
+//		"created_at": timelib.String(&item.At),
+//		"updated_at": timelib.String(item.UpdatedAt),
+//
+//		//"visibility": item.,
+//		//"embedded": item.,
+//		//"files": item.,
+//	}
+//
 //}

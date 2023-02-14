@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pavlo67/data/entities"
+
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/db/db_pg"
@@ -13,8 +15,6 @@ import (
 	"github.com/pavlo67/common/common/logger"
 	"github.com/pavlo67/common/common/rbac"
 	"github.com/pavlo67/common/common/starter"
-
-	"github.com/pavlo67/data/components/crud"
 
 	"github.com/pavlo67/data/entities/records"
 )
@@ -57,7 +57,7 @@ func (rps *recordsPgStarter) Prepare(cfg *config.Config, options common.Map) err
 	}
 
 	interfaceKey, interfaceCRUDKey, cleanerKey := records.InterfaceKey, records.InterfaceCRUDKey, joiner.InterfaceKey("")
-	if rps.roles.Has(crud.RoleTester) {
+	if rps.roles.Has(entities.RoleTester) {
 		interfaceKey, interfaceCRUDKey, cleanerKey = records.InterfaceTestKey, records.InterfaceCRUDTestKey, records.InterfaceCleanerKey
 	}
 
@@ -70,7 +70,7 @@ func (rps *recordsPgStarter) Prepare(cfg *config.Config, options common.Map) err
 
 func (rps *recordsPgStarter) Run(joinerOp joiner.Operator) error {
 	if l, _ = joinerOp.Interface(logger.InterfaceKey).(logger.Operator); l == nil {
-		return fmt.Errorf("no logger.Operator with key %s", logger.InterfaceKey)
+		return fmt.Errorf("no logger.OperatorCRUD with key %s", logger.InterfaceKey)
 	}
 
 	dbGet, _ := joinerOp.Interface(rps.dbGetKey).(*sql.DB)
@@ -87,18 +87,18 @@ func (rps *recordsPgStarter) Run(joinerOp joiner.Operator) error {
 
 	recordsOp, recordsCleanerOp, err := New(dbGet, dbSet, rps.domain, rps.table)
 	if err != nil {
-		return errors.Wrap(err, "can't init *recordsStub{} as records.Operator")
+		return errors.Wrap(err, "can't init *recordsStub{} as records.OperatorCRUD")
 	}
 
 	if err = joinerOp.Join(recordsOp, rps.interfaceKey); err != nil {
-		return errors.Wrapf(err, "can't join *recordsPg{} as records.Operator with key '%s'", rps.interfaceKey)
+		return errors.Wrapf(err, "can't join *recordsPg{} as records.OperatorCRUD with key '%s'", rps.interfaceKey)
 	}
 
 	if rps.crudKey != "" {
 		if crudOp, err := records.OperatorCRUD(recordsOp, rps.roles); err != nil {
 			return err
 		} else if err = joinerOp.Join(crudOp, rps.crudKey); err != nil {
-			return errors.Wrapf(err, "can't join *records.OperatorCRUD as crud.Operator with key '%s'", rps.crudKey)
+			return errors.Wrapf(err, "can't join *records.OperatorCRUD as crud.OperatorCRUD with key '%s'", rps.crudKey)
 		}
 	}
 

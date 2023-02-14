@@ -4,20 +4,21 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/pavlo67/data/entities"
+
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/common/common/rbac"
 
-	"github.com/pavlo67/data/components/crud"
 	"github.com/pavlo67/data/components/vcs"
 )
 
-const CRUD crud.Type = "records"
+const CRUD entities.Type = "records"
 
-var _ crud.Operator = &recordsCRUD{}
+var _ entities.OperatorCRUD = &recordsCRUD{}
 
-func OperatorCRUD(recordsOp Operator, roles rbac.Roles) (crud.Operator, error) {
+func OperatorCRUD(recordsOp Operator, roles rbac.Roles) (entities.OperatorCRUD, error) {
 	if recordsOp == nil {
 		return nil, errors.New("recordsOp == nil")
 	}
@@ -30,8 +31,8 @@ type recordsCRUD struct {
 	roles     rbac.Roles
 }
 
-func (crudOp *recordsCRUD) Types() ([]crud.Type, error) {
-	return []crud.Type{CRUD}, nil
+func (crudOp *recordsCRUD) Types() ([]entities.Type, error) {
+	return []entities.Type{CRUD}, nil
 }
 
 func (crudOp *recordsCRUD) Roles() (rbac.Roles, error) {
@@ -40,7 +41,7 @@ func (crudOp *recordsCRUD) Roles() (rbac.Roles, error) {
 
 const onSave = "on records/crud.Save()"
 
-func (crudOp *recordsCRUD) Save(data crud.Data, actor auth.Actor) (*crud.Key, vcs.History, error) {
+func (crudOp *recordsCRUD) Save(data entities.Data, actor auth.Actor) (*entities.Key, vcs.History, error) {
 	if data.Key.Type != CRUD {
 		return nil, nil, fmt.Errorf(onSave+": wrong key.Type (%#v) to save item (%#v)", data.Key, data.Value)
 	}
@@ -77,12 +78,12 @@ func (crudOp *recordsCRUD) Save(data crud.Data, actor auth.Actor) (*crud.Key, vc
 		return nil, nil, errors.Wrap(err, onSave)
 	}
 
-	return &crud.Key{Type: CRUD, ID: id}, historyChanged, nil
+	return &entities.Key{Type: CRUD, ID: id}, historyChanged, nil
 }
 
 const onRead = "on records/crud.Read()"
 
-func (crudOp *recordsCRUD) Read(key crud.Key, actor auth.Actor) (*crud.Data, error) {
+func (crudOp *recordsCRUD) Read(key entities.Key, actor auth.Actor) (*entities.Data, error) {
 	if key.Type != CRUD {
 		return nil, fmt.Errorf(onRead+": wrong key.Type (%#v)", key)
 	}
@@ -92,8 +93,8 @@ func (crudOp *recordsCRUD) Read(key crud.Key, actor auth.Actor) (*crud.Data, err
 		return nil, fmt.Errorf(onRead+": got %#v / %s", item, err)
 	}
 
-	return &crud.Data{
-		Key: crud.Key{
+	return &entities.Data{
+		Key: entities.Key{
 			Type: CRUD,
 			ID:   key.ID,
 		},
@@ -104,7 +105,7 @@ func (crudOp *recordsCRUD) Read(key crud.Key, actor auth.Actor) (*crud.Data, err
 
 const onList = "on records/crud.List()"
 
-func (crudOp *recordsCRUD) List(crudType crud.Type, _ crud.Options, actor auth.Actor) ([]crud.Data, error) {
+func (crudOp *recordsCRUD) List(crudType entities.Type, _ entities.Options, actor auth.Actor) ([]entities.Data, error) {
 	if crudType != CRUD {
 		return nil, fmt.Errorf(onList+": wrong crudType (%#v)", crudType)
 	}
@@ -115,10 +116,10 @@ func (crudOp *recordsCRUD) List(crudType crud.Type, _ crud.Options, actor auth.A
 		return nil, errors.Wrap(err, onList)
 	}
 
-	crudItems := make([]crud.Data, len(items))
+	crudItems := make([]entities.Data, len(items))
 	for i, pi := range items {
-		crudItems[i] = crud.Data{
-			Key: crud.Key{
+		crudItems[i] = entities.Data{
+			Key: entities.Key{
 				Type: CRUD,
 				ID:   pi.ID,
 			},
@@ -133,7 +134,7 @@ func (crudOp *recordsCRUD) List(crudType crud.Type, _ crud.Options, actor auth.A
 
 const onRemove = "on records/crud.Remove()"
 
-func (crudOp *recordsCRUD) Remove(key crud.Key, actor auth.Actor) error {
+func (crudOp *recordsCRUD) Remove(key entities.Key, actor auth.Actor) error {
 	if key.Type != CRUD {
 		return fmt.Errorf(onRemove+": wrong key.Type (%#v)", key)
 	}

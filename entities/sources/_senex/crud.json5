@@ -1,0 +1,10 @@
+{
+    name: "джерела",
+    primaryTableKey: "fountTable",
+    tables: {
+        fountTable: [
+        ],
+    },
+    queries: {
+    },
+}

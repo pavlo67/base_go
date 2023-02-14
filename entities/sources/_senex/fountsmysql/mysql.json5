@@ -1,0 +1,76 @@
+[
+    {
+        key: "fountTable",
+        fields: [
+            ["id", "bigint(20) unsigned", "false", "", "auto_increment"],
+            ["url", "varchar(255)", "false", "", ""],
+            ["title", "varchar(255)", "false", "", ""],
+            ["import_type", "varchar(255)", "false", "", ""],
+            ["to_flow", "tinyint(1)", "false", "0", ""],
+            ["to_object", "tinyint(1)", "false", "0", ""],
+            ["tags", "varchar(255)", "false", "", ""],
+            ["r_owner", "varchar(255)", "false", "", ""],
+            ["r_view", "varchar(255)", "false", "", ""],
+            ["managers", "text", "false", "", ""],
+
+            ["import_details_type", "varchar(50)", "false", "", ""],
+            ["import_details_params", "text", "false", "", ""],
+
+            ["created_at", "datetime", "false", "NOW()", ""],
+            ["updated_at", "datetime", "true", "", "on update CURRENT_TIMESTAMP"],
+        ],
+        indexes: [
+            {name: "PRIMARY", type: "PRIMARY", fields: ["id"]},
+            {name: "url", fields: ["url"]},
+            {name: "r_view", fields: ["r_view"]},
+            {name: "r_owner", fields: ["r_owner"]},
+        ]
+    },
+    {
+        key: "fountTagsTable",
+        fields: [
+            ["id", "bigint(20) unsigned", "false", "", "auto_increment"],
+            ["fount_id", "bigint(20) unsigned", "false", "0", ""],
+            ["tag", "varchar(255)", "false", "", ""],
+            ["r_view", "varchar(255)", "false", "", ""],
+        ],
+        indexes: [
+            {name: "PRIMARY", type: "PRIMARY", fields: ["id"]},
+            {name: "r_view", type: "", fields: ["r_view"]},
+        ]
+    },
+
+    {
+        key: "fountStatTable",
+        fields: [
+            ["scanner_start", "datetime", "false", "CURRENT_TIMESTAMP", ""],
+            ["fount_id", "bigint(20) unsigned", "false", "0", ""],
+            ["start", "datetime", "false", "CURRENT_TIMESTAMP", ""],
+            ["duration", "bigint(20) unsigned", "false", "0", ""],
+            ["response_error", "varchar(255)", "true", "", ""],
+            ["last_item_error", "varchar(255)", "true", "", ""],
+            ["item_errors", "int(10) unsigned", "false", "0", ""],
+            ["items_taken", "int(10) unsigned", "false", "0", ""],
+            ["items_new", "int(10) unsigned", "false", "0", ""],
+        ],
+        indexes: [
+            {name: "PRIMARY", type: "PRIMARY", fields: ["fount_id", "start"]},
+            {name: "scanner_start", fields: ["scanner_start"]},
+        ]
+    },
+
+    {
+        key: "scannerStatTable",
+        fields: [
+            ["start", "timestamp", "false", "CURRENT_TIMESTAMP", ""],
+            ["duration", "bigint(20) unsigned", "false", "0", ""],
+            ["founts_num", "int(10) unsigned", "false", "0", ""],
+            ["errors_num", "int(10) unsigned", "false", "0", ""],
+            ["items_taken", "int(10) unsigned", "false", "0", ""],
+            ["items_new", "int(10) unsigned", "false", "0", ""],
+        ],
+        indexes: [
+            {name: "PRIMARY", type: "PRIMARY", fields: ["start"]},
+        ]
+    },
+]

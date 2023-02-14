@@ -1,6 +1,7 @@
 package persons_stub
 
 import (
+	"github.com/pavlo67/data/entities"
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/pavlo67/data/entities/persons"
 
-	"github.com/pavlo67/data/components/crud"
 	"github.com/pavlo67/data/components/ns"
 	"github.com/pavlo67/data/components/vcs"
 )
@@ -90,7 +90,7 @@ func (personsOp *personsStub) Remove(id persons.ID, _ auth.Actor) error {
 
 const onList = "on personsStub.List(): "
 
-func (personsOp *personsStub) List(*crud.Term, auth.Actor) ([]persons.Item, error) {
+func (personsOp *personsStub) List(*entities.Term, auth.Actor) ([]persons.Item, error) {
 	return personsOp.personItems, nil
 }
 

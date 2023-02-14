@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pavlo67/data/entities"
+
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
@@ -17,7 +19,6 @@ import (
 	"github.com/pavlo67/common/common/sqllib"
 	"github.com/pavlo67/common/common/sqllib/sqllib_pg"
 
-	"github.com/pavlo67/data/components/crud"
 	"github.com/pavlo67/data/components/ns"
 	"github.com/pavlo67/data/components/vcs"
 
@@ -26,12 +27,12 @@ import (
 
 var fields = []string{"title", "summary", "record_type", "data", "embedded"}
 
-var fieldsToInsert = append(fields, crud.Description01FieldsBasis...)
+var fieldsToInsert = append(fields, entities.Description01FieldsBasis...)
 var fieldsToInsertStr = `"` + strings.Join(fieldsToInsert, `","`) + `"`
 
-var fieldsToUpdate = append(fields, crud.Description01FieldsToUpdate...)
+var fieldsToUpdate = append(fields, entities.Description01FieldsToUpdate...)
 
-var fieldsToRead = append(fields, crud.Description01FieldsToRead...)
+var fieldsToRead = append(fields, entities.Description01FieldsToRead...)
 var fieldsToReadStr = `"` + strings.Join(fieldsToRead, `","`) + `"`
 
 var fieldsToList = append(fieldsToRead, "id")
@@ -144,9 +145,9 @@ func (recordsOp recordsPg) Save(ri records.Item, _ auth.Actor) (records.ID, ns.U
 	var embeddedBytes []byte
 	var err error
 
-	if len(ri.Embedded) > 0 {
-		if embeddedBytes, err = json.Marshal(ri.Embedded); err != nil {
-			return "", "", nil, errors.Wrapf(err, "can't marshal .Contacts (%#v)", ri.Embedded)
+	if len(ri.Additions) > 0 {
+		if embeddedBytes, err = json.Marshal(ri.Additions); err != nil {
+			return "", "", nil, errors.Wrapf(err, "can't marshal .Contacts (%#v)", ri.Additions)
 		}
 	}
 
@@ -219,8 +220,8 @@ func (recordsOp recordsPg) Read(id records.ID, _ auth.Actor) (*records.Item, err
 	}
 
 	if len(embeddedBytes) > 0 {
-		if err := json.Unmarshal(embeddedBytes, &ri.Embedded); err != nil {
-			return nil, errors.Wrapf(err, onRead+": can't unmarshal .Embedded (%s)", embeddedBytes)
+		if err := json.Unmarshal(embeddedBytes, &ri.Additions); err != nil {
+			return nil, errors.Wrapf(err, onRead+": can't unmarshal .Additions (%s)", embeddedBytes)
 		}
 	}
 
@@ -233,7 +234,7 @@ func (recordsOp recordsPg) Read(id records.ID, _ auth.Actor) (*records.Item, err
 
 const onList = "on recordsPg.List()"
 
-func (recordsOp recordsPg) List(*crud.Term, auth.Actor) ([]records.Item, error) {
+func (recordsOp recordsPg) List(*entities.Term, auth.Actor) ([]records.Item, error) {
 
 	// TODO!!! selector
 
@@ -262,8 +263,8 @@ func (recordsOp recordsPg) List(*crud.Term, auth.Actor) ([]records.Item, error) 
 		}
 
 		if len(embeddedBytes) > 0 {
-			if err := json.Unmarshal(embeddedBytes, &ri.Embedded); err != nil {
-				return nil, errors.Wrapf(err, onRead+": can't unmarshal .Embedded (%s)", embeddedBytes)
+			if err := json.Unmarshal(embeddedBytes, &ri.Additions); err != nil {
+				return nil, errors.Wrapf(err, onRead+": can't unmarshal .Additions (%s)", embeddedBytes)
 			}
 		}
 

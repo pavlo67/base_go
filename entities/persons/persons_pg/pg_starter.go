@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pavlo67/data/entities"
+
 	"github.com/pavlo67/common/common"
 	"github.com/pavlo67/common/common/config"
 	"github.com/pavlo67/common/common/db/db_pg"
@@ -14,8 +16,6 @@ import (
 	"github.com/pavlo67/common/common/rbac"
 	"github.com/pavlo67/common/common/starter"
 	"github.com/pavlo67/data/entities/persons"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 func Starter() starter.Operator {
@@ -57,7 +57,7 @@ func (pps *personsPgStarter) Prepare(cfg *config.Config, options common.Map) err
 	pps.table = options.StringDefault("table", persons.CollectionDefault)
 
 	interfaceKey, interfaceCRUDKey, cleanerKey := persons.InterfaceKey, persons.InterfaceCRUDKey, joiner.InterfaceKey("")
-	if pps.roles.Has(crud.RoleTester) {
+	if pps.roles.Has(entities.RoleTester) {
 		interfaceKey, interfaceCRUDKey, cleanerKey = persons.InterfaceTestKey, persons.InterfaceCRUDTestKey, persons.InterfaceCleanerKey
 	}
 
@@ -70,7 +70,7 @@ func (pps *personsPgStarter) Prepare(cfg *config.Config, options common.Map) err
 
 func (pps *personsPgStarter) Run(joinerOp joiner.Operator) error {
 	if l, _ = joinerOp.Interface(logger.InterfaceKey).(logger.Operator); l == nil {
-		return fmt.Errorf("no logger.Operator with key %s", logger.InterfaceKey)
+		return fmt.Errorf("no logger.OperatorCRUD with key %s", logger.InterfaceKey)
 	}
 
 	dbGet, _ := joinerOp.Interface(pps.dbGetKey).(*sql.DB)
@@ -87,18 +87,18 @@ func (pps *personsPgStarter) Run(joinerOp joiner.Operator) error {
 
 	personsOp, personsCleanerOp, err := New(dbGet, dbSet, pps.domain, pps.table)
 	if err != nil {
-		return errors.Wrap(err, "can't init *personsStub{} as persons.Operator")
+		return errors.Wrap(err, "can't init *personsStub{} as persons.OperatorCRUD")
 	}
 
 	if err = joinerOp.Join(personsOp, pps.interfaceKey); err != nil {
-		return errors.Wrapf(err, "can't join *personsPg{} as persons.Operator with key '%s'", pps.interfaceKey)
+		return errors.Wrapf(err, "can't join *personsPg{} as persons.OperatorCRUD with key '%s'", pps.interfaceKey)
 	}
 
 	if pps.crudKey != "" {
 		if crudOp, err := persons.OperatorCRUD(personsOp, pps.roles); err != nil {
 			return err
 		} else if err = joinerOp.Join(crudOp, pps.crudKey); err != nil {
-			return errors.Wrapf(err, "can't join *persons.OperatorCRUD as crud.Operator with key '%s'", pps.crudKey)
+			return errors.Wrapf(err, "can't join *persons.OperatorCRUD as crud.OperatorCRUD with key '%s'", pps.crudKey)
 		}
 	}
 

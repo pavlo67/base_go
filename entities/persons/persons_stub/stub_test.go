@@ -3,6 +3,8 @@ package persons_stub
 import (
 	"testing"
 
+	"github.com/pavlo67/data/entities"
+
 	"github.com/stretchr/testify/require"
 
 	"github.com/pavlo67/common/common/auth"
@@ -12,8 +14,6 @@ import (
 	"github.com/pavlo67/common/common/starter"
 
 	"github.com/pavlo67/data/entities/persons"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 func TestPersonsStubCRUD(t *testing.T) {
@@ -39,12 +39,12 @@ func TestPersonsStubCRUD(t *testing.T) {
 	personsCleanerOp, _ := joinerOp.Interface(persons.InterfaceCleanerKey).(db.Cleaner)
 	require.NotNil(t, personsCleanerOp)
 
-	crudOp, err := persons.OperatorCRUD(personsOp, rbac.Roles{crud.RoleTester})
+	crudOp, err := persons.OperatorCRUD(personsOp, rbac.Roles{entities.RoleTester})
 	require.NoError(t, err)
 	require.NotNil(t, crudOp)
 
-	crudData := crud.Data{
-		Key: crud.Key{
+	crudData := entities.Data{
+		Key: entities.Key{
 			Type: persons.CRUD,
 			ID:   persons.TestItem.ID,
 		},
@@ -52,7 +52,7 @@ func TestPersonsStubCRUD(t *testing.T) {
 		Value:       persons.TestItem.Person,
 	}
 
-	testActor := auth.Actor{Identity: auth.IdentityWithRoles(crud.RoleTester)}
+	testActor := auth.Actor{Identity: auth.IdentityWithRoles(entities.RoleTester)}
 
-	crud.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons.ReadValueRaw, persons.ChangeCRUDItemForTest, testActor)
+	entities.OperatorTestScenario(t, crudOp, personsCleanerOp, crudData, persons.ReadValueRaw, persons.ChangeCRUDItemForTest, testActor)
 }

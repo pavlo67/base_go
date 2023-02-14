@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/pavlo67/data/entities"
+
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common"
 
 	"github.com/pavlo67/data/entities/contacts"
-
-	"github.com/pavlo67/data/components/crud"
 )
 
 var TestItem = Item{
@@ -22,10 +22,10 @@ var TestItem = Item{
 		Contacts:   []contacts.Item{{Type: "phone", Value: "777", Connected: []contacts.Item{{Type: "fax", Value: "888"}}}},
 		Info:       common.Map{"info1": "data1", "info2": "data2"},
 	},
-	Description: crud.TestDescription,
+	Description: entities.TestDescription,
 }
 
-var _ crud.ReadValueRaw = ReadValueRaw
+var _ entities.ReadValueRaw = ReadValueRaw
 
 func ReadValueRaw(message json.RawMessage) (interface{}, error) {
 	var person Person
@@ -37,11 +37,11 @@ func ReadValueRaw(message json.RawMessage) (interface{}, error) {
 	return person, nil
 }
 
-var _ crud.ChangeItemForTest = ChangeCRUDItemForTest
+var _ entities.ChangeItemForTest = ChangeCRUDItemForTest
 
 const onChangeItem = "on item.ChangeCRUDItemForTest()"
 
-func ChangeCRUDItemForTest(data crud.Data, key crud.Key) (*crud.Data, error) {
+func ChangeCRUDItemForTest(data entities.Data, key entities.Key) (*entities.Data, error) {
 	var item Item
 
 	switch v := data.Value.(type) {
@@ -62,8 +62,8 @@ func ChangeCRUDItemForTest(data crud.Data, key crud.Key) (*crud.Data, error) {
 
 	changedItem := ChangeItemForTest(item, key.ID)
 
-	return &crud.Data{
-		Key: crud.Key{
+	return &entities.Data{
+		Key: entities.Key{
 			Type: CRUD,
 			ID:   changedItem.ID,
 		},
