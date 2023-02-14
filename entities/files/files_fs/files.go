@@ -27,7 +27,7 @@ func New(filesOp files.Operator) (files.Operator, db.Cleaner, error) {
 	return &catalogueOp, &catalogueOp, nil
 }
 
-const onSave = "on catalogueFiles.Save()"
+const onSave = "on catalogueFiles.Add()"
 
 func (catalogueOp *catalogueFiles) Save(path, newFilePattern string, data []byte, identity *auth.Identity) (string, error) {
 	return catalogueOp.filesOp.Save(path, newFilePattern, data)

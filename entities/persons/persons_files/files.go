@@ -30,9 +30,9 @@ func New(filesOp files.Operator) (persons.Operator, db.Cleaner, error) {
 	return nil, nil, common.ErrNotImplemented
 }
 
-//const onSave = "on personsFiles.Save()"
+//const onSave = "on personsFiles.Add()"
 //
-//func (personsOp *personsFiles) Save(item persons.Item, identity *auth.Identity) (auth.ID, error) {
+//func (personsOp *personsFiles) Add(item persons.Item, identity *auth.Identity) (auth.ID, error) {
 //	if identity == nil || (item.ID != identity.ID && !identity.HasRole(rbac.RoleAdmin)) {
 //		return "", errors.CommonError(common.NoRightsKey, common.Map{"on": onSave, "item": item})
 //	}

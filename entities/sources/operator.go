@@ -1,31 +1,46 @@
 package sources
 
 import (
+	"time"
+
 	"github.com/pavlo67/common/common"
-	"github.com/pavlo67/common/common/crud"
-	"github.com/pavlo67/common/common/identity"
+	"github.com/pavlo67/common/common/auth"
 	"github.com/pavlo67/common/common/joiner"
-	"github.com/pavlo67/common/common/selectors"
+
+	"github.com/pavlo67/data/entities"
+
+	"github.com/pavlo67/data/components/ns"
+	"github.com/pavlo67/data/components/vcs"
 )
 
-const InterfaceKey joiner.InterfaceKey = "sources"
-const CollectionDefault = "sources"
+type ID = common.IDStr
+
+type Source struct {
+	SourceURN            ns.URN              `json:",omitempty"`
+	Title                string              `json:",omitempty"`
+	ImporterInterfaceKey joiner.InterfaceKey `json:",omitempty"`
+	Params               common.Map          `json:",omitempty"` // for Create/Update methods for ex. tags list to set them on each imported item
+}
 
 type Item struct {
-	ID      common.ID `bson:"_id,omitempty" json:",omitempty"`
-	Key     identity.Key
-	URL     string
-	Title   string
-	Type    joiner.InterfaceKey
-	Params  common.Map    // for Create/Update methods for ex. tags list to set them on each imported item
-	History []crud.Action `bson:",omitempty" json:",omitempty"`
+	ID                   `json:",omitempty"`
+	Source               `json:",inline"`
+	entities.Description `json:",inline"`
+}
+
+type Stat struct {
+	Start           time.Time
+	Duration        time.Duration
+	RecordsTotalNum int
+	RecordsSavedNum int
+	ErrorsNum       int
+	LastError       error
 }
 
 type Operator interface {
-	Save(Item, *crud.SaveOptions) (common.ID, error)
-	Remove(common.ID, *crud.RemoveOptions) error
-	Read(common.ID, *crud.GetOptions) (*Item, error)
-	List(*selectors.Term, *crud.GetOptions) ([]Item, error)
-
-	AddHistory(common.ID, crud.History, *crud.SaveOptions) (crud.History, error)
+	Save(Item, auth.Actor) (ID, ns.URN, vcs.History, error)
+	Read(ID, auth.Actor) (*Item, error)
+	Remove(ID, auth.Actor) error
+	List(*entities.Term, auth.Actor) ([]Item, error)
+	AddStat(Stat, auth.Actor) error
 }

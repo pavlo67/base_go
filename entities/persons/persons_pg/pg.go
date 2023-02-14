@@ -116,7 +116,7 @@ func New(dbGet, dbSet *sql.DB, domain, table string) (persons.Operator, db.Clean
 
 var _ persons.Operator = &personsPg{}
 
-const onSetURN = "on personsPg.SetURN()"
+const onSetURN = "on personsPg.setURN()"
 
 func (personsOp personsPg) SetURN(id records.ID) (ns.URN, error) {
 
@@ -135,7 +135,7 @@ func (personsOp personsPg) SetURN(id records.ID) (ns.URN, error) {
 	return urn, nil
 }
 
-const onSave = "on personsPg.Save()"
+const onSave = "on personsPg.Add()"
 
 func (personsOp personsPg) Save(pi persons.Item, _ auth.Actor) (persons.ID, ns.URN, vcs.History, error) {
 

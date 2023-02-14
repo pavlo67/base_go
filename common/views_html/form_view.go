@@ -50,7 +50,7 @@ func FieldView(f Field, data ValuesString, frontOps map[string]Operator, format 
 		}
 	}
 
-	//if frontOp, ok := frontOps[f.Type]; ok {
+	//if frontOp, ok := frontOps[f.ImporterInterfaceKey]; ok {
 	//	params := map[string]string{
 	//		// "format": f.Info,
 	//		"class": class,

@@ -46,7 +46,7 @@ type Entity struct {
 }
 
 var reTitle = regexp.MustCompile(`(?ims)<title.*?>(.*?)</title>`)
-var reMeta = regexp.MustCompile(`(?ims)(<meta http-equiv="Content-Type".*?>)`)
+var reMeta = regexp.MustCompile(`(?ims)(<meta http-equiv="Content-ImporterInterfaceKey".*?>)`)
 var reHead = regexp.MustCompile(`(?ims)<head>.*?</head>`)
 var reScript = regexp.MustCompile(`(?ims)<script.*?</script>`)
 var reStyle = regexp.MustCompile(`(?ims)<style.*?</style>`)

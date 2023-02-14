@@ -91,9 +91,9 @@ package sources_pg
 // 	return &packsOp, &packsOp, nil
 // }
 
-// const onSave = "on packsPg.Save(): "
+// const onSave = "on packsPg.Add(): "
 
-// func (packsOp *packsPg) Save(pack *packs.Pack, _ *crud.SaveOptions) (common.Key, error) {
+// func (packsOp *packsPg) Add(pack *packs.Pack, _ *crud.SaveOptions) (common.Key, error) {
 // 	if pack == nil {
 // 		return "", errors.New(onSave + "nothing to save")
 // 	}

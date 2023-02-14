@@ -1,6 +1,10 @@
 package scanner
 
 import (
+	"github.com/pavlo67/common/common/joiner"
+	"github.com/pavlo67/common/common/logger"
+	"github.com/pavlo67/data/entities/records"
+	"github.com/pavlo67/data/entities/sources"
 	"github.com/pkg/errors"
 
 	"github.com/pavlo67/common/common/auth"
@@ -14,9 +18,10 @@ func Starter() starter.Operator {
 	return &scanComponent{}
 }
 
-var identity auth.Identity
-var fountOp founts.Operator
-var flowOp flow.Operator
+var sourcesOp sources.Operator
+var recordsOp records.Operator
+var joinerOp joiner.Operator,
+var l logger.Operator
 
 type scanComponent struct{}
 

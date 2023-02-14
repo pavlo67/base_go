@@ -35,7 +35,7 @@ func ReadValueRaw(message json.RawMessage) (interface{}, error) {
 	var record records.Record
 
 	if err := json.Unmarshal(message, &record); err != nil {
-		return nil, fmt.Errorf(records.onSave+": can't unmarshal (%s) into item.Record", message)
+		return nil, fmt.Errorf(records.onSave+": can't unmarshal (%s) into item.Source", message)
 	}
 
 	return record, nil
@@ -58,7 +58,7 @@ func ChangeCRUDItemForTest(data entities.Data, key entities.Key) (*entities.Data
 		item = records.Item{Record: *v}
 	case json.RawMessage:
 		if err := json.Unmarshal(v, &item.Record); err != nil {
-			return nil, fmt.Errorf(records.onSave+": can't unmarshal (%s) into item.Record", v)
+			return nil, fmt.Errorf(records.onSave+": can't unmarshal (%s) into item.Source", v)
 		}
 	default:
 		return nil, fmt.Errorf(onChangeItem+": wrong data (%#v) to change with key (%#v)", data, key)

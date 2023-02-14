@@ -102,11 +102,11 @@ package sources
 // 		err := tc.Cleaner.Clean(nil, nil)
 // 		require.NoError(t, err, "what is the error on .Cleaner()?")
 
-// 		// test .Save ------------------------------------------------------------------------------------
+// 		// test .Add ------------------------------------------------------------------------------------
 
 // 		for i := 0; i < numRepeats; i++ {
 // 			toSave[i] = tc.ToSave
-// 			idI, err := tc.Save(&toSave[i], nil)
+// 			idI, err := tc.Add(&toSave[i], nil)
 // 			require.NoError(t, err)
 // 			require.NotEqual(t, common.Key(""), idI)
 // 			id[i] = idI

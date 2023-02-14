@@ -6,37 +6,38 @@ import (
 	"github.com/pavlo67/data/entities"
 
 	"github.com/pavlo67/data/components/ns"
-	"github.com/pavlo67/data/components/vcs"
 )
 
 type ID = common.IDStr
 
 type Content struct {
-	Title   string `json:",omitempty" bson:",omitempty"`
-	Summary string `json:",omitempty" bson:",omitempty"`
-	Type    string `json:",omitempty" bson:",omitempty"`
-	Data    string `json:",omitempty" bson:",omitempty"`
+	Title   string `json:",omitempty"`
+	Summary string `json:",omitempty"`
+	Type    string `json:",omitempty"`
+	Data    string `json:",omitempty"`
 }
 
 type Record struct {
-	SourceURN ns.URN `   json:",omitempty" bson:",omitempty"`
-	Content   `          json:",inline"    bson:",inline"`
-	Additions []Content `json:",omitempty" bson:",omitempty"`
+	SourceURN            ns.URN `   json:",omitempty"`
+	Content              `          json:",inline"   `
+	Additions            []Content `json:",omitempty"`
+	entities.Description `json:",inline"`
 }
 
 type Item struct {
-	ID
-	entities.Description `json:",inline" bson:",inline"`
-	Record               `json:",inline" bson:",inline"`
+	ID             `json:",omitempty"`
+	Record         `json:",inline"`
+	entities.Point `json:",inline"`
 }
 
 type Operator interface {
-	Save(Item, auth.Actor) (ID, ns.URN, vcs.History, error)
+	Add(Record, auth.Actor) (ID, ns.URN, error)
+	Update(Record, ID, auth.Actor) error
 	Read(ID, auth.Actor) (*Item, error)
 	Remove(ID, auth.Actor) error
 	List(*entities.Term, auth.Actor) ([]Item, error)
 
-	SetURN(id ID) (ns.URN, error)
+	// setURN(id ID) (ns.URN, error)
 
 	//List(*selectors.Term, *auth.Identity) ([]Item, error)
 	//Stat(*selectors.Term, *auth.Identity) (db.StatMap, error)

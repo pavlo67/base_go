@@ -24,14 +24,17 @@ type Relation struct {
 type RelationsMap map[string]Relation
 
 type Description struct {
-	URN          ns.URN       `json:",omitempty" bson:",omitempty"`
 	Tags         []string     `json:",omitempty" bson:",omitempty"`
 	RelationsMap RelationsMap `json:",omitempty" bson:",omitempty"`
 	OwnerNSS     ns.NSS       `json:",omitempty" bson:",omitempty"`
 	ViewerNSS    ns.NSS       `json:",omitempty" bson:",omitempty"`
-	History      vcs.History  `json:",omitempty" bson:",omitempty"`
-	CreatedAt    time.Time    `json:",omitempty" bson:",omitempty"`
-	UpdatedAt    *time.Time   `json:",omitempty" bson:",omitempty"`
+}
+
+type Point struct {
+	URN       ns.URN      `json:",omitempty" bson:",omitempty"`
+	History   vcs.History `json:",omitempty" bson:",omitempty"`
+	CreatedAt time.Time   `json:",omitempty" bson:",omitempty"`
+	UpdatedAt *time.Time  `json:",omitempty" bson:",omitempty"`
 }
 
 var Description01FieldsBasis = []string{"urn", "tags", "relations_map", "owner_nss", "viewer_nss", "history"}

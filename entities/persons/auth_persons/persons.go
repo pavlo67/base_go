@@ -55,7 +55,7 @@ func (authOp *authPersons) SetCreds(authID auth.ID, toSet auth.Creds) (*auth.Cre
 		}
 
 		if _, err := authOp.personsOp.Save(person, auth.IdentityWithRoles(rbac.RoleAdmin)); err != nil {
-			return nil, errors.Wrapf(err, onSetCreds+"can't .personsOp.Save(%#v, nil)", identity)
+			return nil, errors.Wrapf(err, onSetCreds+"can't .personsOp.Add(%#v, nil)", identity)
 		}
 
 		return &toSet, nil
@@ -93,9 +93,9 @@ func (authOp *authPersons) SetCreds(authID auth.ID, toSet auth.Creds) (*auth.Cre
 	//
 	//items[0].Creds[credsTypeToSet] = credsToSet
 	//
-	//_, err = authOp.personsOp.Save(items[0], nil)
+	//_, err = authOp.personsOp.Add(items[0], nil)
 	//if err != nil {
-	//	return nil, errors.Wrapf(err, onSetCreds+"can't .personsOp.Save(%#v, nil)", items[0])
+	//	return nil, errors.Wrapf(err, onSetCreds+"can't .personsOp.Add(%#v, nil)", items[0])
 	//
 	//}
 	//

@@ -37,11 +37,11 @@ package records
 //			// ViewerNSS:    "",
 //			// History:      nil,
 //		},
-//		Record: Record{
+//		Source: Source{
 //			Content: Content{
 //				Title:   data.StringDefault("title", ""),
 //				Summary: data.StringDefault("summary", ""),
-//				Type:    data.StringDefault("type", ""),
+//				ImporterInterfaceKey:    data.StringDefault("type", ""),
 //				Records:    data.StringDefault("data", ""),
 //			},
 //			// Additions: nil,
@@ -54,7 +54,7 @@ package records
 //		"id":         string(item.ID),
 //		"title":      item.Title,
 //		"summary":    item.Summary,
-//		"type":       item.Type,
+//		"type":       item.ImporterInterfaceKey,
 //		"data":       item.Records,
 //		"tags":       strings.Join(item.Tags, "; "),
 //		"created_at": timelib.String(&item.At),

@@ -135,15 +135,15 @@ func saveTest(t *testing.T, recordsOp Operator, itemToSave, itemToUpdate, itemTo
 	//itemToSave.OwnerNSS = authID1
 	//itemToSave.ViewerNSS = authID1
 	//
-	//// check .Save() with other identity: error -------------------------------
+	//// check .Add() with other identity: error -------------------------------
 	//
-	//itemSaved, err := recordsOp.Save(itemToSave, &identity2)
+	//itemSaved, err := recordsOp.Add(itemToSave, &identity2)
 	//require.Error(t, err)
 	//require.Empty(t, itemSaved)
 	//
-	//// check .Save() with owner identity: ok ----------------------------------
+	//// check .Add() with owner identity: ok ----------------------------------
 	//
-	//itemSaved, err = recordsOp.Save(itemToSave, &identity1)
+	//itemSaved, err = recordsOp.Add(itemToSave, &identity1)
 	//require.NoError(t, err)
 	//require.NotEmpty(t, itemSaved)
 	//require.Equal(t, itemToSave.Content, itemSaved.Content)
@@ -166,15 +166,15 @@ func saveTest(t *testing.T, recordsOp Operator, itemToSave, itemToUpdate, itemTo
 	//itemToUpdate.OwnerNSS = authID1
 	//itemToUpdate.ViewerNSS = authID2
 	//
-	//// check updating .Save() with other identity: error ----------------------
+	//// check updating .Add() with other identity: error ----------------------
 	//
-	//itemSaved, err = recordsOp.Save(itemToUpdate, &identity2)
+	//itemSaved, err = recordsOp.Add(itemToUpdate, &identity2)
 	//require.Error(t, err)
 	//require.Empty(t, itemSaved)
 	//
-	//// check updating .Save() with owner identity: ok -------------------------
+	//// check updating .Add() with owner identity: ok -------------------------
 	//
-	//itemSaved, err = recordsOp.Save(itemToUpdate, &identity1)
+	//itemSaved, err = recordsOp.Add(itemToUpdate, &identity1)
 	//require.NoError(t, err)
 	//require.NotEmpty(t, itemSaved)
 	//require.Equal(t, itemToUpdate.ID, itemSaved.ID)
@@ -200,15 +200,15 @@ func saveTest(t *testing.T, recordsOp Operator, itemToSave, itemToUpdate, itemTo
 	//itemToUpdateAgain.OwnerNSS = authID2
 	//itemToUpdateAgain.ViewerNSS = authID2
 	//
-	//// check updating .Save() with other identity: error ----------------------
+	//// check updating .Add() with other identity: error ----------------------
 	//
-	//itemSaved, err = recordsOp.Save(itemToUpdateAgain, &identity2)
+	//itemSaved, err = recordsOp.Add(itemToUpdateAgain, &identity2)
 	//require.Error(t, err)
 	//require.Empty(t, itemSaved)
 	//
-	//// check updating .Save() with owner identity: ok -------------------------
+	//// check updating .Add() with owner identity: ok -------------------------
 	//
-	//itemSaved, err = recordsOp.Save(itemToUpdateAgain, &identity1)
+	//itemSaved, err = recordsOp.Add(itemToUpdateAgain, &identity1)
 	//require.NoError(t, err)
 	//require.NotEmpty(t, itemSaved)
 	//require.Equal(t, itemToUpdateAgain.ID, itemSaved.ID)

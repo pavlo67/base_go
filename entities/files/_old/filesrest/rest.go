@@ -37,7 +37,7 @@ package filesrest
 //	if err != nil {
 //		return "", err
 //	}
-//	req.Header.Set("Content-Type", "application/octet-stream")
+//	req.Header.Set("Content-ImporterInterfaceKey", "application/octet-stream")
 //	//TODO: need get token
 //	token := "???? "
 //	//req.Header.Set("Authorization", token)
@@ -93,7 +93,7 @@ package filesrest
 //
 //	fi := fileinfo.Info{
 //		File: items.File{
-//			MIMEType: resp.Header.ReadList("Content-Type"),
+//			MIMEType: resp.Header.ReadList("Content-ImporterInterfaceKey"),
 //			Contentus:  body,
 //			Size:     size,
 //			Label:     nameFile,
@@ -117,7 +117,7 @@ package filesrest
 //	if err != nil {
 //		return crud.Result{}, err
 //	}
-//	req.Header.Set("Content-Type", "application/octet-stream")
+//	req.Header.Set("Content-ImporterInterfaceKey", "application/octet-stream")
 //	//TODO: need get token
 //	token := "???? "
 //	//req.Header.Set("Authorization", token)

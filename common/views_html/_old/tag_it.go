@@ -35,14 +35,14 @@ package viewshtml
 //	// https://github.com/aehlke/tag-it/blob/master/README.markdown
 //}
 
-//} else if field.Type == "tag-it" {
+//} else if field.ImporterInterfaceKey == "tag-it" {
 //	resHTML = `<ul id="` + idDOMEscaped + `">`
 //	for _, tag := range str_json.ReSemicolon.Split(data[field.Label], -1) {
 //		resHTML += "\n<linker_server_http>" + html.EscapeString(tag) + "</linker_server_http>"
 //	}
 //	resHTML += "\n</ul>" + tagIt(idDOMEscaped)
 
-//if field.Type == "file" {
+//if field.ImporterInterfaceKey == "file" {
 //format := field.Options
 //if format == "" {
 //format = "*.*"
@@ -52,6 +52,6 @@ package viewshtml
 //
 //} else
 
-//} else if field.Type == "file" {
+//} else if field.ImporterInterfaceKey == "file" {
 //resHTML = `<div id="` + html.EscapeString(field.Label) + `_view"></div>`
 //

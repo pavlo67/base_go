@@ -39,11 +39,11 @@ func (crudOp *personsCRUD) Roles() (rbac.Roles, error) {
 	return crudOp.roles, nil
 }
 
-const onSave = "on persons01/crud.Save()"
+const onSave = "on persons01/crud.Add()"
 
 func (crudOp *personsCRUD) Save(data entities.Data, actor auth.Actor) (*entities.Key, vcs.History, error) {
 	if data.Key.Type != CRUD {
-		return nil, nil, fmt.Errorf(onSave+": wrong key.Type (%#v) to save item (%#v)", data.Key, data.Value)
+		return nil, nil, fmt.Errorf(onSave+": wrong key.ImporterInterfaceKey (%#v) to save item (%#v)", data.Key, data.Value)
 	}
 
 	var item Item
@@ -85,7 +85,7 @@ const onRead = "on persons01/crud.Read()"
 
 func (crudOp *personsCRUD) Read(key entities.Key, actor auth.Actor) (*entities.Data, error) {
 	if key.Type != CRUD {
-		return nil, fmt.Errorf(onRead+": wrong key.Type (%#v)", key)
+		return nil, fmt.Errorf(onRead+": wrong key.ImporterInterfaceKey (%#v)", key)
 	}
 
 	item, err := crudOp.personsOp.Read(key.ID, actor)
@@ -136,7 +136,7 @@ const onRemove = "on persons01/crud.Remove()"
 
 func (crudOp *personsCRUD) Remove(key entities.Key, actor auth.Actor) error {
 	if key.Type != CRUD {
-		return fmt.Errorf(onRemove+": wrong key.Type (%#v)", key)
+		return fmt.Errorf(onRemove+": wrong key.ImporterInterfaceKey (%#v)", key)
 	}
 
 	return crudOp.personsOp.Remove(key.ID, actor)

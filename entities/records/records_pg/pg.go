@@ -20,8 +20,6 @@ import (
 	"github.com/pavlo67/common/common/sqllib/sqllib_pg"
 
 	"github.com/pavlo67/data/components/ns"
-	"github.com/pavlo67/data/components/vcs"
-
 	"github.com/pavlo67/data/entities/records"
 )
 
@@ -117,9 +115,9 @@ func New(dbGet, dbSet *sql.DB, domain, table string) (records.Operator, db.Clean
 
 var _ records.Operator = &recordsPg{}
 
-const onSetURN = "on recordsPg.SetURN()"
+const onSetURN = "on recordsPg.setURN()"
 
-func (recordsOp recordsPg) SetURN(id records.ID) (ns.URN, error) {
+func (recordsOp recordsPg) setURN(id records.ID) (ns.URN, error) {
 
 	if strings.TrimSpace(string(id)) == "" {
 		return "", fmt.Errorf(onSetURN + ": empty id to set urn")
@@ -136,9 +134,12 @@ func (recordsOp recordsPg) SetURN(id records.ID) (ns.URN, error) {
 	return urn, nil
 }
 
-const onSave = "on recordsPg.Save()"
+func (recordsOp recordsPg) Update(ri records.Record, ID records.ID, _ auth.Actor) error { // , vcs.History
+}
 
-func (recordsOp recordsPg) Save(ri records.Item, _ auth.Actor) (records.ID, ns.URN, vcs.History, error) {
+const onSave = "on recordsPg.Add()"
+
+func (recordsOp recordsPg) Add(ri records.Record, _ auth.Actor) (records.ID, ns.URN, error) { // , vcs.History
 
 	// "title", "summary", "record_type", "data", "embedded"
 
@@ -147,7 +148,7 @@ func (recordsOp recordsPg) Save(ri records.Item, _ auth.Actor) (records.ID, ns.U
 
 	if len(ri.Additions) > 0 {
 		if embeddedBytes, err = json.Marshal(ri.Additions); err != nil {
-			return "", "", nil, errors.Wrapf(err, "can't marshal .Contacts (%#v)", ri.Additions)
+			return "", "", errors.Wrapf(err, "can't marshal .Contacts (%#v)", ri.Additions)
 		}
 	}
 
@@ -158,7 +159,7 @@ func (recordsOp recordsPg) Save(ri records.Item, _ auth.Actor) (records.ID, ns.U
 
 	descriptionValues, ri.History, historyOriginalStr, err = ri.Description.FoldToSavePg(onInsert)
 	if err != nil {
-		return "", "", nil, errors.Wrap(err, onSave)
+		return "", "", errors.Wrap(err, onSave)
 	}
 
 	if onInsert {
@@ -166,14 +167,14 @@ func (recordsOp recordsPg) Save(ri records.Item, _ auth.Actor) (records.ID, ns.U
 
 		var idInt64 int64
 		if err := recordsOp.stmInsert.QueryRow(values...).Scan(&idInt64); err != nil {
-			return "", "", nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, recordsOp.sqlInsert, values)
+			return "", "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, recordsOp.sqlInsert, values)
 		}
 
 		ri.ID = (common.IDNum(idInt64)).Key()
 
 		if ri.URN == "" {
-			if ri.URN, err = recordsOp.SetURN(ri.ID); err != nil {
-				return "", "", nil, errors.Wrap(err, onSave)
+			if ri.URN, err = recordsOp.setURN(ri.ID); err != nil {
+				return "", "", errors.Wrap(err, onSave)
 			}
 		}
 
@@ -184,19 +185,19 @@ func (recordsOp recordsPg) Save(ri records.Item, _ auth.Actor) (records.ID, ns.U
 			ri.ID, historyOriginalStr,
 		)
 		if res, err := recordsOp.stmUpdate.Exec(values...); err != nil {
-			return "", "", nil, errors.Wrapf(err, onSave+": "+sqllib.CantExec, recordsOp.sqlUpdate, values)
+			return "", "", errors.Wrapf(err, onSave+": "+sqllib.CantExec, recordsOp.sqlUpdate, values)
 
 		} else {
 			rowsAffected, err := res.RowsAffected()
 			if err != nil {
-				return "", "", nil, errors.Wrapf(err, onSave+": "+sqllib.CantGetRowsAffected, recordsOp.sqlUpdate, values)
+				return "", "", errors.Wrapf(err, onSave+": "+sqllib.CantGetRowsAffected, recordsOp.sqlUpdate, values)
 			} else if rowsAffected < 1 {
-				return "", "", nil, fmt.Errorf(onSave+": res.RowsAffected() < 1 on "+sqllib.CantExec, recordsOp.sqlUpdate, values)
+				return "", "", fmt.Errorf(onSave+": res.RowsAffected() < 1 on "+sqllib.CantExec, recordsOp.sqlUpdate, values)
 			}
 		}
 	}
 
-	return ri.ID, ri.URN, ri.History, nil
+	return ri.ID, ri.URN, nil // , ri.History
 }
 
 const onRead = "on recordsPg.Read()"

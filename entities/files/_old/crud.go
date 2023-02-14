@@ -156,8 +156,8 @@ package files
 //	repo := "repo:"
 //
 //	linksToCreatePrivate, _ := json.Marshal([]items.Link{
-//		{TargetID: "1", Type: LinkType, Name: "Nick file test", ROwner: is, RView: is},
-//		{TargetID: "Name2 file2 test2", Type: "tag", Name: "Name2 file2 test2", ROwner: is, RView: is},
+//		{TargetID: "1", ImporterInterfaceKey: LinkType, Name: "Nick file test", ROwner: is, RView: is},
+//		{TargetID: "Name2 file2 test2", ImporterInterfaceKey: "tag", Name: "Name2 file2 test2", ROwner: is, RView: is},
 //	})
 //
 //	toCreatePrivate := crud.Contentus{
@@ -184,8 +184,8 @@ package files
 //	}
 //
 //	linksToCreatePublic, _ := json.Marshal([]items.Link{
-//		{TargetID: "1", Type: LinkType, Name: "Nick file test", ROwner: is, RView: basis.Anyone},
-//		{TargetID: "Name2 file2 test2", Type: "tag", Name: "Name2 file2 test2", ROwner: is, RView: basis.Anyone},
+//		{TargetID: "1", ImporterInterfaceKey: LinkType, Name: "Nick file test", ROwner: is, RView: basis.Anyone},
+//		{TargetID: "Name2 file2 test2", ImporterInterfaceKey: "tag", Name: "Name2 file2 test2", ROwner: is, RView: basis.Anyone},
 //	})
 //
 //	toCreatePublic := crud.Contentus{

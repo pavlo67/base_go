@@ -39,11 +39,11 @@ func (crudOp *recordsCRUD) Roles() (rbac.Roles, error) {
 	return crudOp.roles, nil
 }
 
-const onSave = "on records/crud.Save()"
+const onSave = "on records/crud.Add()"
 
 func (crudOp *recordsCRUD) Save(data entities.Data, actor auth.Actor) (*entities.Key, vcs.History, error) {
 	if data.Key.Type != CRUD {
-		return nil, nil, fmt.Errorf(onSave+": wrong key.Type (%#v) to save item (%#v)", data.Key, data.Value)
+		return nil, nil, fmt.Errorf(onSave+": wrong key.ImporterInterfaceKey (%#v) to save item (%#v)", data.Key, data.Value)
 	}
 
 	var item Item
@@ -58,7 +58,7 @@ func (crudOp *recordsCRUD) Save(data entities.Data, actor auth.Actor) (*entities
 		item = *v
 	case json.RawMessage:
 		if err := json.Unmarshal(v, &item.Record); err != nil {
-			return nil, nil, fmt.Errorf(onSave+": can't unmarshal (%s) into item.Record", v)
+			return nil, nil, fmt.Errorf(onSave+": can't unmarshal (%s) into item.Source", v)
 		}
 	case Record:
 		item = Item{Record: v}
@@ -73,7 +73,7 @@ func (crudOp *recordsCRUD) Save(data entities.Data, actor auth.Actor) (*entities
 
 	item.ID = data.Key.ID
 	item.Description = data.Description
-	id, _, historyChanged, err := crudOp.recordsOp.Save(item, actor)
+	id, _, historyChanged, err := crudOp.recordsOp.Add(item, actor)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, onSave)
 	}
@@ -85,7 +85,7 @@ const onRead = "on records/crud.Read()"
 
 func (crudOp *recordsCRUD) Read(key entities.Key, actor auth.Actor) (*entities.Data, error) {
 	if key.Type != CRUD {
-		return nil, fmt.Errorf(onRead+": wrong key.Type (%#v)", key)
+		return nil, fmt.Errorf(onRead+": wrong key.ImporterInterfaceKey (%#v)", key)
 	}
 
 	item, err := crudOp.recordsOp.Read(key.ID, actor)
@@ -136,7 +136,7 @@ const onRemove = "on records/crud.Remove()"
 
 func (crudOp *recordsCRUD) Remove(key entities.Key, actor auth.Actor) error {
 	if key.Type != CRUD {
-		return fmt.Errorf(onRemove+": wrong key.Type (%#v)", key)
+		return fmt.Errorf(onRemove+": wrong key.ImporterInterfaceKey (%#v)", key)
 	}
 
 	return crudOp.recordsOp.Remove(key.ID, actor)

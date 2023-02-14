@@ -14,9 +14,9 @@ import (
 	"github.com/pavlo67/common/common/db"
 	"github.com/pavlo67/common/common/errors"
 	"github.com/pavlo67/common/common/rbac"
-	"github.com/pavlo67/data/components/selectors"
 	"github.com/pavlo67/common/common/sqllib"
 	"github.com/pavlo67/common/common/strlib"
+	"github.com/pavlo67/data/components/selectors"
 
 	"github.com/pavlo67/data/entities/persons"
 )
@@ -83,7 +83,7 @@ func New(db *sql.DB, table string) (persons.Operator, db.Cleaner, error) {
 	return &personsOp, &personsOp, nil
 }
 
-const onSave = "on personsSQLite.Save(): "
+const onSave = "on personsSQLite.Add(): "
 
 func (personsOp *personsSQLite) Save(item persons.Item, identity *auth.Identity) (auth.ID, error) {
 	if identity == nil || (item.ID != identity.ID && !identity.HasRole(rbac.RoleAdmin)) {

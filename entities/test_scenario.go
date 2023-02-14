@@ -87,7 +87,7 @@ func OperatorTestScenario(t *testing.T, crudOp OperatorCRUD, crudCleanerOp db.Cl
 
 	//// updating (with unchanged .History) failure --------------
 	//
-	//savedChangedKey, _, err = crudOp.Save(*itemChanged, actor)
+	//savedChangedKey, _, err = crudOp.Add(*itemChanged, actor)
 	//require.Error(t, err)
 	//require.Nil(t, savedChangedKey)
 	//

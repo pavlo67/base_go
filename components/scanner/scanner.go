@@ -2,191 +2,126 @@ package scanner
 
 import (
 	"fmt"
-	"log"
-	"regexp"
 	"time"
 
 	"github.com/pkg/errors"
 
-	"github.com/pavlo67/data/components/importer"
+	"github.com/pavlo67/common/common/auth"
+	"github.com/pavlo67/common/common/joiner"
 
-	"github.com/pavlo67/data/entities/records"
 	"github.com/pavlo67/data/entities/sources"
+
+	"github.com/pavlo67/data/components/importer"
 )
 
 type Stat struct {
-	Start     time.Time
-	FountsNum int
+	Start           time.Time
+	Duration        time.Duration
+	SourcesNum      int
+	RecordsTotalNum int
+	RecordsSavedNum int
 }
 
-var reMYSQL = regexp.MustCompile(`^mysql://(\w+)\?table=(\w+)`)
+const onDataFromSources = "on scanner.DataFromSources()"
 
-func GetDataFromFounts(fountOp sources.Operator, importerOp importer.Operator) Stat {
+func DataFromSources(actor auth.Actor) (*Stat, error) {
 
-	fmt.Println("Scan fountOp ...")
-
-	sources, err := fountOp.List()
+	sourcesList, err := sourcesOp.List(nil, actor)
 	if err != nil {
-		// log.Printf("can't exec fountOp.ReadAll(%v, nil, %v): %s", program.Identity(), sel, err)
+		return nil, errors.Wrap(err, onDataFromSources)
 	}
-	log.Println("IS are sources: ", len(sources))
-	scannerStat := Stat{Start: time.Now()}
+	scannerStat := Stat{Start: time.Now(), SourcesNum: len(sourcesList)}
 
-	lastURL := ""
-	for i, fount := range sources {
-		if lastURL == fount.URL {
-			continue
+	importerOps := map[joiner.InterfaceKey]importer.Operator{}
+
+	for i, source := range sourcesList {
+
+		l.Infof("scanning #%d of %d sourcesList: %s", i+1, len(sourcesList), source.SourceURN)
+
+		sourceStat := sources.Stat{Start: time.Now()}
+
+		importerOp := importerOps[source.ImporterInterfaceKey]
+		if importerOp == nil {
+			if importerOp, _ = joinerOp.Interface(source.ImporterInterfaceKey).(importer.Operator); importerOp == nil {
+				sourceStat.LastError = fmt.Errorf("interface '%s' isn't found", source.ImporterInterfaceKey)
+				sourceStat.ErrorsNum++
+				l.Error(sourceStat.LastError)
+
+				addSourceStat(sourcesOp, sourceStat, actor)
+				continue
+			}
 		}
 
-		log.Print(fount.URL)
-
-		lastURL = fount.URL
-		scannerStat.FountsNum++
-
-		// fountStat := Stat{FountID: fount.ID, Start: time.Now(), ScannerStart: scannerStat.Start}
-
-		// TODO!!!
-		//for j := i + 1; j < len(sources); j++ {
-		//	if sources[j].URL == fount.URL && sources[j].ROwner != fount.ROwner {
-		//		identityStrings[sources[j].ROwner.Identity()] = strconv.FormatInt(sources[j].ID, 10)
-		//	} else {
-		//		break
-		//	}
-		//}
-
-		key := string(fount.ImportType)
-		importOp, ok := program.GetInterfaceBySignature((*importer.Operator)(nil), key).(importer.Operator)
-		if !ok {
-			err = errors.New("no " + key + " interface found for scanner")
-			log.Println(err)
-			fountStat.ResponseError = err.Error()
-			addFountStat(fountOp, fountStat)
-			continue
-		}
-
-		// scanned data save to importer
-		//err = importOp.Init(fount.URL, fount.ImportDetailsParams, false)
-		//if err != nil {
+		// scanned record save to importer
+		// err = importOp.Init(source.URL, source.ImportDetailsParams, false)
+		// if err != nil {
 		//	scannerStat.ErrorsNum++
-		//	log.Printf("error init fount importer (%s): %s", fount.URL, err)
+		//	log.Printf("error init source importer (%s): %s", source.URL, err)
 		//
-		//	fountStat.ResponseError = err.Error()
-		//	addFountStat(fountOp, fountStat)
+		//	sourceStat.ResponseError = err.Error()
+		//	addSourceStat(sourcesOp, sourceStat)
 		//	continue
-		//}
+		// }
 
-		var importOp importer.Operator
-		var recordsOp records.Operator
+		dataSeries, err := importerOp.Get(source.SourceURN, source.Params)
+		if err != nil || dataSeries == nil {
+			sourceStat.LastError = fmt.Errorf("got %#v / %s", dataSeries, err)
+			sourceStat.ErrorsNum++
+			l.Error(sourceStat.LastError)
 
-		dataSeries, err := importOp.Get()
+			addSourceStat(sourcesOp, sourceStat, actor)
+			continue
+		}
 
-		for _, data := range dataSeries {
+		sourceStat.RecordsTotalNum = len(dataSeries.Records)
 
-			fountStat.ItemsTaken++
-
-			//item.FountIS = confidenter.IdentityString(domain + "/fount/" + fountID)
-			//// TODO: use fount.Identity()
-			//
-			//item.RView = rOwner.String() // TODO!!!
-			////item.RView = fount.RView
-			//item.ROwner = rOwner.String()
-
-			isNew, err := importerOp.IsNew(data)
-			if err != nil {
-				log.Printf("error checking importerOp.IsNew(%v, %d, %s): %s", rOwner, fount.ID, item.OriginalID, err)
-				fountStat.LastItemError = err.Error()
+		for i, record := range dataSeries.Records {
+			if i%100 == 0 {
+				l.Infof("processing %d of %d records", i+1, dataSeries.Records)
 			}
 
-			runes := []rune(item.Summary)
-			if len(runes) > 255 {
-				item.Summary = string(runes[0:255])
-			}
-			_, err = importerOp.Create(&rOwner, *item)
+			isNew, err := importerOp.IsNew(record)
 			if err != nil {
-				log.Printf("error importerOp.Create(%s, %v): %s", rOwner, item, err)
+				sourceStat.LastError = fmt.Errorf("checking %d, %s got: %s", source.ID, record.SourceURN, err)
+				sourceStat.ErrorsNum++
+				l.Error(sourceStat.LastError)
 			}
 
 			if isNew {
-				fountStat.ItemsNew++
-				_, err := recordsOp.Save(data, nil)
+				if _, _, err = recordsOp.Add(record, actor); err != nil {
+					sourceStat.LastError = err
+					sourceStat.ErrorsNum++
+					l.Error(err)
+				} else {
+					sourceStat.RecordsSavedNum++
+				}
 			}
 
-			// if fount.ToFlow {
-			//} else if fount.ToObject {
-			//	mySQLData := reMYSQL.FindStringSubmatch(fount.URL)
-			//	if len(mySQLData) > 0 {
-			//		err = importOp.Init(mySQLData[2], mySQLData[1], false)
-			//	} else {
-			//		err = errors.New("can't parse url")
-			//	}
-			//	if err != nil {
-			//		scannerStat.ErrorsNum++
-			//		log.Printf("error init fount importer (%s): %s", fount.URL, err)
-			//
-			//		fountStat.ResponseError = err.Err()
-			//		addFountStat(fountOp, fountStat)
-			//		continue
-			//	}
-			//	for {
-			//		entity, err := importOp.Next()
-			//		if err == importer.ErrNoMoreItems {
-			//			break
-			//		}
-			//		if err != nil {
-			//			fountStat.ItemErrors++
-			//			log.Printf("error reading imported item: %s", err)
-			//			fountStat.LastItemError = err.Err()
-			//			continue
-			//		}
-			//		fountStat.ItemsTaken++
-			//		o, err := entity.Object()
-			//		if err != nil {
-			//			fountStat.LastItemError = err.Err()
-			//			log.Printf("can't get Object() for imported row: %v; %v", entity, err)
-			//			continue
-			//		}
-			//		o.RView = fount.RView
-			//		fID := fount.ROwner.Identity()
-			//		_, err = objectsOp.Create(&fID, o)
-			//		if err != nil {
-			//			me, ok := errors.Cause(err).(*mysql.MySQLError)
-			//			if !ok || me.Number != 1062 {
-			//				fountStat.LastItemError = err.Err()
-			//				log.Printf("can't create import object for imported object: %v; %v", o, err)
-			//			}
-			//
-			//			continue
-			//		}
-			//		fountStat.ItemsNew++
-			//	}
 		}
 
-		addFountStat(fountOp, fountStat)
-		if fountStat.LastItemError != "" {
-			scannerStat.ErrorsNum++
-		}
-		scannerStat.ItemsTaken += fountStat.ItemsTaken
-		scannerStat.ItemsNew += fountStat.ItemsNew
+		addSourceStat(sourcesOp, sourceStat, actor)
+
+		scannerStat.RecordsTotalNum += sourceStat.RecordsTotalNum
+		scannerStat.RecordsSavedNum += sourceStat.RecordsSavedNum
 	}
 
-	addScannerStat(fountOp, scannerStat)
-	return scannerStat
+	addScannerStat(scannerStat)
+
+	return &scannerStat, nil
 }
 
-func addScannerStat(fountOp sources.Operator, scannerStat Stat) {
-	scannerStat.Duration = time.Now().UnixNano() - scannerStat.Start.UnixNano()
-	identity := program.Identity()
-	err := fountOp.AddScannerStat(&identity, scannerStat)
-	if err != nil {
-		log.Println(errors.Wrapf(err, "error write fount_stat: %v", scannerStat))
-	}
+func addScannerStat(stat Stat) {
+	stat.Duration = time.Now().Sub(stat.Start)
+	l.Infof("TOTAL SCANNER STATISTICS: %#v", stat)
+
+	//if err := sourceOp.AddScannerStat(stat, actor); err != nil {
+	//	l.Error(err)
+	//}
 }
 
-func addFountStat(fountOp sources.Operator, fountStat sources.FountStat) {
-	fountStat.Duration = time.Now().UnixNano() - fountStat.Start.UnixNano()
-	identity := program.Identity()
-	err := fountOp.AddFountStat(&identity, fountStat)
-	if err != nil {
-		log.Println(errors.Wrapf(err, "error write fount_stat: %v", fountStat))
+func addSourceStat(sourceOp sources.Operator, sourceStat sources.Stat, actor auth.Actor) {
+	sourceStat.Duration = time.Now().Sub(sourceStat.Start)
+	if err := sourceOp.AddStat(sourceStat, actor); err != nil {
+		l.Error(err)
 	}
 }

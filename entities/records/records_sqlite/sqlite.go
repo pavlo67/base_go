@@ -84,7 +84,7 @@ func New(db *sql.DB, table string) (records.Operator, db.Cleaner, error) {
 	return &recordsOp, &recordsOp, nil
 }
 
-const onSave = "on recordsSQLite.Save(): "
+const onSave = "on recordsSQLite.Add(): "
 
 func (recordsOp *recordsSQLite) Save(item records.Item, identity *auth.Identity) (records.ID, error) {
 

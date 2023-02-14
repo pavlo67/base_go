@@ -34,7 +34,7 @@ func (personsOp *personsStub) SetURN(id persons.ID) (ns.URN, error) {
 	return "", common.ErrNotImplemented
 }
 
-const onSave = "on personsStub.Save(): "
+const onSave = "on personsStub.Add(): "
 
 var currentID int
 

@@ -115,7 +115,7 @@ func New(access config.Access, domain identity.Domain, table string, interfaceKe
 	return &dataOp, &dataOp, nil
 }
 
-const onSave = "on dataPg.Save(): "
+const onSave = "on dataPg.Add(): "
 
 func (dataOp *dataPg) Save(item data.Item, options *crud.SaveOptions) (common.ID, error) {
 
