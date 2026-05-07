@@ -1,23 +1,30 @@
 package files
 
+// operating files or "records about files" in database
+
 import (
 	"time"
-
-	"github.com/pavlo67/common/common/auth"
 )
 
 type File struct {
-	Path      string     `json:",omitempty" bson:",omitempty"`
-	IsDir     bool       `json:",omitempty" bson:",omitempty"`
-	Size      int64      `json:",omitempty" bson:",omitempty"`
-	CreatedAt time.Time  `json:",omitempty" bson:",omitempty"`
-	UpdatedAt *time.Time `json:",omitempty" bson:",omitempty"`
+	Path     string    `json:",omitempty" bson:",omitempty"` // unique key
+	IsDir    bool      `json:",omitempty" bson:",omitempty"`
+	Size     uint64    `json:",omitempty" bson:",omitempty"`
+	CTime    time.Time `json:",omitempty" bson:",omitempty"`
+	MTime    time.Time `json:",omitzero" bson:",omitempty"`
+	MimeType string    `json:",omitempty" bson:",omitempty"`
+}
+
+type Item struct {
+	File      `          json:",inline" bson:",inline"`
+	CreatedAt time.Time `json:",omitzero" bson:",omitempty"`
+	UpdatedAt time.Time `json:",omitzero" bson:",omitempty"`
 }
 
 type Operator interface {
-	Save(path, newFilePattern string, data []byte, identity *auth.Identity) (string, error)
-	Read(path string, identity *auth.Identity) ([]byte, error)
-	Remove(path string, identity *auth.Identity) error
-	List(path string, depth int, identity *auth.Identity) ([]File, error)
-	Stat(path string, depth int, identity *auth.Identity) (*File, error)
+	// creates new or replaces existing Item's record
+	Save(file File) error
+	Read(path string) (*Item, error)
+	Remove(path string) error
+	List(path string, depth int) ([]Item, error)
 }

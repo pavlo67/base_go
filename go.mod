@@ -1,10 +1,10 @@
 module github.com/pavlo67/data
 
-go 1.20
+go 1.26
 
 require (
 	github.com/lib/pq v1.9.0
-	github.com/pavlo67/common v0.2.3
+	github.com/pavlo67/common v0.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
 )
@@ -15,6 +15,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gomarkdown/markdown v0.0.0-20221013030248-663e2500819c // indirect
 	github.com/julienschmidt/httprouter v1.3.0 // indirect
+	github.com/mattn/go-sqlite3 v1.14.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	go.uber.org/atomic v1.6.0 // indirect
 	go.uber.org/multierr v1.5.0 // indirect
