@@ -3,7 +3,6 @@ package files_sqlite
 import (
 	"database/sql"
 	"fmt"
-	errors_new "github.com/pavlo67/data/add_new/errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,10 +10,10 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/pavlo67/common/common/db"
-	"github.com/pavlo67/common/common/errors"
-	"github.com/pavlo67/common/common/logger"
-	"github.com/pavlo67/data/entities/files"
+	"github.com/pavlo67/base_go/entities/files"
+	"github.com/pavlo67/base_go/lib/db"
+	"github.com/pavlo67/base_go/lib/errors"
+	"github.com/pavlo67/base_go/lib/logger"
 )
 
 var _ files.Operator = &filesSQLite{}
@@ -29,13 +28,13 @@ const onNew = "on files_sqlite.Init():"
 
 func New(dsn string, l_ logger.Operator) (files.Operator, db.Cleaner, error) {
 	if l_ == nil {
-		return nil, nil, errors.New("l_ == nil")
+		return nil, nil, errors.New("", "l_ == nil")
 	}
 	l = l_
 
 	sqlDB, err := sql.Open("sqlite3", dsn)
 	if err != nil {
-		return nil, nil, errors_new.Wrap(err, onNew)
+		return nil, nil, errors.Wrap(err, onNew)
 	}
 
 	op := &filesSQLite{db: sqlDB}
@@ -58,7 +57,7 @@ func New(dsn string, l_ logger.Operator) (files.Operator, db.Cleaner, error) {
 		if errClose != nil {
 			l.Errorf("%s: %s ", onNew, errClose.Error())
 		}
-		return nil, nil, errors_new.Wrap(err, onNew)
+		return nil, nil, errors.Wrap(err, onNew)
 	}
 
 	return op, op, nil
@@ -73,7 +72,7 @@ func (f *filesSQLite) Clean() error {
 	}
 
 	_, err := f.db.Exec(`DELETE FROM files`)
-	return errors_new.Wrap(err, onClean)
+	return errors.Wrap(err, onClean)
 }
 
 const onSave = "on files_sqlite.Save():"
@@ -103,7 +102,7 @@ func (f *filesSQLite) Save(file files.File) error {
 		now,
 	)
 
-	return errors_new.Wrap(err, onSave)
+	return errors.Wrap(err, onSave)
 }
 
 const onRead = "on files_sqlite.Read():"
@@ -119,7 +118,7 @@ func (f *filesSQLite) Read(path string) (*files.Item, error) {
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
-		return nil, errors_new.Wrap(err, onRead)
+		return nil, errors.Wrap(err, onRead)
 	}
 
 	return item, nil
@@ -129,7 +128,7 @@ const onRemove = "on files_sqlite.Remove():"
 
 func (f *filesSQLite) Remove(path string) error {
 	_, err := f.db.Exec(`DELETE FROM files WHERE path = ?`, path)
-	return errors_new.Wrap(err, onRemove)
+	return errors.Wrap(err, onRemove)
 }
 
 const onList = "on files_sqlite.List():"
@@ -142,7 +141,7 @@ func (f *filesSQLite) List(path string, depth int) ([]files.Item, error) {
 		ORDER BY path
 	`, strings.TrimRight(path, "/")+`/%`)
 	if err != nil {
-		return nil, errors_new.Wrap(err, onList)
+		return nil, errors.Wrap(err, onList)
 	}
 	defer rows.Close()
 
@@ -151,7 +150,7 @@ func (f *filesSQLite) List(path string, depth int) ([]files.Item, error) {
 	for rows.Next() {
 		item, err := scanItem(rows)
 		if err != nil {
-			return nil, errors_new.Wrap(err, onList)
+			return nil, errors.Wrap(err, onList)
 		}
 
 		if filepath.Dir(item.Path) == path {
@@ -159,5 +158,5 @@ func (f *filesSQLite) List(path string, depth int) ([]files.Item, error) {
 		}
 	}
 
-	return items, errors_new.Wrap(rows.Err(), onList)
+	return items, errors.Wrap(rows.Err(), onList)
 }

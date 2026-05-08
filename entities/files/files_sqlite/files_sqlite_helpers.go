@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/pavlo67/data/entities/files"
+	"github.com/pavlo67/base_go/entities/files"
 )
 
 type itemScanner interface {

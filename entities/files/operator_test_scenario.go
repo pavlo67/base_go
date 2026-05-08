@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/pavlo67/common/common/db"
+	"github.com/pavlo67/base_go/lib/db"
 )
 
 func FilesTestScenario(t *testing.T, filesOp Operator, filesCleaner db.Cleaner) {

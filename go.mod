@@ -1,11 +1,8 @@
-module github.com/pavlo67/data
+module github.com/pavlo67/base_go
 
 go 1.26
 
 require (
-	github.com/lib/pq v1.9.0
-	github.com/pavlo67/common v0.3.0
-	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
 )
 

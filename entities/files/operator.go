@@ -3,11 +3,8 @@ package files
 // operating files or "records about files" in database
 
 import (
-	"github.com/pavlo67/common/common/errors"
 	"time"
 )
-
-var err = errors.Wrap(nil)
 
 type File struct {
 	Path     string    `json:",omitempty" bson:",omitempty"` // unique key
