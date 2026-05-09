@@ -17,6 +17,7 @@ import (
 )
 
 var _ files.Operator = &filesSQLite{}
+var _ db.Operator = &filesSQLite{}
 
 type filesSQLite struct {
 	db *sql.DB
@@ -26,7 +27,7 @@ var l logger.Operator
 
 const onNew = "on files_sqlite.Init():"
 
-func New(dsn string, l_ logger.Operator) (files.Operator, db.Cleaner, error) {
+func New(dsn string, l_ logger.Operator) (files.Operator, db.Operator, error) {
 	if l_ == nil {
 		return nil, nil, errors.New("", "l_ == nil")
 	}
@@ -39,7 +40,20 @@ func New(dsn string, l_ logger.Operator) (files.Operator, db.Cleaner, error) {
 
 	op := &filesSQLite{db: sqlDB}
 
-	_, err = op.db.Exec(`
+	return op, op, nil
+}
+
+// db.Operator --------------------------------------------------------------------------------
+
+const onCreate = "on files_sqlite.Create():"
+
+func (op *filesSQLite) Create() error {
+	env := strings.ToUpper(os.Getenv("ENV"))
+	if env != "TEST" {
+		return fmt.Errorf("filesSQLite.Clean() is allowed only when ENV=TEST, but env = %s", env)
+	}
+
+	_, err := op.db.Exec(`
 		CREATE TABLE IF NOT EXISTS files (
 			path        TEXT PRIMARY KEY,
 			is_dir      INTEGER NOT NULL,
@@ -59,28 +73,28 @@ func New(dsn string, l_ logger.Operator) (files.Operator, db.Cleaner, error) {
 		}
 		return nil, nil, errors.Wrap(err, onNew)
 	}
-
-	return op, op, nil
 }
 
 const onClean = "on files_sqlite.Clean():"
 
-func (f *filesSQLite) Clean() error {
+func (op *filesSQLite) Clean() error {
 	env := strings.ToUpper(os.Getenv("ENV"))
 	if env != "TEST" {
 		return fmt.Errorf("filesSQLite.Clean() is allowed only when ENV=TEST, but env = %s", env)
 	}
 
-	_, err := f.db.Exec(`DELETE FROM files`)
+	_, err := op.db.Exec(`DELETE FROM files`)
 	return errors.Wrap(err, onClean)
 }
 
+// files.Operator -----------------------------------------------------------------------------
+
 const onSave = "on files_sqlite.Save():"
 
-func (f *filesSQLite) Save(file files.File) error {
+func (op *filesSQLite) Save(file files.File) error {
 	now := time.Now().UTC().Format(time.RFC3339Nano)
 
-	_, err := f.db.Exec(`
+	_, err := op.db.Exec(`
 		INSERT INTO files (
 			path, is_dir, size, ctime, mtime, mime_type, created_at, updated_at
 		)
@@ -88,6 +102,7 @@ func (f *filesSQLite) Save(file files.File) error {
 		ON CONFLICT(path) DO UPDATE SET
 			is_dir     = excluded.is_dir,
 			size       = excluded.size,
+			сtime      = excluded.сtime,
 			mtime      = excluded.mtime,
 			mime_type  = excluded.mime_type,
 			updated_at = excluded.updated_at
@@ -107,8 +122,8 @@ func (f *filesSQLite) Save(file files.File) error {
 
 const onRead = "on files_sqlite.Read():"
 
-func (f *filesSQLite) Read(path string) (*files.Item, error) {
-	row := f.db.QueryRow(`
+func (op *filesSQLite) Read(path string) (*files.Item, error) {
+	row := op.db.QueryRow(`
 		SELECT path, is_dir, size, ctime, mtime, mime_type, created_at, updated_at
 		FROM files
 		WHERE path = ?
@@ -126,15 +141,15 @@ func (f *filesSQLite) Read(path string) (*files.Item, error) {
 
 const onRemove = "on files_sqlite.Remove():"
 
-func (f *filesSQLite) Remove(path string) error {
-	_, err := f.db.Exec(`DELETE FROM files WHERE path = ?`, path)
+func (op *filesSQLite) Remove(path string) error {
+	_, err := op.db.Exec(`DELETE FROM files WHERE path = ?`, path)
 	return errors.Wrap(err, onRemove)
 }
 
 const onList = "on files_sqlite.List():"
 
-func (f *filesSQLite) List(path string, depth int) ([]files.Item, error) {
-	rows, err := f.db.Query(`
+func (op *filesSQLite) List(path string, depth int) ([]files.Item, error) {
+	rows, err := op.db.Query(`
 		SELECT path, is_dir, size, ctime, mtime, mime_type, created_at, updated_at
 		FROM files
 		WHERE path LIKE ?

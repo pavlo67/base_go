@@ -10,7 +10,7 @@ import (
 	"github.com/pavlo67/base_go/lib/db"
 )
 
-func FilesTestScenario(t *testing.T, filesOp Operator, filesCleaner db.Cleaner) {
+func FilesTestScenario(t *testing.T, filesOp Operator, filesCleaner db.Operator) {
 	t.Helper()
 
 	// data preparation -------------------------------------------------
