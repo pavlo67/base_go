@@ -27,7 +27,7 @@ func TestFilesSQLite(t *testing.T) {
 
 	dsn := "test.sqlite"
 
-	filesOp, filesCleaner, err := New(dsn, l)
+	filesOp, filesCleaner, err := New(dsn, true, l)
 	require.NotNil(t, filesOp)
 	require.NotNil(t, filesCleaner)
 	require.NoError(t, err)
