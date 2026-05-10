@@ -16,6 +16,7 @@ func scanItem(scanner itemScanner) (*files.Item, error) {
 	var isDir int
 	var cTime sql.NullString
 	var mTime sql.NullString
+	var crc sql.NullInt64
 	var createdAt sql.NullString
 	var updatedAt sql.NullString
 
@@ -25,6 +26,7 @@ func scanItem(scanner itemScanner) (*files.Item, error) {
 		&item.Size,
 		&cTime,
 		&mTime,
+		&crc,
 		&item.MimeType,
 		&createdAt,
 		&updatedAt,
@@ -49,6 +51,10 @@ func scanItem(scanner itemScanner) (*files.Item, error) {
 			return nil, err
 		}
 		item.MTime = t
+	}
+
+	if crc.Valid {
+		item.CRC = &crc.Int64
 	}
 
 	if createdAt.Valid && createdAt.String != "" {
@@ -78,15 +84,15 @@ func boolToInt(v bool) int {
 }
 
 func timeToDB(t time.Time) any {
-	if t.IsZero() {
-		return nil
-	}
+	//if t.IsZero() {
+	//	return nil
+	//}
 	return t.UTC().Format(time.RFC3339Nano)
 }
 
-func timePtrToDB(t *time.Time) any {
-	if t == nil || t.IsZero() {
-		return nil
-	}
-	return t.UTC().Format(time.RFC3339Nano)
-}
+//func timePtrToDB(t *time.Time) any {
+//	if t == nil || t.IsZero() {
+//		return nil
+//	}
+//	return t.UTC().Format(time.RFC3339Nano)
+//}

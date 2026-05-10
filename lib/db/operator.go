@@ -1,7 +1,8 @@
 package db
 
+import "database/sql"
+
 type Operator interface {
-	Create() error
-	Check() error
+	Create(db *sql.DB) error
 	Clean() error // term *selectors.Term
 }

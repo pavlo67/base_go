@@ -12,6 +12,7 @@ type File struct {
 	Size     uint64    `json:",omitempty" bson:",omitempty"`
 	CTime    time.Time `json:",omitempty" bson:",omitempty"`
 	MTime    time.Time `json:",omitzero" bson:",omitempty"`
+	CRC      *int64    `json:",omitempty" bson:",omitempty"`
 	MimeType string    `json:",omitempty" bson:",omitempty"`
 }
 
