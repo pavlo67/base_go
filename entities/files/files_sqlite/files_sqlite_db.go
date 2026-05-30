@@ -19,7 +19,7 @@ const onCreate = "on files_sqlite.Create():"
 func (op *filesSQLite) Create(db *sql.DB) error {
 	env := strings.ToUpper(os.Getenv("ENV"))
 	if env != "TEST" {
-		return fmt.Errorf("filesSQLite.Clean() is allowed only when ENV=TEST, but env = %s", env)
+		return fmt.Errorf("filesSQLite.Create() is allowed only when ENV=TEST, but env = %s", env)
 	}
 
 	err := sqllib.InitDB(db, filepath.Join(filelib.CurrentPath(), "create.sql"))

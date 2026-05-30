@@ -82,17 +82,17 @@ const sqlSave = `
 `
 const onSave = "on files_sqlite.Save():"
 
-func (op *filesSQLite) Save(file files.File) error {
+func (op *filesSQLite) Save(data files.Data) error {
 	now := time.Now().UTC().Format(time.RFC3339Nano)
 
 	_, err := op.stmSave.Exec(
-		file.Path,
-		boolToInt(file.IsDir),
-		file.Size,
-		timeToDB(file.CTime),
-		timeToDB(file.MTime),
-		file.CRC,
-		file.MimeType,
+		data.Path,
+		boolToInt(data.IsDir),
+		data.Size,
+		timeToDB(data.CTime),
+		timeToDB(data.MTime),
+		data.CRC,
+		data.MimeType,
 		now,
 		now,
 	)
