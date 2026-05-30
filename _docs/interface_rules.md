@@ -27,7 +27,7 @@
         // creates new or replaces existing Item's record
         Save(data Data) error
         Read(<unique key/id>) (*Item, error)
-        Remove(<unique key/id>) error
+        Remove(<unique key/id>, forceRecursion bool) error
         List(<conditions>) ([]Item, error)
     }
 
@@ -103,6 +103,8 @@
         return op, op, nil
 	}
 
+Якщо New() задає обмежену область доступу для імплементації (наприклад, певнйи каталог файлової системи), то всі методи цієї імплементації повинні
+дотримуватися цього обмеження (особливо!!! Clean()).
 
 ## Особливості SQL-імплементацій 
 
@@ -124,19 +126,23 @@
 Базовий DB-інтерфейс містить методи, які використовуються тільки в тестовому оточенні (перевірка оточення повинна робитись в кожній імплементації кожного з цих методів):
 
     Create(db *sql.DB) error
-    Clean() error
-
+    Clean(opts interface{}) error
 
 # Тести
 
 Тестовий сценарій (це не юніт-тести!) зберігається в файлі entities/files/operator_test_scenario.go і має бути незалежним від імплементацій. 
+Кожна імплементація одного інтерфейсу повинна запускати цей спільний сценарій. Сценарій перевіряє тільки спільну для всіх імплементацій поведінку і не повинен 
+перевіряти поля, які неминуче відрізняються між імплементаціями.
+
+Якщо певна імплементація має специфічну поведінку або специфічні поля, перевіряємо їх в окремому мінімальному сценарії цієї імплементації: створити один запис, 
+прочитати його через Read() і List(), та перевірити тільки відповідні специфічні поля.
 
 На прикладі files його можна, в загальних словах, описати наступним чином: 
 
     import "github.com/stretchr/testify/require" 
 
     func FilesTestScenario(t *testing.T, filesOp files.Operator, filesDB db.Operator) { 
-        err := filesDB.Clean() 
+        err := filesDB.Clean(<opts>) 
         require.NoError(t, err)} 
 
         filesOp.List(...) 
@@ -157,7 +163,7 @@
         item1Readed, err1 := filesOp.Read(item1.Path) 
         require.NoError(err1) 
         require.NotNil(item1Readed) 
-        require.Equal(data1, item1Readed.Data, <error explaining>) 
+        require(<common fields match>, <error explaining>) 
 
         filesOp.Save(data1)        // re-save 
         filesOp.List(...) 
@@ -174,6 +180,3 @@
 Пускач тестів створюється в кожній імплементації — він повинен створити логер, ініціювати основний інтерфейс і викликати тестовий сценарій.
         
 Приклад пускача: entities/files/files_sqlite/files_sqlite_test.go 
-
-
-

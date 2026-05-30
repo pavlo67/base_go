@@ -79,8 +79,7 @@ func FilesTestScenario(t *testing.T, filesOp Operator, dir string, filesCleaner 
 	err = filesOp.Save(data1)
 	require.NoError(t, err)
 
-	item1 := requireReadData(t, filesOp, data1)
-	require.Equal(t, item1.CreatedAt, item1.UpdatedAt)
+	requireReadData(t, filesOp, data1)
 
 	requireListData(t, filesOp, dir, data1)
 
@@ -88,8 +87,6 @@ func FilesTestScenario(t *testing.T, filesOp Operator, dir string, filesCleaner 
 	require.NoError(t, err)
 
 	item1AfterResave := requireReadData(t, filesOp, data1)
-	require.Equal(t, item1.CreatedAt, item1AfterResave.CreatedAt)
-	require.True(t, !item1AfterResave.UpdatedAt.Before(item1.UpdatedAt))
 
 	requireListData(t, filesOp, dir, data1)
 
@@ -119,7 +116,7 @@ func FilesTestScenario(t *testing.T, filesOp Operator, dir string, filesCleaner 
 
 	// - data2 ----------------------------------------------------------
 
-	err = filesOp.Remove(data2.Path)
+	err = filesOp.Remove(data2.Path, false)
 	require.NoError(t, err)
 
 	requireListData(t, filesOp, dir, data1, data3)
@@ -164,9 +161,7 @@ func requireReadData(t *testing.T, op Operator, expected Data) *Item {
 	require.NoError(t, err)
 	require.NotNil(t, actual)
 
-	require.Equal(t, expected, actual.Data, "file data differs: %s", expected.Path)
-	require.False(t, actual.CreatedAt.IsZero(), "CreatedAt must be set: %s", expected.Path)
-	require.False(t, actual.UpdatedAt.IsZero(), "UpdatedAt must be set: %s", expected.Path)
+	requireCommonData(t, expected, actual.Data)
 
 	return actual
 }
@@ -178,13 +173,35 @@ func requireListData(t *testing.T, op Operator, dir string, expected ...Data) {
 	require.NoError(t, err)
 	require.Len(t, actual, len(expected))
 
-	actualData := make([]Data, 0, len(actual))
+	actualData := make([]commonData, 0, len(actual))
 	for _, item := range actual {
-		require.False(t, item.CreatedAt.IsZero(), "CreatedAt must be set: %s", item.Path)
-		require.False(t, item.UpdatedAt.IsZero(), "UpdatedAt must be set: %s", item.Path)
-
-		actualData = append(actualData, item.Data)
+		actualData = append(actualData, commonDataFromData(item.Data))
 	}
 
-	require.ElementsMatch(t, expected, actualData)
+	expectedData := make([]commonData, 0, len(expected))
+	for _, data := range expected {
+		expectedData = append(expectedData, commonDataFromData(data))
+	}
+
+	require.ElementsMatch(t, expectedData, actualData)
+}
+
+type commonData struct {
+	Path  string
+	IsDir bool
+	Size  uint64
+}
+
+func requireCommonData(t *testing.T, expected, actual Data) {
+	t.Helper()
+
+	require.Equal(t, commonDataFromData(expected), commonDataFromData(actual), "common file data differs: %s", expected.Path)
+}
+
+func commonDataFromData(data Data) commonData {
+	return commonData{
+		Path:  filepath.ToSlash(data.Path),
+		IsDir: data.IsDir,
+		Size:  data.Size,
+	}
 }

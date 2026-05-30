@@ -101,6 +101,40 @@ func ClearDir(dir string) error {
 	return nil
 }
 
+func FullPath(root, path string) (string, error) {
+	rootAbs, err := filepath.Abs(filepath.Clean(root))
+	if err != nil {
+		return "", err
+	}
+
+	path = filepath.Clean(path)
+	if path == "." || path == string(filepath.Separator) {
+		return rootAbs, nil
+	}
+
+	var fullPath string
+	if filepath.IsAbs(path) {
+		fullPath = path
+	} else {
+		fullPath = filepath.Join(rootAbs, path)
+	}
+
+	fullPathAbs, err := filepath.Abs(fullPath)
+	if err != nil {
+		return "", err
+	}
+
+	rel, err := filepath.Rel(rootAbs, fullPathAbs)
+	if err != nil {
+		return "", err
+	}
+	if rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return "", fmt.Errorf("path escapes root: %s", path)
+	}
+
+	return fullPathAbs, nil
+}
+
 //const maxRetries = 10
 //
 //func SubDirUnique(path string) (string, error) {

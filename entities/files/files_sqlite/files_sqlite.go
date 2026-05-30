@@ -20,8 +20,8 @@ var _ files.Operator = &filesSQLite{}
 var _ db.Operator = &filesSQLite{}
 
 type filesSQLite struct {
-	db                                             *sql.DB
-	stmSave, stmRead, stmRemove, stmList, stmClean *sql.Stmt
+	db                                                                 *sql.DB
+	stmSave, stmRead, stmRemove, stmRemoveRecursive, stmList, stmClean *sql.Stmt
 }
 
 var l logger.Operator
@@ -51,6 +51,7 @@ func New(dsn string, create bool, l_ logger.Operator) (files.Operator, db.Operat
 		{&op.stmSave, sqlSave},
 		{&op.stmRead, sqlRead},
 		{&op.stmRemove, sqlRemove},
+		{&op.stmRemoveRecursive, sqlRemoveRecursive},
 		{&op.stmList, sqlList},
 		{&op.stmClean, sqlClean},
 	}
@@ -121,11 +122,17 @@ func (op *filesSQLite) Read(path string) (*files.Item, error) {
 }
 
 const sqlRemove = `DELETE FROM files WHERE path = ?`
+const sqlRemoveRecursive = `DELETE FROM files WHERE path = ? OR path LIKE ?`
 
 const onRemove = "on files_sqlite.Remove():"
 
-func (op *filesSQLite) Remove(path string) error {
-	_, err := op.stmRemove.Exec(path)
+func (op *filesSQLite) Remove(path string, forceRecursion bool) error {
+	if !forceRecursion {
+		_, err := op.stmRemove.Exec(path)
+		return errors.Wrap(err, onRemove)
+	}
+
+	_, err := op.stmRemoveRecursive.Exec(path, strings.TrimRight(path, "/")+"/%")
 	return errors.Wrap(err, onRemove)
 }
 
@@ -139,6 +146,11 @@ const sqlList = `
 const onList = "on files_sqlite.List():"
 
 func (op *filesSQLite) List(path string, depth int) ([]files.Item, error) {
+	if depth < 0 {
+		return nil, errors.New("", onList+" depth must be >= 0")
+	}
+
+	path = strings.TrimRight(path, "/")
 	rows, err := op.stmList.Query(strings.TrimRight(path, "/") + `/%`)
 	if err != nil {
 		return nil, errors.Wrap(err, onList)
@@ -157,10 +169,18 @@ func (op *filesSQLite) List(path string, depth int) ([]files.Item, error) {
 			return nil, errors.Wrap(err, onList)
 		}
 
-		if filepath.Dir(item.Path) == path {
+		if depth == 0 || itemDepth(path, item.Path) <= depth {
 			items = append(items, *item)
 		}
 	}
 
 	return items, errors.Wrap(rows.Err(), onList)
+}
+
+func itemDepth(basePath, itemPath string) int {
+	rel := strings.TrimPrefix(strings.TrimPrefix(itemPath, basePath), "/")
+	if rel == "" {
+		return 0
+	}
+	return len(strings.Split(filepath.ToSlash(rel), "/"))
 }

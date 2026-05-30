@@ -26,6 +26,6 @@ type Operator interface {
 	// creates new or replaces existing Item's record
 	Save(data Data) error
 	Read(path string) (*Item, error)
-	Remove(path string) error
+	Remove(path string, forceRecursion bool) error
 	List(path string, depth int) ([]Item, error)
 }
