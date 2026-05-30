@@ -44,9 +44,30 @@ func FilesTestScenario(t *testing.T, filesOp Operator, dir string, filesCleaner 
 		MimeType: "application/octet-stream",
 	}
 
+	dataSub := Data{
+		Path:     filepath.Join(dir, "sub", "file4.txt"),
+		IsDir:    false,
+		Size:     400,
+		CTime:    now.Add(3 * time.Hour).UTC(),
+		MTime:    now.Add(3*time.Hour + time.Minute).UTC(),
+		MimeType: "text/plain",
+	}
+
+	dataSibling := Data{
+		Path:     filepath.Join(filepath.Dir(dir), filepath.Base(dir)+"-sibling", "file5.txt"),
+		IsDir:    false,
+		Size:     500,
+		CTime:    now.Add(4 * time.Hour).UTC(),
+		MTime:    now.Add(4*time.Hour + time.Minute).UTC(),
+		MimeType: "text/plain",
+	}
+
 	// ------------------------------------------------------------------
 
-	err := filesCleaner.Clean(dir)
+	err := filesCleaner.Clean("")
+	require.Error(t, err)
+
+	err = filesCleaner.Clean(dir)
 	require.NoError(t, err)
 
 	// + data1 ----------------------------------------------------------
@@ -112,6 +133,28 @@ func FilesTestScenario(t *testing.T, filesOp Operator, dir string, filesCleaner 
 	removed, err := filesOp.Read(data2.Path)
 	require.NoError(t, err)
 	require.Nil(t, removed)
+
+	// clean directory tree ---------------------------------------------
+
+	err = filesOp.Save(dataSub)
+	require.NoError(t, err)
+
+	err = filesOp.Save(dataSibling)
+	require.NoError(t, err)
+
+	requireReadData(t, filesOp, dataSub)
+	requireReadData(t, filesOp, dataSibling)
+
+	err = filesCleaner.Clean(dir)
+	require.NoError(t, err)
+
+	for _, path := range []string{data1.Path, data3.Path, dataSub.Path} {
+		item, err := filesOp.Read(path)
+		require.NoError(t, err)
+		require.Nil(t, item)
+	}
+
+	requireReadData(t, filesOp, dataSibling)
 }
 
 func requireReadData(t *testing.T, op Operator, expected Data) *Item {
