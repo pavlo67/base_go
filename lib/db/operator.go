@@ -4,5 +4,5 @@ import "database/sql"
 
 type Operator interface {
 	Create(db *sql.DB) error
-	Clean() error // term *selectors.Term
+	Clean(opts interface{}) error // term *selectors.Term
 }

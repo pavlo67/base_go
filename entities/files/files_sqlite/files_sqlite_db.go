@@ -30,7 +30,7 @@ const sqlClean = "DELETE FROM files"
 
 const onClean = "on files_sqlite.Clean():"
 
-func (op *filesSQLite) Clean() error {
+func (op *filesSQLite) Clean(opts interface{}) error {
 	env := strings.ToUpper(os.Getenv("ENV"))
 	if env != "TEST" {
 		return fmt.Errorf("filesSQLite.Clean() is allowed only when ENV=TEST, but env = %s", env)

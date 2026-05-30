@@ -1,12 +1,10 @@
 # Правила оформлення інтерфейсів та імплементацій
 
-Приклад пакету з інтерфейсом та імплементаціями: /<path_to_example>/<some>
+Приклад пакету з інтерфейсом та імплементаціями: github.com/pavlo67/base_go/entities/files
 
 # Опис типів даних та інтерфейсу
 
-Приклад: https://github.com/pavlo67/base_go/tree/master/entities/files
-
-Опис типів даних та інтерфейсів пишемо в файлі: <path_to_example>/<some>/operator.go
+Опис типів даних та інтерфейсів пишемо в файлі: entities/files/operator.go
 
 Якщо є основна сутність, з якою працює інтерфейс (така сутність завжди наявна в CRUD-інтерфейсах), то вона зветься Data (назва однакова для всіх інтерфейсів):
 
@@ -36,11 +34,11 @@
 
 # Імплементація
 
-Приклад: https://github.com/pavlo67/base_go/tree/master/entities/files/files_sqlite
+Імплементацію зберігаємо в каталозі: entities/files/files_<impl>
 
-Імплементацію зберігаємо в каталозі: <path_to_example>/<some>/<some>_<impl>/
+Приклад: entities/files/files_sqlite
 
-В назвах файлів імплементації використовуємо назву каталогу як префікс (для ясности в назвах табів в IDE): <path_to_example>/<some>/<some>_<impl>/<some>_<impl>....go
+В назвах файлів імплементації використовуємо назву каталогу як префікс (для ясности в назвах табів в IDE): entities/files/filesimpl_/filesimpl_....go
 
 Використовуємо наступні службові пакети:
 
@@ -59,7 +57,7 @@
         stmSave, stmRead, stmRemove, stmList, stmClean *sql.Stmt
     }
 
-Кожну помилку, яка приходить з викликів до службових функцій (особливо це стосується до викликів стандартних бібліотек), 
+Кожну помилку, яка приходить з викликів до службових функцій (зокрема, це стосується викликів стандартних бібліотек), 
 обгортаємо за допомогою константи, яка має бути визначена для кожного нашого методу. 
 
 Всі параметри в функцію ініціяції передаються явно, не через змінні оточення. Приклад функції ініціяції:
@@ -130,7 +128,7 @@
 
 # Тести
 
-Тестовий сценарій (це не юніт-тести!) зберігається в файлі <path_to_example>/<some>/operator_test_scenario.go і має бути незалежним від імплементацій. 
+Тестовий сценарій (це не юніт-тести!) зберігається в файлі entities/files/operator_test_scenario.go і має бути незалежним від імплементацій. 
 
 На прикладі files його можна, в загальних словах, описати наступним чином: 
 
@@ -170,11 +168,11 @@
         //      remove item2 and check list and check item1 and item3 are unchanged 
         // всі data в одному каталозі (з точки зору filepath.Dir),
 
-Повний код сценарію: https://github.com/pavlo67/base_go/tree/master/entities/files/operator_test_scenario.go
+Повний код сценарію: entities/files/operator_test_scenario.go
 
 Пускач тестів створюється в кожній імплементації — він повинен створити логер, ініціювати основний інтерфейс і викликати тестовий сценарій.
         
-Приклад пускача: https://github.com/pavlo67/base_go/tree/master/entities/files/files_sqlite/files_sqlite_test.go 
+Приклад пускача: entities/files/files_sqlite/files_sqlite_test.go 
 
 
 

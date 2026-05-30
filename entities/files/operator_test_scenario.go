@@ -10,14 +10,12 @@ import (
 	"github.com/pavlo67/base_go/lib/db"
 )
 
-func FilesTestScenario(t *testing.T, filesOp Operator, filesCleaner db.Operator) {
+func FilesTestScenario(t *testing.T, filesOp Operator, dir string, filesCleaner db.Operator) {
 	t.Helper()
 
 	// data preparation -------------------------------------------------
 
 	now := time.Now()
-
-	dir := "/test/data"
 
 	file1 := File{
 		Path:     filepath.Join(dir, "file1.txt"),
@@ -48,7 +46,7 @@ func FilesTestScenario(t *testing.T, filesOp Operator, filesCleaner db.Operator)
 
 	// ------------------------------------------------------------------
 
-	err := filesCleaner.Clean()
+	err := filesCleaner.Clean(dir)
 	require.NoError(t, err)
 
 	// + file1 ----------------------------------------------------------

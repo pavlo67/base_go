@@ -14,8 +14,8 @@ import (
 )
 
 func TestFilesSQLite(t *testing.T) {
-	os.Setenv("ENV", "TEST")
-	os.Setenv("SHOW_CONNECTS", "1")
+	require.NoError(t, os.Setenv("ENV", "TEST"))
+	require.NoError(t, os.Setenv("SHOW_CONNECTS", "1"))
 
 	cfg := logger.Config{
 		Key:      strings.ReplaceAll(time.Now().Format(time.RFC3339)[:19], ":", "_"),
@@ -32,5 +32,7 @@ func TestFilesSQLite(t *testing.T) {
 	require.NotNil(t, filesCleaner)
 	require.NoError(t, err)
 
-	files.FilesTestScenario(t, filesOp, filesCleaner)
+	dir := "/test/data"
+
+	files.FilesTestScenario(t, filesOp, dir, filesCleaner)
 }
