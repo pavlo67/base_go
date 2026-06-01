@@ -1,22 +1,16 @@
-package logger_test
+package logger
 
 import (
 	"fmt"
+	"github.com/pavlo67/base_go/lib/data"
+	"github.com/pavlo67/base_go/lib/filelib"
 	"log"
 	"os"
 	"strings"
 	"testing"
-
-	"github.com/pavlo67/common/common"
-
-	"github.com/pavlo67/common/common/imagelib"
-
-	"github.com/pavlo67/common/common/filelib"
-
-	"github.com/pavlo67/common/common/logger"
 )
 
-func New(t *testing.T, key, basePath string, saveFiles bool, commentPaths []string) logger.Operator {
+func New(t *testing.T, key, basePath string, saveFiles bool, commentPaths []string) Operator {
 	return &loggerTest{t: t, key: key, basePath: basePath, saveFiles: saveFiles, commentPaths: commentPaths}
 }
 
@@ -24,7 +18,7 @@ func New(t *testing.T, key, basePath string, saveFiles bool, commentPaths []stri
 //	return &loggerTest{t}
 //}
 
-var _ logger.Operator = &loggerTest{}
+var _ Operator = &loggerTest{}
 
 type loggerTest struct {
 	t             *testing.T
@@ -168,7 +162,7 @@ func (op *loggerTest) SetPath(basePath string) {
 
 func (op loggerTest) File(path string, append bool, data []byte) {
 	if op.saveFiles {
-		basedPaths, err := logger.ModifiedPaths([]string{path}, op.basePath, "")
+		basedPaths, err := ModifiedPaths([]string{path}, op.basePath, "")
 		if err != nil {
 			op.Error(err)
 		} else {
@@ -205,23 +199,25 @@ func (op loggerTest) File(path string, append bool, data []byte) {
 //	}
 //}
 
-func (op loggerTest) Image(path string, getImage logger.GetImage, opts data.Map) {
+func (op loggerTest) Image(path string, getImage GetImage, opts data.Map) {
 	if op.saveFiles {
-		img, info, err := getImage.Image(opts)
-		if info != "" {
-			op.Info(info)
-		}
-		if img != nil {
-			basedPaths, err := logger.ModifiedPaths([]string{path}, op.basePath, "")
-			if err != nil {
-				op.Error(err)
-			} else if err = imagelib.SavePNG(img, basedPaths[0]); err != nil {
-				op.Error(err)
-			}
-		}
-		if err != nil {
-			op.Error(err)
-		}
+
+		// TODO!!!
+		//img, info, err := getImage.Image(opts)
+		//if info != "" {
+		//	op.Info(info)
+		//}
+		//if img != nil {
+		//	basedPaths, err := ModifiedPaths([]string{path}, op.basePath, "")
+		//	if err != nil {
+		//		op.Error(err)
+		//	} else if err = imagelib.SavePNG(img, basedPaths[0]); err != nil {
+		//		op.Error(err)
+		//	}
+		//}
+		//if err != nil {
+		//	op.Error(err)
+		//}
 	}
 }
 

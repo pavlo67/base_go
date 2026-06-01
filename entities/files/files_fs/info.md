@@ -13,3 +13,4 @@
 * depth=0 у List() означає рекурсивний обхід без обмеження; depth=1 — тільки прямі нащадки; depth<0 — помилка.
 * Remove(path, false) видаляє тільки сам файл або порожній каталог; Remove(path, true) може видаляти каталог рекурсивно.
 
+> To continue this session, run codex resume 019e7ab8-72f7-7110-93b7-eb767139ab69
