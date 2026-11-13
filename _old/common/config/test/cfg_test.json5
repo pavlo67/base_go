@@ -1,0 +1,16 @@
+{
+    mysql: {
+        notebook: {
+            Host: "localhost",
+            Port: "3306",
+            User: "root",
+            Pass: "",
+            Database: "notebook_go",
+        },
+    },
+
+    test1: 1,
+    test2: "test2",
+    debug: true,
+}
+

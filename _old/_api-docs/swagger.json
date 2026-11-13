@@ -1,0 +1,51 @@
+{
+ "info": {
+  "title": "Demo REST API",
+  "version": "0.0.1"
+ },
+ "paths": {
+  "/backend/auth": {
+   "post": {
+    "operationId": "auth_authenticate",
+    "parameters": [
+     {
+      "in": "body",
+      "name": "body_item",
+      "required": true,
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/backend/set_creds": {
+   "post": {
+    "operationId": "auth_set_creds",
+    "parameters": [
+     {
+      "in": "body",
+      "name": "body_item",
+      "required": true,
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "tags": [
+     "auth"
+    ]
+   }
+  }
+ },
+ "port": ":3001",
+ "schemes": [
+  "http"
+ ],
+ "swagger": "2.0"
+}
