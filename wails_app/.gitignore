@@ -1,0 +1,67 @@
+# Configs ----------------------------------------------------------
+
+.env
+.env.local
+.env.*.local
+
+_envs/*.yaml
+_envs/*.yml
+
+# tools -----------------------------------------------------------------------------
+
+.idea/
+.vscode/
+.agents/
+.codex/
+.DS_Store
+Thumbs.db
+
+# JS --------------------------------------------------------------------------------
+
+frontend/wailsjs/
+
+frontend/node_modules/
+frontend/dist/
+
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+frontend/.vite/
+
+# Go --------------------------------------------------------------------------------
+
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+bin/*
+*.test
+*.out
+vendor/
+
+go.work
+go.work.sum
+
+build/*
+coverage
+
+
+# Data, logs, temporary files -------------------------------------------------------
+
+*.log
+*.xls
+
+*.sqlite
+
+tmp/
+temp/
+dist/
+
+
+
+
+

@@ -1,6 +1,6 @@
 module github.com/pavlo67/base_go
 
-go 1.26
+go 1.27
 
 require (
 	github.com/stretchr/testify v1.7.0

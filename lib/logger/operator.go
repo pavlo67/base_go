@@ -1,13 +1,14 @@
 package logger
 
 import (
+	"image"
+	"path/filepath"
+	"strings"
+
 	"github.com/pavlo67/base_go/lib/data"
 	"github.com/pavlo67/base_go/lib/errors"
 	"github.com/pavlo67/base_go/lib/filelib"
 	"github.com/pavlo67/base_go/lib/sets"
-	"image"
-	"path/filepath"
-	"strings"
 )
 
 type Level int
